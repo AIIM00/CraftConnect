@@ -1,5 +1,5 @@
 import * as React from "react";
-import Btn from "../components/Button";
+import Btn from "../components/Btn";
 
 // MUI Imports
 import MailIcon from "@mui/icons-material/Mail";

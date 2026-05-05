@@ -14,6 +14,7 @@ const EmailVerify = () => {
 
   const [code, setCode] = React.useState(["", "", "", "", "", ""]);
   const inputsRef = React.useRef([]);
+  const [loading, setLoading] = React.useState(false);
 
   const handleChange = (value, index) => {
     console.log(value);
@@ -35,6 +36,25 @@ const EmailVerify = () => {
       inputsRef.current[index - 1].focus();
     }
   };
+  const handleSendCode = async () => {
+    try {
+      setLoading(true);
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/auth/send-verify-otp`,
+      );
+      setTimer(180);
+      toast.success(data.message || "Code sent to your email");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to send code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    handleSendCode();
+  }, []);
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -57,21 +77,6 @@ const EmailVerify = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
-    }
-  };
-  const handleResend = async () => {
-    try {
-      const { data } = await axios.post(
-        `${backendUrl}/api/auth/send-verify-otp`,
-      );
-      if (data.success) {
-        setTimer(180); // restart countdown after resend
-        toast.success(data.message);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message);
     }
   };
   const [timer, setTimer] = React.useState(180); // 3 minutes
@@ -145,16 +150,20 @@ const EmailVerify = () => {
           </button>
 
           <button
+            onClick={handleSendCode}
             type="button"
-            disabled={timer > 0}
+            disabled={timer > 0 || loading}
             className={`text-sm font-semibold transition ${
               timer > 0
                 ? "text-text-muted cursor-not-allowed"
                 : "text-primary hover:text-primary-light"
             }`}
-            onClick={handleResend}
           >
-            {timer > 0 ? `Resend Code in ${formatTime(timer)}` : "Resend Code"}
+            {loading
+              ? "Sending..."
+              : timer > 0
+                ? `Resend Code in ${formatTime(timer)}`
+                : "Resend Code"}{" "}
           </button>
         </form>
       </div>

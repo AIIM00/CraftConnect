@@ -171,7 +171,7 @@ export const sendVerifyOtp = async (req, res) => {
         text: `Hi ${user.name},\n\nYour OTP for email verification is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe EquiServe Team`,
       };
       await transporter.sendMail(mailOptions);
-      res.json({ success: true, message: "Code resent successfully" });
+      res.json({ success: true, message: "Code sent successfully" });
     }
   } catch (error) {
     console.error("Error sending OTP:", error);
@@ -245,7 +245,7 @@ export const sendResetOtp = async (req, res) => {
           where: { email },
           data: {
             resetOtp: passwordResetOtp,
-            resetOtpExpireAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiry time to 10 minutes
+            resetOtpExpireAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiry time to 2 minutes
           },
         });
         const mailOptions = {
@@ -266,15 +266,13 @@ export const sendResetOtp = async (req, res) => {
 //Update password after verifying OTP
 export const resetPassword = async (req, res) => {
   try {
-    const { email, enteredOtp, newPassword } = req.body;
+    const { email, newPassword } = req.body;
     const user = await prisma.user.findUnique({ where: { email } });
-    if (
-      !user ||
-      user.resetOtp !== enteredOtp ||
-      !user.resetOtpExpireAt ||
-      user.resetOtpExpireAt < new Date()
-    ) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters",
+      });
     } else {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await prisma.user.update({

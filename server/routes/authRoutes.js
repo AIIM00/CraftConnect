@@ -1,5 +1,6 @@
 import express from "express";
 import userAuth from "../middleware/userAuth.js";
+import resetOtpAuth from "../middleware/resetOtpAuth.js";
 import {
   register,
   login,
@@ -21,7 +22,13 @@ authRouter.post("/send-verify-otp", userAuth, sendVerifyOtp);
 authRouter.post("/verify-account", userAuth, verifyEmail);
 authRouter.get("/is-auth", userAuth, checkAuth);
 
+authRouter.post("/verify-reset-otp", resetOtpAuth, (req, res) => {
+  res.json({
+    success: true,
+    message: "OTP verified successfully",
+  });
+});
 authRouter.post("/send-reset-otp", sendResetOtp);
-authRouter.post("/reset-password", resetPassword);
+authRouter.post("/reset-password", resetOtpAuth, resetPassword);
 
 export default authRouter;

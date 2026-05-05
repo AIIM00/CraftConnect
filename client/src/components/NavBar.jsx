@@ -21,7 +21,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { deepPurple } from "@mui/material/colors";
 
 //Components
-import Btn from "./Button";
+import Btn from "./Btn";
 import SideMenu from "../components/SideMenu";
 
 const pages = [
