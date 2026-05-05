@@ -15,7 +15,7 @@ export const register = async (req, res) => {
     if (existingUser) {
       return res
         .status(400)
-        .json({ success: true, message: "User already exists" });
+        .json({ success: false, message: "User already exists" });
     } else {
       // Create a new user
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -64,7 +64,12 @@ The EquiServe Team`,
       res.status(201).json({
         success: true,
         message: "User registered successfully",
-        user: newUser,
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+        },
       });
     }
   } catch (error) {

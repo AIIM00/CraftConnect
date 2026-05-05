@@ -3,24 +3,34 @@ import userAuth from "../middleware/userAuth.js";
 import { isAdmin, isSuperAdmin, inviteCheck } from "../middleware/adminAuth.js";
 import {
   adminInfo,
-  addAdmin,
   getAllCustomers,
   getUserById,
   deleteUserById,
-  acceptAdminInvite,
+} from "../controllers/adminUserController.js";
+
+import {
   getAllCraftsmen,
   getCraftsmanApplication,
-  getCraftsmenCountByCategory,
-  getAllReviews,
-  inProgressTasks,
-  createWarning,
-  getFlaggedCraftsmen,
-  removeWarning,
-  restoreCraftsman,
   updateApplicationStatus,
-} from "../controllers/adminController.js";
+  getCraftsmenCountByCategory,
+  restoreCraftsman,
+} from "../controllers/adminCraftsmanController.js";
+
+import {
+  inProgressTasks,
+  getAllReviews,
+  createWarning,
+  removeWarning,
+  getFlaggedCraftsmen,
+} from "../controllers/adminModerationController.js";
+import {
+  addAdmin,
+  acceptAdminInvite,
+} from "../controllers/adminInviteController.js";
 
 const adminRouter = express.Router();
+
+//Admin Invite Controller
 
 adminRouter.post("/add-admin", userAuth, isSuperAdmin, addAdmin);
 adminRouter.post(
@@ -29,8 +39,13 @@ adminRouter.post(
   acceptAdminInvite,
 );
 
+//Admin User Controller
 adminRouter.get("/info", userAuth, isAdmin, adminInfo);
 adminRouter.get("/customers", userAuth, isAdmin, getAllCustomers);
+adminRouter.get("/data/:id", userAuth, isAdmin, getUserById);
+adminRouter.delete("/delete/:id", userAuth, isAdmin, deleteUserById);
+
+//Admin Craftsman Controller
 adminRouter.get("/craftsmen", userAuth, isAdmin, getAllCraftsmen);
 adminRouter.get(
   "/craftsmen/applications",
@@ -57,12 +72,9 @@ adminRouter.patch(
   restoreCraftsman,
 );
 
-adminRouter.get("/reviews", userAuth, isAdmin, getAllReviews);
+//Admin Moderation Controller
 adminRouter.get("/tasks/in-progress", userAuth, isAdmin, inProgressTasks);
-
-adminRouter.get("/data/:id", userAuth, isAdmin, getUserById);
-adminRouter.delete("/delete/:id", userAuth, isAdmin, deleteUserById);
-
+adminRouter.get("/reviews", userAuth, isAdmin, getAllReviews);
 adminRouter.post("/warnings/:craftsmanId", userAuth, isAdmin, createWarning);
 adminRouter.delete("/warnings/:warningId", userAuth, isAdmin, removeWarning);
 adminRouter.get(

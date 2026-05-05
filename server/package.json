@@ -7,9 +7,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name",
-    "prisma:studio": "prisma studio",
+    "dev:worker": "nodemon src/worker.js",
+    "start": "node src/index.js",
+    "start:worker": "node src/worker.js",
     "prisma:seed": "node prisma/seed.js"
   },
   "keywords": [],

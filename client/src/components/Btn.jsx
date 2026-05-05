@@ -14,7 +14,7 @@ const Btn = ({ type, onClick, children, className, variant = "primary" }) => {
     <button
       type={type}
       onClick={onClick}
-      className={`${base} ${variants[variant]} ${className}`}
+      className={`${base} ${variants[variant]} ${className} || ""`}
     >
       {children}
     </button>

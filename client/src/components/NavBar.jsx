@@ -122,7 +122,6 @@ const NavBar = () => {
 
           {/* Right side */}
           <Box className="flex items-center justify-end shrink-0">
-            {console.log(userData)}
             {userData ? (
               <>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

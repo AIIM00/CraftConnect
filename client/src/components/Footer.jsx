@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 // Icons
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import MusicNoteIcon from "@mui/icons-material/MusicNote"; // TikTok fallback
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 export default function Footer() {
   return (

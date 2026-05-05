@@ -3,6 +3,8 @@ import { useEffect, useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 
+import { toast } from "react-toastify";
+
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 export default function Services() {
@@ -19,9 +21,12 @@ export default function Services() {
 
       if (data.success) {
         setCategories(data.categories);
+      } else {
+        toast.error(data.message || "Failed to load services");
       }
     } catch (error) {
       console.log(error.message);
+      toast.error("Failed to load services");
     } finally {
       setLoading(false);
     }

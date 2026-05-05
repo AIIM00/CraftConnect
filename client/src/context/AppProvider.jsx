@@ -15,32 +15,48 @@ export const AppProvider = (props) => {
     } catch (err) {
       console.error(err.message);
       setUserData(false);
+      setIsLoggedIn(false);
     }
   };
-  const getAuthState = async () => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/api/auth/is-auth`);
-      if (data.success) {
-        setIsLoggedIn(true);
-        await getUserData();
-      } else {
-        setIsLoggedIn(false);
-        setUserData(false);
-      }
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
-
   useEffect(() => {
+    let ignore = false;
+
     const checkAuth = async () => {
-      if (isLoggedIn) {
-        await getAuthState();
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/auth/is-auth`);
+
+        if (ignore) return;
+
+        if (data.success) {
+          setIsLoggedIn(true);
+
+          const userRes = await axios.get(`${backendUrl}/api/user/data`);
+
+          if (ignore) return;
+
+          if (userRes.data.success) {
+            setUserData(userRes.data.userData);
+          }
+        } else {
+          setIsLoggedIn(false);
+          setUserData(false);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.log(err.message);
+          setIsLoggedIn(false);
+          setUserData(false);
+        }
       }
-      await getAuthState();
     };
+
     checkAuth();
-  }, []);
+
+    return () => {
+      ignore = true;
+    };
+  }, [backendUrl]);
+
   const value = {
     backendUrl,
     isLoggedIn,

@@ -8,8 +8,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const EmailVerify = () => {
-  const navigate = useNavigate();
   const { backendUrl } = React.useContext(AppContext);
+
+  const navigate = useNavigate();
 
   const [code, setCode] = React.useState(["", "", "", "", "", ""]);
   const inputsRef = React.useRef([]);
@@ -45,7 +46,7 @@ const EmailVerify = () => {
     try {
       const { data } = await axios.post(
         `${backendUrl}/api/auth/verify-account`,
-        { otp: otpCode },
+        { enteredOtp: otpCode },
       );
 
       if (data.success) {
@@ -151,9 +152,7 @@ const EmailVerify = () => {
                 ? "text-text-muted cursor-not-allowed"
                 : "text-primary hover:text-primary-light"
             }`}
-            onClick={async () => {
-              handleResend;
-            }}
+            onClick={handleResend}
           >
             {timer > 0 ? `Resend Code in ${formatTime(timer)}` : "Resend Code"}
           </button>

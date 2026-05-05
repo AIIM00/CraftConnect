@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
-import CraftsmenPie from "./CrafstmenPie";
-import Btn from "./Button";
+import CraftsmenPie from "./CraftsmenPie";
+import Btn from "./Btn";
 
 //Icons
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
