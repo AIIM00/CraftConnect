@@ -2,6 +2,42 @@ import prisma from "../src/prisma.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
+const categoriesData = [
+  {
+    name: "Home Repair",
+
+    services: ["Plumber", "Electrician", "Handyman", "Locksmith"],
+  },
+  {
+    name: "Construction & Renovation",
+    services: ["Carpenter", "Mason", "Painter", "Tiler"],
+  },
+  {
+    name: "Installation Services",
+    services: ["Door Installer", "Window Installer", "Kitchen Installer"],
+  },
+  {
+    name: "Outdoor & Garden",
+    services: ["Landscaper", "Gardener", "Fence Installer"],
+  },
+  {
+    name: "Metal Work",
+    services: ["Welder", "Blacksmith", "Metal Fabricator"],
+  },
+  {
+    name: "Cleaning Services",
+    services: ["House Cleaner", "Deep Cleaning", "Pest Control"],
+  },
+  {
+    name: "Technical & Smart Home",
+    services: ["Smart Home Installer", "CCTV Installer", "Network Technician"],
+  },
+  {
+    name: "Custom Crafts",
+    services: ["Woodworker", "Tailor", "Jewelry Repair"],
+  },
+];
+
 async function main() {
   console.log("Seeding...");
 
@@ -20,35 +56,44 @@ async function main() {
   await prisma.adminInvite.deleteMany();
   await prisma.location.deleteMany();
   await prisma.craftsman.deleteMany();
+
+  // Important: delete services before categories
+  await prisma.service.deleteMany();
   await prisma.category.deleteMany();
+
   await prisma.user.deleteMany();
 
-  // Categories
-  const plumbing = await prisma.category.create({
-    data: { name: "Plumbing" },
-  });
+  // Categories + Services
+  const categoryMap = {};
 
-  const electrical = await prisma.category.create({
-    data: { name: "Electrical" },
-  });
+  for (const category of categoriesData) {
+    const createdCategory = await prisma.category.create({
+      data: {
+        name: category.name,
+        iconKey: category.iconKey,
+        services: {
+          create: category.services.map((serviceName) => ({
+            name: serviceName,
+          })),
+        },
+      },
+      include: {
+        services: true,
+      },
+    });
 
-  const carpentry = await prisma.category.create({
-    data: { name: "Carpentry" },
-  });
+    categoryMap[category.name] = createdCategory;
+  }
 
-  const painting = await prisma.category.create({
-    data: { name: "Painting" },
-  });
-
-  const cleaning = await prisma.category.create({
-    data: { name: "Cleaning" },
-  });
+  const homeRepair = categoryMap["Home Repair"];
+  const construction = categoryMap["Construction & Renovation"];
+  const cleaning = categoryMap["Cleaning Services"];
 
   // Superadmin
   const superadmin = await prisma.user.create({
     data: {
       name: "Super Admin",
-      email: "aliibra71654325@gmail.com",
+      email: "superadmin@equiserve.com",
       password,
       role: "SUPERADMIN",
       isAccountVerified: true,
@@ -60,7 +105,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       name: "Maya Admin",
-      email: "seetvshow990@gmail.com",
+      email: "admin@equiserve.com",
       password,
       role: "ADMIN",
       isAccountVerified: true,
@@ -72,7 +117,7 @@ async function main() {
   const ali = await prisma.user.create({
     data: {
       name: "Ali Customer",
-      email: "at71654325@gmail.com",
+      email: "ali.customer@test.com",
       password,
       role: "CUSTOMER",
       isAccountVerified: true,
@@ -90,7 +135,7 @@ async function main() {
   const sara = await prisma.user.create({
     data: {
       name: "Sara Customer",
-      email: "hanibrahimm05@gmail.com",
+      email: "sara.customer@test.com",
       password,
       role: "CUSTOMER",
       isAccountVerified: true,
@@ -108,7 +153,7 @@ async function main() {
   const jaafar = await prisma.user.create({
     data: {
       name: "Jaafar Customer",
-      email: "ali22ibrahim12@gmail.com",
+      email: "jaafar.customer@test.com",
       password,
       role: "CUSTOMER",
       isAccountVerified: false,
@@ -138,10 +183,12 @@ async function main() {
       phoneNumber: "01044444444",
       craftsman: {
         create: {
-          categoryId: plumbing.id,
+          category: {
+            connect: { id: homeRepair.id },
+          },
           experience: 6,
           status: "APPROVED",
-          availability: "AVAILABLE",
+          isAvailable: false,
           warningLevel: "NONE",
         },
       },
@@ -159,10 +206,12 @@ async function main() {
       phoneNumber: "01055555555",
       craftsman: {
         create: {
-          categoryId: electrical.id,
+          category: {
+            connect: { id: homeRepair.id },
+          },
           experience: 4,
           status: "APPROVED",
-          availability: "AVAILABLE",
+          isAvailable: true,
           warningLevel: "NONE",
         },
       },
@@ -180,10 +229,12 @@ async function main() {
       phoneNumber: "01066666666",
       craftsman: {
         create: {
-          categoryId: carpentry.id,
+          category: {
+            connect: { id: construction.id },
+          },
           experience: 8,
           status: "SUSPENDED",
-          availability: "AVAILABLE",
+          isAvailable: true,
           warningLevel: "NONE",
         },
       },
@@ -203,8 +254,11 @@ async function main() {
       verifyOtpExpireAt: new Date(Date.now() + 10 * 60 * 1000),
       craftsman: {
         create: {
+          category: {
+            connect: { id: homeRepair.id },
+          },
           status: "PENDING",
-          availability: "AVAILABLE",
+          isAvailable: true,
           warningLevel: "NONE",
         },
       },
@@ -212,11 +266,11 @@ async function main() {
     include: { craftsman: true },
   });
 
-  // Applications
+  // Application
   await prisma.application.create({
     data: {
       userId: mostafa.id,
-      categoryId: painting.id,
+      categoryId: construction.id,
       yearsOfExperience: 3,
       city: "Cairo",
       address1: "Nasr City",
@@ -238,7 +292,6 @@ async function main() {
     },
   });
 
-  // Optional extra draft application test
   const draftCraftsman = await prisma.user.create({
     data: {
       name: "Karim Draft",
@@ -250,7 +303,7 @@ async function main() {
       craftsman: {
         create: {
           status: "PENDING",
-          availability: "AVAILABLE",
+          isAvailable: true,
           warningLevel: "NONE",
         },
       },
@@ -309,8 +362,8 @@ async function main() {
   const pendingPlumbingTask = await prisma.task.create({
     data: {
       userId: ali.id,
-      categoryId: plumbing.id,
-      title: "Service request for Plumbing",
+      categoryId: homeRepair.id,
+      title: "Service request for Plumber",
       description: "Kitchen sink leaking",
       location: "Cairo - Maadi",
       status: "PENDING",
@@ -320,8 +373,8 @@ async function main() {
   const pendingElectricalTask = await prisma.task.create({
     data: {
       userId: sara.id,
-      categoryId: electrical.id,
-      title: "Service request for Electrical",
+      categoryId: homeRepair.id,
+      title: "Service request for Electrician",
       description: "Power outlet not working",
       location: "Giza - Dokki",
       status: "PENDING",
@@ -331,23 +384,11 @@ async function main() {
   const inProgressAhmed = await prisma.task.create({
     data: {
       userId: ali.id,
-      categoryId: plumbing.id,
+      categoryId: homeRepair.id,
       craftsmanId: ahmed.id,
-      title: "Service request for Plumbing",
+      title: "Service request for Plumber",
       description: "Bathroom pipe replacement",
       location: "Cairo - Heliopolis",
-      status: "IN_PROGRESS",
-    },
-  });
-
-  const inProgressYoussef = await prisma.task.create({
-    data: {
-      userId: sara.id,
-      categoryId: electrical.id,
-      craftsmanId: youssef.id,
-      title: "Service request for Electrical",
-      description: "Light switch repair",
-      location: "Giza - Mohandessin",
       status: "IN_PROGRESS",
     },
   });
@@ -355,9 +396,9 @@ async function main() {
   const completedAhmed1 = await prisma.task.create({
     data: {
       userId: ali.id,
-      categoryId: plumbing.id,
+      categoryId: homeRepair.id,
       craftsmanId: ahmed.id,
-      title: "Service request for Plumbing",
+      title: "Service request for Plumber",
       description: "Water heater maintenance",
       location: "Cairo - New Cairo",
       status: "COMPLETED",
@@ -367,9 +408,9 @@ async function main() {
   const completedAhmed2 = await prisma.task.create({
     data: {
       userId: sara.id,
-      categoryId: plumbing.id,
+      categoryId: homeRepair.id,
       craftsmanId: ahmed.id,
-      title: "Service request for Plumbing",
+      title: "Service request for Plumber",
       description: "Blocked drain repair",
       location: "Cairo - Nasr City",
       status: "COMPLETED",
@@ -379,9 +420,9 @@ async function main() {
   const completedAhmed3 = await prisma.task.create({
     data: {
       userId: ali.id,
-      categoryId: plumbing.id,
+      categoryId: homeRepair.id,
       craftsmanId: ahmed.id,
-      title: "Service request for Plumbing",
+      title: "Service request for Plumber",
       description: "Pipe leakage inspection",
       location: "Cairo - Zamalek",
       status: "COMPLETED",
@@ -391,9 +432,9 @@ async function main() {
   const completedYoussef1 = await prisma.task.create({
     data: {
       userId: sara.id,
-      categoryId: electrical.id,
+      categoryId: homeRepair.id,
       craftsmanId: youssef.id,
-      title: "Service request for Electrical",
+      title: "Service request for Electrician",
       description: "Ceiling fan wiring",
       location: "Giza - Sheikh Zayed",
       status: "COMPLETED",
@@ -403,28 +444,20 @@ async function main() {
   const completedHany1 = await prisma.task.create({
     data: {
       userId: jaafar.id,
-      categoryId: carpentry.id,
+      categoryId: construction.id,
       craftsmanId: hany.id,
-      title: "Service request for Carpentry",
+      title: "Service request for Carpenter",
       description: "Wardrobe hinge repair",
       location: "Alexandria - Smouha",
       status: "COMPLETED",
     },
   });
 
-  // Task assignments for accept/reject flow
+  // Task assignments
   await prisma.taskAssignment.create({
     data: {
       taskId: pendingPlumbingTask.id,
       craftsmanId: ahmed.id,
-      status: "PENDING",
-    },
-  });
-
-  await prisma.taskAssignment.create({
-    data: {
-      taskId: pendingPlumbingTask.id,
-      craftsmanId: hany.id,
       status: "PENDING",
     },
   });
@@ -559,7 +592,7 @@ async function main() {
     },
   });
 
-  // Warnings for Ahmed to trigger HIGH
+  // Warnings
   await prisma.warning.create({
     data: {
       message: "Arrived late to the customer without notice",
@@ -587,20 +620,9 @@ async function main() {
     },
   });
 
-  // Sync warning levels with your controller logic
   await prisma.craftsman.update({
     where: { userId: ahmed.id },
     data: { warningLevel: "HIGH" },
-  });
-
-  await prisma.craftsman.update({
-    where: { userId: youssef.id },
-    data: { warningLevel: "NONE" },
-  });
-
-  await prisma.craftsman.update({
-    where: { userId: hany.id },
-    data: { warningLevel: "NONE" },
   });
 
   console.log("Seed completed.");
@@ -610,7 +632,7 @@ async function main() {
   console.log("ADMIN: admin@equiserve.com / Pass1234!");
   console.log("CUSTOMER: ali.customer@test.com / Pass1234!");
   console.log("CUSTOMER: sara.customer@test.com / Pass1234!");
-  console.log("UNVERIFIED CUSTOMER: omar.customer@test.com / Pass1234!");
+  console.log("UNVERIFIED CUSTOMER: jaafar.customer@test.com / Pass1234!");
   console.log("CRAFTSMAN APPROVED: ahmed.plumber@test.com / Pass1234!");
   console.log("CRAFTSMAN APPROVED: youssef.electric@test.com / Pass1234!");
   console.log("CRAFTSMAN SUSPENDED: hany.carpenter@test.com / Pass1234!");

@@ -8,28 +8,35 @@ export const AppProvider = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(false);
 
-  const getAuthState = async () => {
-    try {
-      const { data } = await axios.get(backendUrl + "/api/auth/is-auth");
-      if (data.success) {
-        setIsLoggedIn(true);
-        getUserData();
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
   const getUserData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/user/data");
+      const { data } = await axios.get(`${backendUrl}/api/user/data`);
       data.success ? setUserData(data.userData) : toast.error(data.message);
     } catch (err) {
-      toast.error(err.message);
+      console.error(err.message);
+      setUserData(false);
+    }
+  };
+  const getAuthState = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/auth/is-auth`);
+      if (data.success) {
+        setIsLoggedIn(true);
+        await getUserData();
+      } else {
+        setIsLoggedIn(false);
+        setUserData(false);
+      }
+    } catch (err) {
+      console.log(err.message);
     }
   };
 
   useEffect(() => {
     const checkAuth = async () => {
+      if (isLoggedIn) {
+        await getAuthState();
+      }
       await getAuthState();
     };
     checkAuth();

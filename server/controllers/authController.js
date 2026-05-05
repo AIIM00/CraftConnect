@@ -145,15 +145,17 @@ export const sendVerifyOtp = async (req, res) => {
     const userId = req.user.id;
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user.isAccountVerified) {
-      return res.status(400).json({ message: "Account is already verified" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Account is already verified" });
     } else {
       const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
-      // Store the OTP in the database with an expiration time (e.g., 10 minutes)
+      // Store the OTP in the database with an expiration time
       await prisma.user.update({
         where: { id: userId },
         data: {
           verifyOtp: otp,
-          verifyOtpExpireAt: new Date(Date.now() + 10 * 60 * 1000), // Set expiry time to 10 minutes
+          verifyOtpExpireAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiry time to 2 minutes
         },
       });
       // Send the OTP to the user's email
@@ -164,11 +166,11 @@ export const sendVerifyOtp = async (req, res) => {
         text: `Hi ${user.name},\n\nYour OTP for email verification is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe EquiServe Team`,
       };
       await transporter.sendMail(mailOptions);
-      res.json({ message: "OTP sent to email successfully" });
+      res.json({ success: true, message: "Code resent successfully" });
     }
   } catch (error) {
     console.error("Error sending OTP:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Error sending OTP:" });
   }
 };
 
@@ -194,10 +196,9 @@ export const verifyEmail = async (req, res) => {
           verifyOtpExpireAt: null,
         },
       });
-      res.json({ message: "Email verified successfully" });
+      res.json({ success: true, message: "Email verified successfully" });
     }
   } catch (error) {
-    console.error("Error verifying email:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -239,7 +240,7 @@ export const sendResetOtp = async (req, res) => {
           where: { email },
           data: {
             resetOtp: passwordResetOtp,
-            resetOtpExpireAt: new Date(Date.now() + 10 * 60 * 1000), // Set expiry time to 10 minutes
+            resetOtpExpireAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiry time to 10 minutes
           },
         });
         const mailOptions = {

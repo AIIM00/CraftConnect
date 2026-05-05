@@ -132,12 +132,30 @@ model Location {
 }
 
 model Category {
-  id           String                   @id @default(uuid())
-  name         String                   @unique
+  id        String    @id @default(uuid())
+  name      String    @unique
+  services  Service[]
+
   craftsmen    Craftsman[]
   tasks        Task[]
   applications Application[]
   queue        CategoryAssignmentQueue?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id         String   @id @default(uuid())
+  name       String
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, categoryId])
 }
 
 model CategoryAssignmentQueue {

@@ -4,16 +4,32 @@ import { assignNextCraftsman } from "../services/taskAssignmentService.js";
 //Get All services categories
 export const browseServices = async (req, res) => {
   try {
-    const services = await prisma.category.findMany({
-      select: {
-        id: true,
-        name: true,
+    const categories = await prisma.category.findMany({
+      include: {
+        services: {
+          select: {
+            id: true,
+            name: true,
+          },
+          orderBy: {
+            name: "asc",
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
       },
     });
-    res.json(services);
+
+    res.json({
+      success: true,
+      categories,
+    });
   } catch (error) {
-    console.error("Error fetching services:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -187,8 +203,7 @@ export const leaveReview = async (req, res) => {
 //GET USER DATA
 export const getUserData = async (req, res) => {
   try {
-    const userId = "eafd1f01-9dbb-488f-8078-c64ca1f68255";
-    console.log("User:", userId);
+    const userId = req.user.id;
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {

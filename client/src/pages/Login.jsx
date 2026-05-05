@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import Btn from "../components/Button";
 
 // MUI Imports
@@ -22,7 +22,7 @@ const Login = () => {
     React.useContext(AppContext);
 
   // State to toggle between Login and Create Account
-  const [state, setState] = React.useState("Create");
+  const [state, setState] = React.useState("Login");
 
   const [role, setRole] = React.useState("");
   // Form data state
@@ -39,7 +39,7 @@ const Login = () => {
       if (state === "Create") {
         // Signup logic
         const { data } = await axios.post(
-          backendUrl + "/api/auth/register",
+          `${backendUrl}/api/auth/register`,
           formData,
         );
         toast.success("Account created!");
@@ -52,7 +52,7 @@ const Login = () => {
         }
       } else {
         // Login logic
-        const { data } = await axios.post(backendUrl + "/api/auth/login", {
+        const { data } = await axios.post(`${backendUrl}/api/auth/login`, {
           email: formData.email,
           password: formData.password,
         });
@@ -61,7 +61,7 @@ const Login = () => {
           await getUserData();
           navigate("/");
         } else {
-          console.log("Hi");
+          toast.error(data.message || "Login failed");
         }
       }
     } catch (err) {
@@ -72,17 +72,18 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-blue-200 to-purple-400">
-      <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-r from-primary to-primary-light">
+      <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-text-muted text-sm">
         <div className="flex justify-between items-center w-full px-2 mb-10">
           <KeyboardArrowLeftIcon
+            onClick={() => navigate("/")}
             sx={{ fontSize: 45 }}
-            className="hover:bg-gray-700 rounded-full cursor-pointer transition"
+            className="text-accent hover:text-accent-hover hover:bg-gray-700 rounded-full cursor-pointer transition"
           />
           <HomeFilledIcon
             onClick={() => navigate("/")}
             sx={{ fontSize: 45 }}
-            className="p-2 hover:bg-gray-700 rounded-full cursor-pointer transition"
+            className="text-accent p-2 hover:text-accent-hover hover:bg-gray-700 rounded-full cursor-pointer transition"
           />{" "}
         </div>
 
@@ -97,7 +98,7 @@ const Login = () => {
         </p>
         <form onSubmit={onSubmitHandler}>
           {state === "Create" && (
-            <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-[#333A5c]">
+            <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-bg">
               <PersonIcon className="w-5 h-5" />
               <input
                 value={formData.name}
@@ -111,7 +112,7 @@ const Login = () => {
               />
             </div>
           )}
-          <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-[#333A5c]">
+          <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-bg">
             <MailIcon className="w-5 h-5" />
 
             <input
@@ -125,7 +126,7 @@ const Login = () => {
               className="bg-transparent outline-none "
             />
           </div>
-          <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-[#333A5c]">
+          <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-bg">
             <LockIcon className="w-5 h-5" />
             <input
               value={formData.password}
@@ -164,23 +165,16 @@ const Login = () => {
             </div>
           )}
           <p
-            className="mb-4 text-indigo-500 cursor-pointer"
+            className="mb-4 text-primary-light cursor-pointer"
             onClick={() => navigate("/reset-password")}
           >
             Forgot Password?
           </p>
-          <Btn
-            type="submit"
-            variant="primary"
-            className="w-full"
-            onClick={() => {
-              navigate("/login");
-            }}
-          >
+          <Btn type="submit" variant="primary" className="w-full">
             {state}
           </Btn>
           <p
-            className="mt-4 text-center text-indigo-500 cursor-pointer"
+            className="mt-4 text-center text-primary-light cursor-pointer"
             onClick={() => setState(state === "Create" ? "Login" : "Create")}
           >
             {state === "Create"

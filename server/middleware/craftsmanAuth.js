@@ -20,7 +20,7 @@ export const checkCraftsmanStatus = async (req, res, next) => {
       return res.status(404).json({ message: "Craftsman not found" });
     }
 
-    // 🚫 Not finished application
+    // Not finished application
     if (craftsman.status === "PENDING") {
       return res.status(403).json({
         message: "Complete your application first",
@@ -28,7 +28,7 @@ export const checkCraftsmanStatus = async (req, res, next) => {
       });
     }
 
-    // 🚫 Suspended
+    // Suspended
     if (craftsman.status === "SUSPENDED") {
       return res.status(403).json({
         message: "Your account is suspended",
@@ -36,7 +36,7 @@ export const checkCraftsmanStatus = async (req, res, next) => {
       });
     }
 
-    // ✅ Approved → allow access
+    // Approved → allow access
     next();
   } catch (error) {
     res.status(500).json({ message: error.message });
