@@ -1,5 +1,6 @@
 import prisma from "../src/prisma.js";
 import { assignNextCraftsman } from "../services/taskAssignmentService.js";
+import { validateLebanonAddress } from "../services/locationService.js";
 
 //Get All services categories
 export const browseServices = async (req, res) => {
@@ -37,34 +38,87 @@ export const browseServices = async (req, res) => {
 
 export const bookTask = async (req, res) => {
   try {
-    const { categoryName, description, location } = req.body;
+    const { categoryName, serviceName, description, location } = req.body;
     const userId = req.user.id;
+
+    if (!categoryName || !serviceName || !description || !location) {
+      return res.status(400).json({
+        success: false,
+        message: "Category, service, description, and location are required",
+      });
+    }
+
     const category = await prisma.category.findUnique({
       where: { name: categoryName },
     });
+
     if (!category) {
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(404).json({
+        success: false,
+        message: `${categoryName} category not found`,
+      });
     }
+
+    const service = await prisma.service.findUnique({
+      where: {
+        name_categoryId: {
+          name: serviceName,
+          categoryId: category.id,
+        },
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: `${serviceName} service not found in ${categoryName}`,
+      });
+    }
+
+    const locationCheck = await validateLebanonAddress(location);
+
+    if (!locationCheck.valid) {
+      return res.status(400).json({
+        success: false,
+        message: locationCheck.message,
+      });
+    }
+
     const booking = await prisma.task.create({
       data: {
         userId,
         categoryId: category.id,
+        serviceId: service.id,
         title: `Service request for ${category.name}`,
         description,
-        location,
+        location: locationCheck.formattedAddress,
+        latitude: locationCheck.latitude,
+        longitude: locationCheck.longitude,
         status: "PENDING",
-        createdAt: new Date(),
+      },
+      include: {
+        category: true,
+        service: true,
       },
     });
+
     try {
       await assignNextCraftsman(booking.id);
     } catch (assignError) {
       console.error("Auto-assignment failed:", assignError.message);
     }
-    res.json({ message: "Service booked successfully", booking });
+
+    return res.status(201).json({
+      success: true,
+      message: "Service booked successfully",
+      booking,
+    });
   } catch (error) {
     console.error("Error booking service:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 

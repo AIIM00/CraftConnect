@@ -1,5 +1,6 @@
 import express from "express";
 import userAuth from "../middleware/userAuth.js";
+import { checkVerified } from "../middleware/checkVerified.js";
 import {
   browseServices,
   bookTask,
@@ -13,10 +14,10 @@ import {
 const userRouter = express.Router();
 
 userRouter.get("/services", browseServices);
-userRouter.post("/book", userAuth, bookTask);
-userRouter.get("/bookings", userAuth, getUserBookings);
-userRouter.post("/cancel/:taskId", userAuth, cancelBooking);
-userRouter.get("/track/:taskId", userAuth, trackTask);
-userRouter.post("/review/:taskId", userAuth, leaveReview);
+userRouter.post("/book", userAuth, checkVerified, bookTask);
+userRouter.get("/bookings", userAuth, checkVerified, getUserBookings);
+userRouter.post("/cancel/:taskId", userAuth, checkVerified, cancelBooking);
+userRouter.get("/track/:taskId", userAuth, checkVerified, trackTask);
+userRouter.post("/review/:taskId", userAuth, checkVerified, leaveReview);
 userRouter.get("/data", userAuth, getUserData);
 export default userRouter;

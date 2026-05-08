@@ -5,7 +5,6 @@ import crypto from "crypto";
 const categoriesData = [
   {
     name: "Home Repair",
-
     services: ["Plumber", "Electrician", "Handyman", "Locksmith"],
   },
   {
@@ -57,7 +56,6 @@ async function main() {
   await prisma.location.deleteMany();
   await prisma.craftsman.deleteMany();
 
-  // Important: delete services before categories
   await prisma.service.deleteMany();
   await prisma.category.deleteMany();
 
@@ -70,7 +68,6 @@ async function main() {
     const createdCategory = await prisma.category.create({
       data: {
         name: category.name,
-        iconKey: category.iconKey,
         services: {
           create: category.services.map((serviceName) => ({
             name: serviceName,
@@ -85,9 +82,25 @@ async function main() {
     categoryMap[category.name] = createdCategory;
   }
 
+  const getService = (category, serviceName) => {
+    const service = category.services.find((s) => s.name === serviceName);
+
+    if (!service) {
+      throw new Error(
+        `Service "${serviceName}" not found in category "${category.name}"`,
+      );
+    }
+
+    return service;
+  };
+
   const homeRepair = categoryMap["Home Repair"];
   const construction = categoryMap["Construction & Renovation"];
   const cleaning = categoryMap["Cleaning Services"];
+
+  const plumberService = getService(homeRepair, "Plumber");
+  const electricianService = getService(homeRepair, "Electrician");
+  const carpenterService = getService(construction, "Carpenter");
 
   // Superadmin
   const superadmin = await prisma.user.create({
@@ -97,7 +110,7 @@ async function main() {
       password,
       role: "SUPERADMIN",
       isAccountVerified: true,
-      phoneNumber: "01000000000",
+      phoneNumber: "70111111",
     },
   });
 
@@ -109,7 +122,7 @@ async function main() {
       password,
       role: "ADMIN",
       isAccountVerified: true,
-      phoneNumber: "01000000001",
+      phoneNumber: "70333333",
     },
   });
 
@@ -121,12 +134,12 @@ async function main() {
       password,
       role: "CUSTOMER",
       isAccountVerified: true,
-      phoneNumber: "01011111111",
+      phoneNumber: "70222222",
       location: {
         create: {
-          city: "Cairo",
-          address: "Maadi",
-          apartment: "12A",
+          city: "Tripoli",
+          address: "Mina",
+          apartment: "12C",
         },
       },
     },
@@ -139,11 +152,11 @@ async function main() {
       password,
       role: "CUSTOMER",
       isAccountVerified: true,
-      phoneNumber: "01022222222",
+      phoneNumber: "70444444",
       location: {
         create: {
-          city: "Giza",
-          address: "Dokki",
+          city: "Mount Lebanon",
+          address: "Jounieh",
           apartment: "5B",
         },
       },
@@ -157,16 +170,16 @@ async function main() {
       password,
       role: "CUSTOMER",
       isAccountVerified: false,
-      phoneNumber: "01033333333",
+      phoneNumber: "81222222",
       verifyOtp: "123456",
       verifyOtpExpireAt: new Date(Date.now() + 10 * 60 * 1000),
       resetOtp: "654321",
       resetOtpExpireAt: new Date(Date.now() + 10 * 60 * 1000),
       location: {
         create: {
-          city: "Alexandria",
-          address: "Smouha",
-          apartment: "9C",
+          city: "Beirut",
+          address: "Hamra",
+          apartment: "5B",
         },
       },
     },
@@ -180,7 +193,7 @@ async function main() {
       password,
       role: "CRAFTSMAN",
       isAccountVerified: true,
-      phoneNumber: "01044444444",
+      phoneNumber: "03231173",
       craftsman: {
         create: {
           category: {
@@ -203,7 +216,7 @@ async function main() {
       password,
       role: "CRAFTSMAN",
       isAccountVerified: true,
-      phoneNumber: "01055555555",
+      phoneNumber: "70897654",
       craftsman: {
         create: {
           category: {
@@ -226,7 +239,7 @@ async function main() {
       password,
       role: "CRAFTSMAN",
       isAccountVerified: true,
-      phoneNumber: "01066666666",
+      phoneNumber: "71076666",
       craftsman: {
         create: {
           category: {
@@ -249,7 +262,7 @@ async function main() {
       password,
       role: "CRAFTSMAN",
       isAccountVerified: false,
-      phoneNumber: "01077777777",
+      phoneNumber: "03232323",
       verifyOtp: "111222",
       verifyOtpExpireAt: new Date(Date.now() + 10 * 60 * 1000),
       craftsman: {
@@ -272,8 +285,8 @@ async function main() {
       userId: mostafa.id,
       categoryId: construction.id,
       yearsOfExperience: 3,
-      city: "Cairo",
-      address1: "Nasr City",
+      city: "Beirut",
+      address1: "Hamra",
       apartment: "12B",
       workingDays: ["Sunday", "Monday", "Tuesday"],
       workingHours: {
@@ -299,7 +312,7 @@ async function main() {
       password,
       role: "CRAFTSMAN",
       isAccountVerified: true,
-      phoneNumber: "01088881111",
+      phoneNumber: "76898989",
       craftsman: {
         create: {
           status: "PENDING",
@@ -315,8 +328,8 @@ async function main() {
       userId: draftCraftsman.id,
       categoryId: cleaning.id,
       yearsOfExperience: 2,
-      city: "Cairo",
-      address1: "Heliopolis",
+      city: "Tripoli",
+      address1: "Koora",
       apartment: "4A",
       step: 2,
       status: "DRAFT",
@@ -361,94 +374,162 @@ async function main() {
   // Tasks
   const pendingPlumbingTask = await prisma.task.create({
     data: {
-      userId: ali.id,
-      categoryId: homeRepair.id,
+      user: {
+        connect: { id: ali.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
       title: "Service request for Plumber",
       description: "Kitchen sink leaking",
-      location: "Cairo - Maadi",
+      location: "Tripoli - Jabal Mohsen",
       status: "PENDING",
     },
   });
 
   const pendingElectricalTask = await prisma.task.create({
     data: {
-      userId: sara.id,
-      categoryId: homeRepair.id,
+      user: {
+        connect: { id: sara.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: electricianService.id },
+      },
       title: "Service request for Electrician",
       description: "Power outlet not working",
-      location: "Giza - Dokki",
+      location: "Beirut - Ashrafieh",
       status: "PENDING",
     },
   });
 
   const inProgressAhmed = await prisma.task.create({
     data: {
-      userId: ali.id,
-      categoryId: homeRepair.id,
-      craftsmanId: ahmed.id,
+      user: {
+        connect: { id: ali.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      craftsman: {
+        connect: { userId: ahmed.id },
+      },
       title: "Service request for Plumber",
       description: "Bathroom pipe replacement",
-      location: "Cairo - Heliopolis",
+      location: "Mount Lebanon - Jounieh",
       status: "IN_PROGRESS",
     },
   });
 
   const completedAhmed1 = await prisma.task.create({
     data: {
-      userId: ali.id,
-      categoryId: homeRepair.id,
-      craftsmanId: ahmed.id,
+      user: {
+        connect: { id: ali.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      craftsman: {
+        connect: { userId: ahmed.id },
+      },
       title: "Service request for Plumber",
       description: "Water heater maintenance",
-      location: "Cairo - New Cairo",
+      location: "Tripoli - Azmi",
       status: "COMPLETED",
     },
   });
 
   const completedAhmed2 = await prisma.task.create({
     data: {
-      userId: sara.id,
-      categoryId: homeRepair.id,
-      craftsmanId: ahmed.id,
+      user: {
+        connect: { id: sara.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      craftsman: {
+        connect: { userId: ahmed.id },
+      },
       title: "Service request for Plumber",
       description: "Blocked drain repair",
-      location: "Cairo - Nasr City",
+      location: "Anfeh",
       status: "COMPLETED",
     },
   });
 
   const completedAhmed3 = await prisma.task.create({
     data: {
-      userId: ali.id,
-      categoryId: homeRepair.id,
-      craftsmanId: ahmed.id,
+      user: {
+        connect: { id: ali.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      craftsman: {
+        connect: { userId: ahmed.id },
+      },
       title: "Service request for Plumber",
       description: "Pipe leakage inspection",
-      location: "Cairo - Zamalek",
+      location: "Mount Lebanon - Broummana",
       status: "COMPLETED",
     },
   });
 
   const completedYoussef1 = await prisma.task.create({
     data: {
-      userId: sara.id,
-      categoryId: homeRepair.id,
-      craftsmanId: youssef.id,
+      user: {
+        connect: { id: sara.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: electricianService.id },
+      },
+      craftsman: {
+        connect: { userId: youssef.id },
+      },
       title: "Service request for Electrician",
       description: "Ceiling fan wiring",
-      location: "Giza - Sheikh Zayed",
+      location: "Beirut - Gemmayzeh",
       status: "COMPLETED",
     },
   });
 
   const completedHany1 = await prisma.task.create({
     data: {
-      userId: jaafar.id,
-      categoryId: construction.id,
-      craftsmanId: hany.id,
+      user: {
+        connect: { id: jaafar.id },
+      },
+      category: {
+        connect: { id: construction.id },
+      },
+      service: {
+        connect: { id: carpenterService.id },
+      },
+      craftsman: {
+        connect: { userId: hany.id },
+      },
       title: "Service request for Carpenter",
       description: "Wardrobe hinge repair",
-      location: "Alexandria - Smouha",
+      location: "Beirut - Verdun",
       status: "COMPLETED",
     },
   });

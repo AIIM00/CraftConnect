@@ -64,6 +64,8 @@ const EmailVerify = () => {
       return;
     }
     try {
+      setLoading(true);
+
       const { data } = await axios.post(
         `${backendUrl}/api/auth/verify-account`,
         { enteredOtp: otpCode },
@@ -77,6 +79,8 @@ const EmailVerify = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
   const [timer, setTimer] = React.useState(180); // 3 minutes
@@ -130,6 +134,7 @@ const EmailVerify = () => {
           <div className="flex justify-center gap-3">
             {code.map((digit, index) => (
               <input
+                disabled={loading}
                 key={index}
                 type="text"
                 maxLength="1"
@@ -144,9 +149,10 @@ const EmailVerify = () => {
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-3 rounded-xl bg-accent text-white font-bold shadow-md hover:bg-accent-hover transition"
           >
-            Verify
+            {loading ? "Verifying..." : "Verify"}
           </button>
 
           <button

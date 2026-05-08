@@ -33,7 +33,7 @@ export default function HowItWorksSteps({ id }) {
   return (
     <section id={id} className="w-full px-4 sm:px-6 lg:px-16 py-6">
       <div className="w-full max-w-7xl mx-auto bg-white shadow-lg rounded-2xl p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {steps.map((step) => (
             <Box
               key={step.title}

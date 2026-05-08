@@ -4,7 +4,7 @@ export const assignNextCraftsman = async (taskId) => {
   return await prisma.$transaction(async (tx) => {
     const task = await tx.task.findUnique({
       where: { id: taskId },
-      include: { category: true, assignments: true },
+      include: { category: true, service: true, assignments: true },
     });
 
     if (!task) {
@@ -18,6 +18,7 @@ export const assignNextCraftsman = async (taskId) => {
     const craftsmen = await tx.craftsman.findMany({
       where: {
         categoryId: task.categoryId,
+        serviceId: task.serviceId,
         status: "APPROVED",
         isAvailable: true,
       },

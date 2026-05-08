@@ -61,7 +61,7 @@ const Home = () => {
               <ArrowForwardIcon fontSize="small" />
             </button>
           </div>
-          <Services id="services" />
+          <Services id="services" limit={4} />
         </div>
       </section>
 

@@ -175,6 +175,7 @@ const ResetPassword = () => {
             </p>
 
             <input
+              disabled={loading}
               type="email"
               placeholder="Enter your email"
               className="w-full px-4 py-3 rounded-xl bg-bg border border-text-muted/30 outline-none focus:border-accent"
@@ -201,6 +202,7 @@ const ResetPassword = () => {
             <div className="flex justify-center gap-3">
               {code.map((digit, index) => (
                 <input
+                  disabled={loading}
                   key={index}
                   type="text"
                   maxLength="1"

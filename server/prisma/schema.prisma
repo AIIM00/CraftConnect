@@ -48,6 +48,7 @@ model Craftsman {
   user   User   @relation(fields: [userId], references: [id])
 
   categoryId String?
+  serviceId  String?
   queueOrder Int?
 
   experience Int?
@@ -56,10 +57,12 @@ model Craftsman {
   isAvailable  Boolean         @default(true)
   warningLevel WarningLevel    @default(NONE)
 
-  projects        Project[]
-  assignments     TaskAssignment[]
-  reviews         Review[]
-  category        Category?        @relation(fields: [categoryId], references: [id])
+  projects    Project[]
+  assignments TaskAssignment[]
+  reviews     Review[]
+  category    Category?        @relation(fields: [categoryId], references: [id])
+  service     Service?         @relation(fields: [serviceId], references: [id])
+
   taskCompletions TaskCompletion[]
 
   warnings Warning[]
@@ -128,13 +131,15 @@ model Location {
   address   String?
   apartment String?
 
+
+
   user User @relation(fields: [userId], references: [id])
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  services  Service[]
+  id       String    @id @default(uuid())
+  name     String    @unique
+  services Service[]
 
   craftsmen    Craftsman[]
   tasks        Task[]
@@ -146,11 +151,13 @@ model Category {
 }
 
 model Service {
-  id         String   @id @default(uuid())
-  name       String
+  id   String @id @default(uuid())
+  name String
 
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tasks      Task[]
+  craftsman  Craftsman[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -169,6 +176,7 @@ model CategoryAssignmentQueue {
 model Task {
   id          String  @id @default(uuid())
   categoryId  String
+  serviceId   String
   userId      String
   craftsmanId String?
 
@@ -176,11 +184,14 @@ model Task {
   description String
 
   location String
+  latitude Float?
+  longitude Float?
 
   createdAt DateTime   @default(now())
   status    TaskStatus @default(PENDING)
 
   category        Category         @relation(fields: [categoryId], references: [id])
+  service         Service          @relation(fields: [serviceId], references: [id])
   user            User             @relation(fields: [userId], references: [id])
   craftsman       Craftsman?       @relation(fields: [craftsmanId], references: [userId])
   assignments     TaskAssignment[]
