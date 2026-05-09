@@ -7,6 +7,8 @@ import axios from "axios";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme/theme.js";
 
+import "leaflet/dist/leaflet.css";
+
 //Global Setup
 // Ensure cookies are sent with requests
 axios.defaults.withCredentials = true;

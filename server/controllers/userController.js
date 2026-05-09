@@ -1,6 +1,5 @@
 import prisma from "../src/prisma.js";
 import { assignNextCraftsman } from "../services/taskAssignmentService.js";
-import { validateLebanonAddress } from "../services/locationService.js";
 
 //Get All services categories
 export const browseServices = async (req, res) => {
@@ -38,10 +37,24 @@ export const browseServices = async (req, res) => {
 
 export const bookTask = async (req, res) => {
   try {
-    const { categoryName, serviceName, description, location } = req.body;
+    const {
+      categoryName,
+      serviceName,
+      description,
+      location,
+      latitude,
+      longitude,
+    } = req.body;
     const userId = req.user.id;
 
-    if (!categoryName || !serviceName || !description || !location) {
+    if (
+      !categoryName ||
+      !serviceName ||
+      !description ||
+      !location ||
+      !latitude ||
+      !longitude
+    ) {
       return res.status(400).json({
         success: false,
         message: "Category, service, description, and location are required",
@@ -75,12 +88,12 @@ export const bookTask = async (req, res) => {
       });
     }
 
-    const locationCheck = await validateLebanonAddress(location);
-
-    if (!locationCheck.valid) {
+    const latitudeNumber = Number(latitude);
+    const longitudeNumber = Number(longitude);
+    if (Number.isNaN(latitudeNumber) || Number.isNaN(longitudeNumber)) {
       return res.status(400).json({
         success: false,
-        message: locationCheck.message,
+        message: "Invalid location coordinates",
       });
     }
 
@@ -91,9 +104,9 @@ export const bookTask = async (req, res) => {
         serviceId: service.id,
         title: `Service request for ${category.name}`,
         description,
-        location: locationCheck.formattedAddress,
-        latitude: locationCheck.latitude,
-        longitude: locationCheck.longitude,
+        location: location || `${latitude}, ${longitude}`,
+        latitude: Number(latitude),
+        longitude: Number(longitude),
         status: "PENDING",
       },
       include: {
@@ -159,13 +172,24 @@ export const cancelBooking = async (req, res) => {
     const booking = await prisma.task.findUnique({
       where: { id: taskId },
     });
+
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
     if (booking.userId !== userId) {
       return res.status(403).json({ message: "Unauthorized" });
     }
-    await prisma.task.delete({ where: { id: taskId } });
+    if (!["PENDING", "WAITING"].includes(booking.status)) {
+      return res.status(403).json({
+        message: "Task already assigned, you cannot cancel it anymore.",
+      });
+    }
+    await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        status: "CANCELLED",
+      },
+    });
     res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
     console.error("Error cancelling booking:", error);
@@ -218,6 +242,20 @@ export const leaveReview = async (req, res) => {
     const taskId = req.params.taskId;
     const userId = req.user.id;
     const { rating, comment } = req.body;
+
+    const ratingNumber = Number(rating);
+    if (!ratingNumber || ratingNumber < 1 || ratingNumber > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be between 1 and 5",
+      });
+    }
+    if (comment && comment.length > 1000) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment must be less than 1000 characters",
+      });
+    }
     const booking = await prisma.task.findUnique({
       where: { id: taskId },
     });
@@ -247,10 +285,25 @@ export const leaveReview = async (req, res) => {
         createdAt: new Date(),
       },
     });
-    res.json({ message: "Review submitted successfully", review });
+    return res.status(201).json({
+      success: true,
+      message: "Review submitted successfully",
+      review,
+    });
   } catch (error) {
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        success: false,
+        message: "You already reviewed this task",
+      });
+    }
+
     console.error("Error submitting review:", error);
-    res.status(500).json({ message: "Internal server error" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
