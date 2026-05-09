@@ -57,6 +57,10 @@ export const AppProvider = (props) => {
     };
   }, [backendUrl]);
 
+  const isCustomer = userData?.role === "CUSTOMER";
+  const isCraftsman = userData?.role === "CRAFTSMAN";
+  const isAdmin = userData?.role === "ADMIN" || userData?.role === "SUPERADMIN";
+
   const value = {
     backendUrl,
     isLoggedIn,
@@ -64,6 +68,10 @@ export const AppProvider = (props) => {
     userData,
     setUserData,
     getUserData,
+
+    isCustomer,
+    isCraftsman,
+    isAdmin,
   };
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>

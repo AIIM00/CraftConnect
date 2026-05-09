@@ -311,27 +311,41 @@ export const leaveReview = async (req, res) => {
 export const getUserData = async (req, res) => {
   try {
     const userId = req.user.id;
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         name: true,
         email: true,
-        isAccountVerified: true,
         role: true,
+        isAccountVerified: true,
+
+        craftsman: {
+          select: {
+            status: true,
+            isAvailable: true,
+            warningLevel: true,
+          },
+        },
       },
     });
+
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
+
     res.json({
       success: true,
       userData: user,
     });
   } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };

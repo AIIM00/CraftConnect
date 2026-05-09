@@ -18,7 +18,7 @@ const Login = () => {
   // Navigation hook
   const navigate = useNavigate();
   // Accessing backend URL and login state from context
-  const { backendUrl, setIsLoggedIn, getUserData } =
+  const { backendUrl, setIsLoggedIn, getUserData, isCustomer } =
     React.useContext(AppContext);
 
   // State to toggle between Login and Create Account
@@ -56,10 +56,11 @@ const Login = () => {
           email: formData.email,
           password: formData.password,
         });
+
         if (data.success) {
           setIsLoggedIn(true);
           await getUserData();
-          navigate("/");
+          isCustomer ? navigate("/") : navigate("/craftsman/dashboard");
         } else {
           toast.error(data.message || "Login failed");
         }
