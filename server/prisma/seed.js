@@ -1,7 +1,7 @@
 import prisma from "../src/prisma.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-
+import { assignNextCraftsman } from "../services/taskAssignmentService.js";
 const categoriesData = [
   {
     name: "Home Repair",
@@ -278,6 +278,56 @@ async function main() {
     },
     include: { craftsman: true },
   });
+  // Round-robin test craftsmen: same category + same service
+  const roundRobinPlumber1 = await prisma.user.create({
+    data: {
+      name: "Round Robin Plumber 1",
+      email: "rr.plumber1@test.com",
+      password,
+      role: "CRAFTSMAN",
+      isAccountVerified: true,
+      phoneNumber: "71111111",
+      craftsman: {
+        create: {
+          categoryId: homeRepair.id,
+          serviceId: plumberService.id,
+          queueOrder: 1,
+          experience: 5,
+          status: "APPROVED",
+          isAvailable: true,
+          warningLevel: "NONE",
+        },
+      },
+    },
+    include: {
+      craftsman: true,
+    },
+  });
+
+  const roundRobinPlumber2 = await prisma.user.create({
+    data: {
+      name: "Round Robin Plumber 2",
+      email: "rr.plumber2@test.com",
+      password,
+      role: "CRAFTSMAN",
+      isAccountVerified: true,
+      phoneNumber: "72222222",
+      craftsman: {
+        create: {
+          categoryId: homeRepair.id,
+          serviceId: plumberService.id,
+          queueOrder: 2,
+          experience: 7,
+          status: "APPROVED",
+          isAvailable: true,
+          warningLevel: "NONE",
+        },
+      },
+    },
+    include: {
+      craftsman: true,
+    },
+  });
 
   // Application
   await prisma.application.create({
@@ -374,7 +424,7 @@ async function main() {
   // Tasks
   const pendingPlumbingTask = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: ali.id },
       },
       category: {
@@ -392,7 +442,7 @@ async function main() {
 
   const pendingElectricalTask = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: sara.id },
       },
       category: {
@@ -410,7 +460,7 @@ async function main() {
 
   const inProgressAhmed = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: ali.id },
       },
       category: {
@@ -431,7 +481,7 @@ async function main() {
 
   const completedAhmed1 = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: ali.id },
       },
       category: {
@@ -452,7 +502,7 @@ async function main() {
 
   const completedAhmed2 = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: sara.id },
       },
       category: {
@@ -473,7 +523,7 @@ async function main() {
 
   const completedAhmed3 = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: ali.id },
       },
       category: {
@@ -494,7 +544,7 @@ async function main() {
 
   const completedYoussef1 = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: sara.id },
       },
       category: {
@@ -515,7 +565,7 @@ async function main() {
 
   const completedHany1 = await prisma.task.create({
     data: {
-      user: {
+      customer: {
         connect: { id: jaafar.id },
       },
       category: {
@@ -531,6 +581,61 @@ async function main() {
       description: "Wardrobe hinge repair",
       location: "Beirut - Verdun",
       status: "COMPLETED",
+    },
+  });
+
+  // Round-robin test tasks: same category + same service
+  const roundRobinTask1 = await prisma.task.create({
+    data: {
+      customer: {
+        connect: { id: ali.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      title: "Round Robin Test 1 - Kitchen Sink Leak",
+      description: "The kitchen sink is leaking from the pipe underneath.",
+      location: "Tripoli - Mina",
+      status: "PENDING",
+    },
+  });
+
+  const roundRobinTask2 = await prisma.task.create({
+    data: {
+      customer: {
+        connect: { id: sara.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      title: "Round Robin Test 2 - Bathroom Pipe Leak",
+      description: "There is a water leak near the bathroom pipe connection.",
+      location: "Beirut - Hamra",
+      status: "PENDING",
+    },
+  });
+
+  const roundRobinTask3 = await prisma.task.create({
+    data: {
+      customer: {
+        connect: { id: jaafar.id },
+      },
+      category: {
+        connect: { id: homeRepair.id },
+      },
+      service: {
+        connect: { id: plumberService.id },
+      },
+      title: "Round Robin Test 3 - Blocked Drain",
+      description: "The drain is blocked and water is not flowing properly.",
+      location: "Mount Lebanon - Jounieh",
+      status: "PENDING",
     },
   });
 

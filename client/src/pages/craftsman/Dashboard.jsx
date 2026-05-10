@@ -1,6 +1,11 @@
 import * as React from "react";
 import { useNavigate, Link } from "react-router-dom";
 
+import { AppContext } from "../../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+//Icons
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -15,258 +20,381 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import BoltIcon from "@mui/icons-material/Bolt";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 
-const tasks = [
-  {
-    id: 1,
-    title: "Fix leaking kitchen sink",
-    location: "Achrafieh, Beirut",
-    time: "Today, 10:00 AM",
-    status: "PENDING",
-    icon: <BuildIcon />,
-  },
-  {
-    id: 2,
-    title: "Electrical outlet not working",
-    location: "Hamra, Beirut",
-    time: "Today, 1:30 PM",
-    status: "IN_PROGRESS",
-    icon: <BoltIcon />,
-  },
-  {
-    id: 3,
-    title: "Water heater not heating",
-    location: "Jnah, Beirut",
-    time: "Tomorrow, 2:00 PM",
-    status: "COMPLETED",
-    icon: <WaterDropIcon />,
-  },
-];
-
 const statusStyles = {
   PENDING: "bg-orange-100 text-orange-600",
   IN_PROGRESS: "bg-blue-100 text-blue-600",
   COMPLETED: "bg-green-100 text-green-600",
 };
-
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { backendUrl } = React.useContext(AppContext);
+  const [tasks, setTasks] = React.useState([]);
+  const [counts, setCounts] = React.useState({
+    all: 0,
+    pending: 0,
+    inProgress: 0,
+    completed: 0,
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  const [filter, setFilter] = React.useState("All");
+
+  const [back, setBack] = React.useState(false);
+  const [selectedTask, setSelectedTask] = React.useState(null);
+
+  const openTaskDetails = (task) => {
+    setSelectedTask(task);
+    setBack(true);
+  };
+
+  const closeTaskDetails = () => {
+    setBack(false);
+    setSelectedTask(null);
+  };
+
+  const handleTaskAction = async (taskId, action) => {
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await axios.patch(
+        `${backendUrl}/api/craftsman/tasks/${taskId}/respond`,
+        { action },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      toast.success(data.message);
+
+      closeTaskDetails();
+      // Re-fetch tasks after accept/reject
+      await fetchTasks();
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
+  const filteredTasks =
+    filter === "All"
+      ? tasks
+      : tasks.filter(
+          (task) => task.status === filter.toUpperCase().replace(" ", "_"),
+        );
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`${backendUrl}/api/craftsman/tasks`);
+      if (data.success) {
+        setTasks(data.tasks.all);
+        setCounts(data.counts);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to load tasks");
+    } finally {
+      setLoading(false);
+    }
+  };
+  React.useEffect(() => {
+    fetchTasks();
+  }, [backendUrl]);
+  if (loading) {
+    return <p className="text-text-muted">Loading dashboard...</p>;
+  }
 
   return (
     <>
       {/* Stats */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+      <section className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
         <StatCard
           icon={<AssignmentIcon />}
-          label="Today’s Tasks"
-          value="4"
-          note="2 pending · 2 in progress"
+          label="All Tasks"
+          value={counts.all}
+          note={`${counts.pending} pending · ${counts.inProgress} in progress`}
           color="bg-blue-50 text-blue-600"
         />
         <StatCard
           icon={<CheckCircleIcon />}
-          label="Completed This Week"
-          value="12"
+          label="Completed Tasks"
+          value={`${counts.completed}`}
           note="+20% from last week"
           color="bg-green-50 text-green-600"
-        />
-        <StatCard
-          icon={<AttachMoneyIcon />}
-          label="Earnings This Week"
-          value="$320"
-          note="+15% from last week"
-          color="bg-orange-50 text-orange-600"
-        />
-        <StatCard
-          icon={<StarBorderIcon />}
-          label="Average Rating"
-          value="4.8"
-          note="★★★★★"
-          color="bg-indigo-50 text-indigo-600"
         />
       </section>
 
       {/* Content */}
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* My Tasks */}
-        <div className="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-extrabold text-text">My Tasks</h3>
-            <button className="text-primary font-bold text-sm hover:text-primary-light">
-              View all
-            </button>
-          </div>
+        <div className="xl:col-span-2 perspective">
+          <div
+            className={`relative w-full transition-transform duration-700 transform-style-preserve-3d ${
+              back ? "rotate-y-180" : ""
+            }`}
+          >
+            {/* Front */}
+            <div className="xl:col-span-2 backface-hidden bg-surface rounded-3xl shadow-sm border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-extrabold text-text">My Tasks</h3>
 
-          <div className="flex gap-6 border-b border-gray-100 mb-4">
-            {["All", "Pending", "In Progress", "Completed"].map((tab, i) => (
-              <button
-                key={tab}
-                className={`pb-3 text-sm font-semibold ${
-                  i === 0
-                    ? "text-primary border-b-2 border-primary"
-                    : "text-text-muted"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          <div className="divide-y divide-gray-100">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="py-4 flex items-center justify-between gap-4"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-14 h-14 rounded-2xl bg-bg text-primary flex items-center justify-center shrink-0">
-                    {task.icon}
-                  </div>
-
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-text truncate">
-                      {task.title}
-                    </h4>
-
-                    <p className="text-sm text-text-muted flex items-center gap-1 mt-1">
-                      <LocationOnIcon fontSize="small" />
-                      {task.location}
-                    </p>
-
-                    <p className="text-sm text-text-muted flex items-center gap-1 mt-1">
-                      <AccessTimeIcon fontSize="small" />
-                      {task.time}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`text-xs font-bold px-3 py-1 rounded-full ${
-                      statusStyles[task.status]
-                    }`}
-                  >
-                    {task.status}
-                  </span>
-
-                  <ArrowForwardIosIcon
-                    fontSize="small"
-                    className="text-text-muted"
-                  />
-                </div>
+                <button className="text-primary font-bold text-sm hover:text-primary-light">
+                  View all
+                </button>
               </div>
-            ))}
-          </div>
 
-          <button className="w-full mt-5 py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition">
-            View all tasks
-          </button>
-        </div>
+              <div className="flex gap-6 border-b border-gray-100 mb-4 overflow-x-auto">
+                {["All", "Pending", "In Progress", "Completed"].map((tab) => {
+                  const isActive = filter === tab;
 
-        {/* Next Task */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-xl font-extrabold text-text">Next Task</h3>
-            <p className="text-sm font-bold text-blue-600">In 45 min</p>
-          </div>
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setFilter(tab)}
+                      className={`pb-3 text-sm font-semibold whitespace-nowrap ${
+                        isActive
+                          ? "text-primary border-b-2 border-primary"
+                          : "text-text-muted"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
 
-          <div className="h-52 bg-bg rounded-2xl mb-5 flex items-center justify-center text-text-muted">
-            Map Preview
-          </div>
+              <div className="divide-y divide-gray-100">
+                {filteredTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="py-4 flex items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-14 h-14 rounded-2xl bg-bg text-primary flex items-center justify-center shrink-0">
+                        {task.icon}
+                      </div>
 
-          <h4 className="text-lg font-extrabold text-text">
-            Fix leaking kitchen sink
-          </h4>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-text truncate">
+                          {task.title}
+                        </h4>
 
-          <p className="text-sm text-text-muted flex items-center gap-1 mt-2">
-            <LocationOnIcon fontSize="small" />
-            Achrafieh, Beirut
-          </p>
+                        <p className="text-sm text-text-muted flex items-center gap-1 mt-1">
+                          <LocationOnIcon fontSize="small" />
+                          {task.location}
+                        </p>
 
-          <p className="text-sm text-text-muted mt-3 leading-relaxed">
-            The kitchen sink keeps leaking from the pipe underneath. Customer
-            needs it fixed.
-          </p>
+                        <p className="text-sm text-text-muted flex items-center gap-1 mt-1">
+                          <AccessTimeIcon fontSize="small" />
+                          {task.time || task.createdAt}
+                        </p>
+                      </div>
+                    </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-5">
-            <div>
-              <p className="text-sm text-text-muted">Customer</p>
-              <p className="font-bold text-primary">Sarah M.</p>
-              <p className="text-sm text-text-muted mt-1">71 234 567</p>
+                    <div className="flex items-center gap-4">
+                      <span
+                        className={`text-xs font-bold px-3 py-1 rounded-full ${
+                          statusStyles[task.status]
+                        }`}
+                      >
+                        {task.status}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => openTaskDetails(task)}
+                        className="text-text-muted hover:bg-bg rounded-full p-2 transition"
+                      >
+                        <ArrowForwardIosIcon fontSize="small" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="w-full mt-5 py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition">
+                View all tasks
+              </button>
             </div>
 
-            <div>
-              <p className="text-sm text-text-muted">Payment</p>
-              <p className="text-2xl font-extrabold text-green-600">$80</p>
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                Cash
-              </span>
+            {/* Back */}
+            <div className="absolute inset-0 rotate-y-180 backface-hidden bg-surface rounded-3xl shadow-sm border border-gray-100 p-6 overflow-y-auto">
+              {!selectedTask ? null : (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <p className="text-sm font-bold text-primary">
+                        Task Details
+                      </p>
+                      <h3 className="text-xl font-extrabold text-text mt-1">
+                        {selectedTask.title}
+                      </h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={closeTaskDetails}
+                      className="px-4 py-2 rounded-2xl bg-bg text-text font-bold hover:bg-gray-200 transition"
+                    >
+                      Back
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-bg">
+                      <p className="text-xs font-bold text-text-muted uppercase">
+                        Status
+                      </p>
+                      <span
+                        className={`inline-block mt-2 text-xs font-bold px-3 py-1 rounded-full ${
+                          statusStyles[selectedTask.status]
+                        }`}
+                      >
+                        {selectedTask.status}
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-bg">
+                      <p className="text-xs font-bold text-text-muted uppercase">
+                        Description
+                      </p>
+                      <p className="text-sm text-text mt-2 leading-6">
+                        {selectedTask.description || "No description provided."}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-bg">
+                      <p className="text-xs font-bold text-text-muted uppercase">
+                        Location
+                      </p>
+                      <p className="text-sm text-text mt-2 flex items-center gap-2">
+                        <LocationOnIcon fontSize="small" />
+                        {selectedTask.location}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-bg">
+                      <p className="text-xs font-bold text-text-muted uppercase">
+                        Customer
+                      </p>
+
+                      <div className="mt-3 space-y-1">
+                        <p className="font-bold text-text">
+                          {selectedTask.customer?.name || "Unknown customer"}
+                        </p>
+
+                        <p className="text-sm text-text-muted">
+                          {selectedTask.customer?.email || "No email available"}
+                        </p>
+
+                        <p className="text-sm text-text-muted">
+                          {selectedTask.customer?.phoneNumber ||
+                            "No phone number"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {selectedTask.status === "PENDING" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                        <a
+                          href={`tel:${selectedTask.customer?.phoneNumber || ""}`}
+                          className="text-center py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition"
+                        >
+                          Call
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleTaskAction(selectedTask.taskId, "ACCEPT")
+                          }
+                          className="py-3 rounded-2xl bg-green-600 text-white font-bold hover:bg-green-700 transition"
+                        >
+                          Accept
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleTaskAction(selectedTask.taskId, "REJECT")
+                          }
+                          className="py-3 rounded-2xl bg-red-600 text-white font-bold hover:bg-red-700 transition"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+
+                    {selectedTask.status === "IN_PROGRESS" && (
+                      <div className="p-4 rounded-2xl bg-yellow-50 border border-yellow-100">
+                        <p className="text-sm font-bold text-yellow-700">
+                          This task is currently in progress.
+                        </p>
+                        <p className="text-sm text-yellow-700 mt-1">
+                          You can add a completion button here later.
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTask.status === "COMPLETED" && (
+                      <>
+                        <div className="p-4 rounded-2xl bg-bg">
+                          <p className="text-xs font-bold text-text-muted uppercase">
+                            Completion Info
+                          </p>
+
+                          <div className="mt-3 space-y-2 text-sm text-text">
+                            <p>
+                              <span className="font-bold">Completed:</span>{" "}
+                              {selectedTask.completedAt ||
+                                selectedTask.createdAt ||
+                                "N/A"}
+                            </p>
+
+                            <p>
+                              <span className="font-bold">
+                                Completion Days:
+                              </span>{" "}
+                              {selectedTask.completionDays || "N/A"}
+                            </p>
+
+                            <p>
+                              <span className="font-bold">Notes:</span>{" "}
+                              {selectedTask.completionNotes ||
+                                "No notes provided."}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl bg-bg">
+                          <p className="text-xs font-bold text-text-muted uppercase">
+                            Customer Review
+                          </p>
+
+                          {selectedTask.review ? (
+                            <div className="mt-3">
+                              <p className="font-bold text-text">
+                                Rating: {selectedTask.review.rating}/5
+                              </p>
+
+                              <p className="text-sm text-text-muted mt-1">
+                                {selectedTask.review.comment ||
+                                  "No comment provided."}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-text-muted mt-2">
+                              No review yet.
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-3 mt-6">
-            <button className="py-3 rounded-2xl border border-primary text-primary font-bold hover:bg-bg transition flex items-center justify-center gap-2">
-              <PhoneIcon fontSize="small" />
-              Call
-            </button>
-
-            <button className="py-3 rounded-2xl bg-primary text-white font-bold hover:bg-primary-light transition flex items-center justify-center gap-2">
-              <PlayArrowIcon fontSize="small" />
-              Start
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom widgets */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex justify-between mb-4">
-            <h3 className="font-extrabold text-text">Earnings Overview</h3>
-            <button className="text-sm font-bold text-primary">View all</button>
-          </div>
-
-          <p className="text-3xl font-extrabold text-text">$1,240</p>
-          <p className="text-sm text-text-muted mt-1">This Month</p>
-          <p className="text-sm text-green-600 font-bold mt-2">
-            +18% from last month
-          </p>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex justify-between mb-4">
-            <h3 className="font-extrabold text-text">Recent Review</h3>
-            <button className="text-sm font-bold text-primary">View all</button>
-          </div>
-
-          <p className="font-bold text-primary">Sarah M.</p>
-          <p className="text-orange-400 mt-1">★★★★★ 5.0</p>
-          <p className="text-sm text-text-muted mt-3">
-            Great work! Very professional and fixed the issue quickly.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex justify-between mb-4">
-            <h3 className="font-extrabold text-text">Availability</h3>
-            <button className="text-sm font-bold text-primary">
-              Edit Schedule
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
-              <CalendarMonthIcon />
-            </div>
-
-            <div>
-              <p className="font-bold text-primary">Available Today</p>
-              <p className="text-sm text-text-muted">8:00 AM - 6:00 PM</p>
-            </div>
-          </div>
-
-          <button className="w-full mt-5 py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition">
-            View Full Schedule
-          </button>
         </div>
       </section>
     </>

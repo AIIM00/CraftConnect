@@ -4,12 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 //Components
-import NavBar from "../components/NavBar";
-import Header from "../components/Header";
-import HowItWorksSteps from "../components/HowItWorksSteps";
-import HowItWorks from "../components/HowItWorks";
-import Services from "../components/Services";
-import Footer from "../components/Footer";
+import Header from "../../components/Header";
+import HowItWorksSteps from "../../components/HowItWorksSteps";
+import HowItWorks from "../../components/HowItWorks";
+import Services from "../../components/Services";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,8 +22,7 @@ const Home = () => {
     }
   }, [location]);
   return (
-    <div>
-      <NavBar />
+    <>
       <Header id="header" />
       <HowItWorksSteps id="process" />
       <HowItWorks id="howItWorks" />
@@ -53,7 +50,7 @@ const Home = () => {
 
             <button
               onClick={() => {
-                navigate("/services");
+                navigate("/customer/services");
               }}
               className="self-start sm:self-auto flex items-center gap-2 text-primary font-semibold hover:text-primary-light transition"
             >
@@ -64,9 +61,7 @@ const Home = () => {
           <Services id="services" limit={4} />
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 

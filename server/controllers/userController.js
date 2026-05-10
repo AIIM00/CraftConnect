@@ -45,7 +45,7 @@ export const bookTask = async (req, res) => {
       latitude,
       longitude,
     } = req.body;
-    const userId = req.user.id;
+    const customerId = req.user.id;
 
     if (
       !categoryName ||
@@ -99,9 +99,15 @@ export const bookTask = async (req, res) => {
 
     const booking = await prisma.task.create({
       data: {
-        userId,
-        categoryId: category.id,
-        serviceId: service.id,
+        customer: {
+          connect: { id: customerId },
+        },
+        category: {
+          connect: { id: category.id },
+        },
+        service: {
+          connect: { id: service.id },
+        },
         title: `Service request for ${category.name}`,
         description,
         location: location || `${latitude}, ${longitude}`,

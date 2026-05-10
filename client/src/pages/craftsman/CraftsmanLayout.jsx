@@ -1,5 +1,8 @@
 import { Link, Outlet } from "react-router-dom";
 
+import * as React from "react";
+import { AppContext } from "../../context/AppContext";
+
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -28,6 +31,7 @@ const navItems = [
 ];
 
 const CraftsmanLayout = () => {
+  const { userData } = React.useContext(AppContext);
   return (
     <div className="min-h-screen bg-bg flex text-text">
       {/*Sidebar*/}
@@ -42,7 +46,7 @@ const CraftsmanLayout = () => {
 
           <nav className="px-5 space-y-2">
             {navItems.map((item, index) => (
-              <Link key={item.name} to={`/craftsman/#${item.id}`}>
+              <Link key={item.label} to={`/craftsman/#${item.id}`}>
                 <button
                   key={item.label}
                   className={`w-full flex items-center gap-4 px-5 py-3 rounded-2xl text-sm font-semibold transition ${
@@ -81,7 +85,7 @@ const CraftsmanLayout = () => {
         <div className="flex items-start justify-between mb-8">
           <div>
             <h2 className="text-3xl font-extrabold text-text">
-              Welcome back, John!
+              {`Welcome back, ${userData.name}!`}
             </h2>
             <p className="text-text-muted mt-2">
               Here’s what’s happening with your work today.

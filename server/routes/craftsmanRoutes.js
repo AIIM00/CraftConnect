@@ -8,11 +8,9 @@ import {
   saveApplicationStep,
   submitApplication,
   dashboard,
-  getCompletedTasks,
-  getInProgressTasks,
-  pendingTasks,
   assignRejectTask,
   updateProfile,
+  getAllTasks,
 } from "../controllers/craftsmanController.js";
 
 export const craftsmanRouter = express.Router();
@@ -38,24 +36,13 @@ craftsmanRouter.get(
   dashboard,
 );
 craftsmanRouter.get(
-  "/tasks/completed",
-  userAuth,
-  isCraftsman,
-  getCompletedTasks,
-);
-craftsmanRouter.get(
-  "/tasks/inProgress",
-  userAuth,
-  isCraftsman,
-  getInProgressTasks,
-);
-craftsmanRouter.get(
-  "/tasks/pending",
+  "/tasks",
   userAuth,
   isCraftsman,
   checkCraftsmanStatus,
-  pendingTasks,
+  getAllTasks,
 );
+
 craftsmanRouter.patch(
   "/tasks/:taskId/respond",
   userAuth,

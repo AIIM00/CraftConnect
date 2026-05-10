@@ -18,7 +18,7 @@ const Login = () => {
   // Navigation hook
   const navigate = useNavigate();
   // Accessing backend URL and login state from context
-  const { backendUrl, setIsLoggedIn, getUserData, isCustomer } =
+  const { backendUrl, isLoggedIn, setIsLoggedIn, getUserData, isCustomer } =
     React.useContext(AppContext);
 
   // State to toggle between Login and Create Account
@@ -59,6 +59,7 @@ const Login = () => {
 
         if (data.success) {
           setIsLoggedIn(true);
+          console.log("LoggedIn:", isLoggedIn);
           await getUserData();
           isCustomer ? navigate("/") : navigate("/craftsman/dashboard");
         } else {

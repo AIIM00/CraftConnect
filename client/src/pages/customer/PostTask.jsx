@@ -2,8 +2,8 @@ import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AppContext } from "../context/AppContext";
-import LocationPicker from "../components/LocationPicker";
+import { AppContext } from "../../context/AppContext";
+import LocationPicker from "../../components/LocationPicker";
 
 const PostTask = () => {
   const { backendUrl, isLoggedIn } = React.useContext(AppContext);
@@ -56,7 +56,7 @@ const PostTask = () => {
       );
 
       toast.success(data.message || "Task booked successfully");
-      navigate("/my-bookings");
+      navigate("/");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to book service");
     } finally {

@@ -1,10 +1,10 @@
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
 //Components
-import NavBar from "../components/NavBar";
-import Footer from "../components/Footer";
-import Services from "../components/Services";
+import NavBar from "../../components/NavBar";
+import Footer from "../../components/Footer";
+import Services from "../../components/Services";
 
 //MUI Icons
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -14,7 +14,6 @@ export default function ServicesPage({ id }) {
   const navigate = useNavigate();
   return (
     <>
-      <NavBar />
       <main id={id} className="w-full bg-bg">
         {/* Hero */}
         <section className="bg-text-muted text-white px-4 sm:px-8 lg:px-16 py-16">
@@ -77,8 +76,6 @@ export default function ServicesPage({ id }) {
           </div>
         </section>
       </main>
-
-      <Footer />
     </>
   );
 }

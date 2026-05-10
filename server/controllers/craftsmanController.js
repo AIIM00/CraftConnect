@@ -11,7 +11,6 @@ export const saveApplicationStep = async (req, res) => {
     });
 
     if (!application) {
-      // create new draft
       application = await prisma.application.create({
         data: {
           userId,
@@ -21,7 +20,6 @@ export const saveApplicationStep = async (req, res) => {
         },
       });
     } else {
-      // update existing draft
       application = await prisma.application.update({
         where: { id: application.id },
         data: {
@@ -76,88 +74,138 @@ export const dashboard = async (req, res) => {
   }
 };
 
-export const getCompletedTasks = async (req, res) => {
+export const getAllTasks = async (req, res) => {
   try {
     const craftsmanId = req.user.id;
-    const tasks = await prisma.task.findMany({
-      where: { craftsmanId, status: "COMPLETED" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: {
-          select: {
-            name: true,
-          },
-        },
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-    res.json({ tasks });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
-export const getInProgressTasks = async (req, res) => {
-  try {
-    const craftsmanId = req.user.id;
-    const tasks = await prisma.task.findMany({
-      where: { craftsmanId, status: "IN_PROGRESS" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: {
-          select: {
-            name: true,
-          },
+    const [assignedTasks, inProgressTasks, completedTasks] = await Promise.all([
+      prisma.taskAssignment.findMany({
+        where: {
+          craftsmanId,
+          status: "PENDING",
         },
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-    res.json({ tasks });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const pendingTasks = async (req, res) => {
-  try {
-    const craftsmanId = req.user.id;
-    const assignments = await prisma.taskAssignment.findMany({
-      where: { craftsmanId, status: "PENDING" },
-      include: {
-        task: {
-          include: {
-            category: {
-              select: {
-                name: true,
-              },
-            },
-            user: {
-              select: {
-                name: true,
-                email: true,
+        include: {
+          task: {
+            include: {
+              category: true,
+              service: true,
+              customer: {
+                select: {
+                  name: true,
+                  email: true,
+                  phoneNumber: true,
+                },
               },
             },
           },
         },
+        orderBy: {
+          assignedAt: "desc",
+        },
+      }),
+
+      prisma.task.findMany({
+        where: {
+          craftsmanId,
+          status: "IN_PROGRESS",
+        },
+        include: {
+          category: true,
+          service: true,
+          customer: {
+            select: {
+              name: true,
+              email: true,
+              phoneNumber: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+
+      prisma.task.findMany({
+        where: {
+          craftsmanId,
+          status: "COMPLETED",
+        },
+        include: {
+          category: true,
+          service: true,
+          customer: {
+            select: {
+              name: true,
+              email: true,
+              phoneNumber: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+    ]);
+
+    const pending = assignedTasks.map((assignment) => ({
+      assignmentId: assignment.id,
+      taskId: assignment.task.id,
+      status: "PENDING",
+      title: assignment.task.title,
+      description: assignment.task.description,
+      location: assignment.task.location,
+      category: assignment.task.category,
+      service: assignment.task.service,
+      customer: assignment.task.customer,
+      assignedAt: assignment.assignedAt,
+    }));
+
+    const inProgress = inProgressTasks.map((task) => ({
+      taskId: task.id,
+      status: task.status,
+      title: task.title,
+      description: task.description,
+      location: task.location,
+      category: task.category,
+      service: task.service,
+      customer: task.customer,
+      createdAt: task.createdAt,
+    }));
+
+    const completed = completedTasks.map((task) => ({
+      taskId: task.id,
+      status: task.status,
+      title: task.title,
+      description: task.description,
+      location: task.location,
+      category: task.category,
+      service: task.service,
+      customer: task.customer,
+      createdAt: task.createdAt,
+    }));
+
+    const allTasks = [...pending, ...inProgress, ...completed];
+
+    return res.json({
+      success: true,
+      counts: {
+        all: allTasks.length,
+        pending: pending.length,
+        inProgress: inProgress.length,
+        completed: completed.length,
+      },
+      tasks: {
+        all: allTasks,
+        pending,
+        inProgress,
+        completed,
       },
     });
-    res.json({ assignments });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
@@ -189,9 +237,11 @@ export const assignRejectTask = async (req, res) => {
         const task = await tx.task.findUnique({
           where: { id: taskId },
         });
+
         if (!task) {
           throw new Error("Task not found");
         }
+
         if (task.status === "IN_PROGRESS" && task.craftsmanId !== craftsmanId) {
           throw new Error("Task already accepted by another craftsman");
         }
@@ -199,14 +249,21 @@ export const assignRejectTask = async (req, res) => {
         if (task.craftsmanId && task.craftsmanId !== craftsmanId) {
           throw new Error("Task already assigned");
         }
+
         await tx.task.update({
           where: { id: taskId },
-          data: { status: "IN_PROGRESS", craftsmanId },
+          data: {
+            status: "IN_PROGRESS",
+            craftsmanId,
+          },
         });
 
         await tx.taskAssignment.update({
           where: {
-            taskId_craftsmanId: { taskId, craftsmanId },
+            taskId_craftsmanId: {
+              taskId,
+              craftsmanId,
+            },
           },
           data: {
             status: "ACCEPTED",
@@ -221,15 +278,20 @@ export const assignRejectTask = async (req, res) => {
     if (action === "REJECT") {
       await prisma.taskAssignment.update({
         where: {
-          taskId_craftsmanId: { taskId, craftsmanId },
+          taskId_craftsmanId: {
+            taskId,
+            craftsmanId,
+          },
         },
         data: {
           status: "DECLINED",
           respondedAt: new Date(),
         },
       });
+
       try {
         const nextAssignment = await assignNextCraftsman(taskId);
+
         return res.json({
           message: "Task rejected and reassigned",
           nextAssignment,
@@ -251,6 +313,7 @@ export const updateProfile = async (req, res) => {
   try {
     const craftsmanId = req.user.id;
     const { name, email, phoneNumber, experience } = req.body;
+
     const updated = await prisma.user.update({
       where: { id: craftsmanId },
       data: {
@@ -259,49 +322,63 @@ export const updateProfile = async (req, res) => {
         phoneNumber,
       },
     });
+
     await prisma.craftsman.update({
       where: { userId: craftsmanId },
       data: {
         experience,
       },
     });
+
     res.json({ message: "Profile updated", user: updated });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-//SHOW AVAILIBILITY STATUS OF CRAFTSMAN
+
 export const showAvailability = async (req, res) => {
   try {
     const craftsmanId = req.user.id;
+
     const craftsman = await prisma.craftsman.findUnique({
       where: { userId: craftsmanId },
       select: {
         isAvailable: true,
       },
     });
+
+    if (!craftsman) {
+      return res.status(404).json({ message: "Craftsman not found" });
+    }
+
     res.json({ isAvailable: craftsman.isAvailable });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//CRAFTSMAN CAN TOGGLE AVAILABILITY STATUS
 export const toggleAvailability = async (req, res) => {
   try {
     const craftsmanId = req.user.id;
+
     const craftsman = await prisma.craftsman.findUnique({
       where: { userId: craftsmanId },
       select: {
         isAvailable: true,
       },
     });
+
+    if (!craftsman) {
+      return res.status(404).json({ message: "Craftsman not found" });
+    }
+
     const updated = await prisma.craftsman.update({
       where: { userId: craftsmanId },
       data: {
         isAvailable: !craftsman.isAvailable,
       },
     });
+
     res.json({
       message: "Availability updated",
       isAvailable: updated.isAvailable,
@@ -311,10 +388,10 @@ export const toggleAvailability = async (req, res) => {
   }
 };
 
-//GET ALL REVIEWS FOR A CRAFTSMAN
 export const getReviews = async (req, res) => {
   try {
     const craftsmanId = req.user.id;
+
     const reviews = await prisma.review.findMany({
       where: { craftsmanId },
       select: {
@@ -328,6 +405,7 @@ export const getReviews = async (req, res) => {
         },
       },
     });
+
     res.json({ reviews });
   } catch (error) {
     res.status(500).json({ message: error.message });

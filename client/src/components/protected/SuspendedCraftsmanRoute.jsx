@@ -2,8 +2,8 @@ import * as React from "react";
 import { Navigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 
-const CraftsmanRoute = ({ children }) => {
-  const { isLoggedIn, userData, isCraftsman, authLoading } =
+const SuspendedCraftsmanRoute = ({ children }) => {
+  const { isLoggedIn, isCraftsman, userData, authLoading } =
     React.useContext(AppContext);
 
   if (authLoading) {
@@ -20,15 +20,15 @@ const CraftsmanRoute = ({ children }) => {
 
   const status = userData?.craftsman?.status;
 
-  if (status === "SUSPENDED") {
-    return <Navigate to="/craftsman/suspended" replace />;
+  if (status === "APPROVED") {
+    return <Navigate to="/craftsman/dashboard" replace />;
   }
 
-  if (status !== "APPROVED") {
+  if (status !== "SUSPENDED") {
     return <Navigate to="/craftsman/pending-approval" replace />;
   }
 
   return children;
 };
 
-export default CraftsmanRoute;
+export default SuspendedCraftsmanRoute;

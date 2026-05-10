@@ -1,7 +1,5 @@
 import * as React from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { assets } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
 
@@ -10,7 +8,6 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
@@ -34,8 +31,7 @@ const pages = [
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const { userData, backendUrl, setUserData, setIsLoggedIn } =
-    React.useContext(AppContext);
+  const { userData, logout } = React.useContext(AppContext);
 
   const [openDrawer, setOpenDrawer] = React.useState(false);
 
@@ -51,23 +47,6 @@ const NavBar = () => {
     navigate(path);
     handleCloseNavMenu();
     handleCloseUserMenu();
-  };
-
-  const logout = async () => {
-    try {
-      axios.defaults.withCredentials = true;
-
-      const { data } = await axios.post(`${backendUrl}/api/auth/logout`);
-
-      if (data.success) {
-        setUserData(false);
-        setIsLoggedIn(false);
-        localStorage.removeItem("token");
-        navigate("/");
-      }
-    } catch (err) {
-      toast.error(err.message);
-    }
   };
 
   return (
