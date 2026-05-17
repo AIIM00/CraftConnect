@@ -22,7 +22,7 @@ app.use(cookieParser());
 //API Endpoints
 
 app.get("/", (req, res) => {
-  res.send("EquiServe API is running");
+  res.send("CraftConnect API is running");
 });
 
 app.use("/api/auth", authRouter);

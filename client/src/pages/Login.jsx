@@ -18,7 +18,7 @@ const Login = () => {
   // Navigation hook
   const navigate = useNavigate();
   // Accessing backend URL and login state from context
-  const { backendUrl, isLoggedIn, setIsLoggedIn, getUserData, isCustomer } =
+  const { backendUrl, setIsLoggedIn, getUserData } =
     React.useContext(AppContext);
 
   // State to toggle between Login and Create Account
@@ -51,20 +51,62 @@ const Login = () => {
           toast.error(data.message);
         }
       } else {
-        // Login logic
-        const { data } = await axios.post(`${backendUrl}/api/auth/login`, {
-          email: formData.email,
-          password: formData.password,
-        });
+        const { data } = await axios.post(
+          `${backendUrl}/api/auth/login`,
+          {
+            email: formData.email,
+            password: formData.password,
+          },
+          {
+            withCredentials: true,
+          },
+        );
 
-        if (data.success) {
-          setIsLoggedIn(true);
-          console.log("LoggedIn:", isLoggedIn);
-          await getUserData();
-          isCustomer ? navigate("/") : navigate("/craftsman/dashboard");
-        } else {
+        if (!data.success) {
           toast.error(data.message || "Login failed");
+          return;
         }
+
+        setIsLoggedIn(true);
+
+        const user = await getUserData();
+
+        if (!user) {
+          toast.error("Failed to load user data");
+          return;
+        }
+
+        const userRole = user?.role?.toUpperCase();
+        const craftsmanStatus = user?.craftsman?.status?.toUpperCase();
+
+        if (userRole === "ADMIN" || userRole === "SUPERADMIN") {
+          navigate("/admin/dashboard", { replace: true });
+          return;
+        }
+
+        if (userRole === "CUSTOMER") {
+          navigate("/", { replace: true });
+          return;
+        }
+
+        if (userRole === "CRAFTSMAN") {
+          const applicationStatus =
+            user?.applications?.[0]?.status?.toUpperCase();
+
+          if (craftsmanStatus === "SUSPENDED") {
+            navigate("/craftsman/suspended", { replace: true });
+          } else if (craftsmanStatus === "APPROVED") {
+            navigate("/craftsman/dashboard", { replace: true });
+          } else if (applicationStatus === "SUBMITTED") {
+            navigate("/craftsman/pending-approval", { replace: true });
+          } else {
+            navigate("/craftsman/application", { replace: true });
+          }
+
+          return;
+        }
+
+        navigate("/", { replace: true });
       }
     } catch (err) {
       const message = err.response?.data?.message;
@@ -76,17 +118,24 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-r from-primary to-primary-light">
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-text-muted text-sm">
-        <div className="flex justify-between items-center w-full px-2 mb-10">
-          <KeyboardArrowLeftIcon
+        <div className="mb-10 flex w-full items-center justify-between px-2">
+          <Btn
+            type="button"
+            onClick={() => navigate(-1)}
+            variant="outline"
+            className="h-12 w-12 rounded-full p-0"
+          >
+            <KeyboardArrowLeftIcon sx={{ fontSize: 30 }} />
+          </Btn>
+
+          <Btn
+            type="button"
             onClick={() => navigate("/")}
-            sx={{ fontSize: 45 }}
-            className="text-accent hover:text-accent-hover hover:bg-gray-700 rounded-full cursor-pointer transition"
-          />
-          <HomeFilledIcon
-            onClick={() => navigate("/")}
-            sx={{ fontSize: 45 }}
-            className="text-accent p-2 hover:text-accent-hover hover:bg-gray-700 rounded-full cursor-pointer transition"
-          />{" "}
+            variant="outline"
+            className="h-12 w-12 rounded-full p-0"
+          >
+            <HomeFilledIcon sx={{ fontSize: 26 }} />
+          </Btn>
         </div>
 
         <h1 className="text-4xl font-bold text-center mb-3">
@@ -100,22 +149,26 @@ const Login = () => {
         </p>
         <form onSubmit={onSubmitHandler}>
           {state === "Create" && (
-            <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-bg">
-              <PersonIcon className="w-5 h-5" />
+            <div className="mb-4 flex w-full items-center gap-3 rounded-full border border-white/30 bg-white/15 px-5 py-3 shadow-[0_0_25px_rgba(255,255,255,0.12)] backdrop-blur-xl transition focus-within:border-primary/40 focus-within:bg-white/25 focus-within:shadow-[0_0_30px_rgba(255,255,255,0.18)]">
+              <PersonIcon className="h-5 w-5 text-text-muted" />
+
               <input
                 value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
                 }
                 type="text"
                 placeholder="Full Name"
                 required
-                className="bg-transparent outline-none"
+                className="w-full bg-transparent text-text placeholder:text-text-muted outline-none"
               />
             </div>
           )}
-          <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-bg">
-            <MailIcon className="w-5 h-5" />
+          <div className="mb-4 flex w-full items-center gap-3 rounded-full border border-white/30 bg-white/15 px-5 py-3 shadow-[0_0_25px_rgba(255,255,255,0.12)] backdrop-blur-xl transition focus-within:border-primary/40 focus-within:bg-white/25 focus-within:shadow-[0_0_30px_rgba(255,255,255,0.18)]">
+            <MailIcon className="w-5 h-5 text-text-muted" />
 
             <input
               value={formData.email}
@@ -125,11 +178,11 @@ const Login = () => {
               type="email"
               placeholder="Email"
               required
-              className="bg-transparent outline-none "
+              className="w-full bg-transparent text-text placeholder:text-text-muted outline-none"
             />
           </div>
-          <div className="mb-4 flex items-center gap-2 w-full px-5 py-2.5 rounded-full bg-bg">
-            <LockIcon className="w-5 h-5" />
+          <div className="mb-4 flex w-full items-center gap-3 rounded-full border border-white/30 bg-white/15 px-5 py-3 shadow-[0_0_25px_rgba(255,255,255,0.12)] backdrop-blur-xl transition focus-within:border-primary/40 focus-within:bg-white/25 focus-within:shadow-[0_0_30px_rgba(255,255,255,0.18)]">
+            <LockIcon className="w-5 h-5 text-text-muted" />
             <input
               value={formData.password}
               onChange={(e) =>
@@ -138,18 +191,23 @@ const Login = () => {
               type="password"
               placeholder="Password"
               required
-              className="bg-transparent outline-none"
+              className="w-full bg-transparent text-text placeholder:text-text-muted outline-none"
             />
           </div>
           {state === "Create" && (
-            <div className="flex m-10 gap-4 items-center justify-center">
+            <div className="mx-auto my-10 grid max-w-md grid-cols-2 gap-4 rounded-3xl border border-white/30 bg-white/10 p-2 shadow-[0_0_35px_rgba(255,255,255,0.14)] backdrop-blur-xl">
               <Btn
                 type="button"
                 onClick={() => {
                   setRole("CRAFTSMAN");
                   setFormData({ ...formData, role: "CRAFTSMAN" });
                 }}
-                variant={role === "CRAFTSMAN" ? "primary" : "outline"}
+                variant={role === "CRAFTSMAN" ? "primary" : "ghost"}
+                className={`rounded-full py-3 font-bold ${
+                  role === "CRAFTSMAN"
+                    ? ""
+                    : "text-text-muted hover:bg-white/10 hover:text-primary"
+                }`}
               >
                 Craftsman
               </Btn>
@@ -160,29 +218,38 @@ const Login = () => {
                   setRole("CUSTOMER");
                   setFormData({ ...formData, role: "CUSTOMER" });
                 }}
-                variant={role === "CUSTOMER" ? "primary" : "outline"}
+                variant={role === "CUSTOMER" ? "primary" : "ghost"}
+                className={`rounded-full py-3 font-bold ${
+                  role === "CUSTOMER"
+                    ? ""
+                    : "text-text-muted hover:bg-white/10 hover:text-primary"
+                }`}
               >
                 Customer
               </Btn>
             </div>
           )}
-          <p
-            className="mb-4 text-primary-light cursor-pointer"
+          <Btn
+            type="button"
             onClick={() => navigate("/reset-password")}
+            variant="ghost"
+            className="mb-4 px-0 py-0 text-sm font-semibold text-primary-light hover:text-primary hover:underline"
           >
             Forgot Password?
-          </p>
+          </Btn>
           <Btn type="submit" variant="primary" className="w-full">
             {state}
           </Btn>
-          <p
-            className="mt-4 text-center text-primary-light cursor-pointer"
+          <Btn
+            type="button"
             onClick={() => setState(state === "Create" ? "Login" : "Create")}
+            variant="ghost"
+            className="mx-auto mt-4 px-0 py-0 text-center text-sm font-semibold text-primary-light hover:text-primary hover:underline"
           >
             {state === "Create"
               ? "Already have an account? Login"
               : "Don't have an account? Sign up"}
-          </p>
+          </Btn>
         </form>
       </div>
     </div>

@@ -1,7 +1,13 @@
 import * as React from "react";
+
+import { AppContext } from "../../context/AppContext";
+
+//Components
+import Btn from "../../components/Btn";
+
+//MUI Icons
 import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { AppContext } from "../../context/AppContext";
 
 const CraftsmanPendingApproval = () => {
   const { logout } = React.useContext(AppContext);
@@ -10,14 +16,14 @@ const CraftsmanPendingApproval = () => {
     <div className="min-h-screen bg-bg flex items-center justify-center px-4 text-text">
       <div className="max-w-xl w-full bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sm:p-10 text-center">
         <div className="w-full flex justify-end">
-          <button
-            onClick={() => {
-              logout("/");
-            }}
-            className="w-fit p-3 m-2 rounded-full bg-primary text-white font-bold hover:opacity-90 transition"
+          <Btn
+            type="button"
+            onClick={() => logout("/")}
+            variant="danger"
+            className="m-2 h-11 w-11 rounded-full p-0"
           >
             <LogoutIcon />
-          </button>
+          </Btn>
         </div>
 
         <div className="w-20 h-20 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mx-auto mb-6">

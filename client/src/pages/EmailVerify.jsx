@@ -1,11 +1,16 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import HomeFilledIcon from "@mui/icons-material/HomeFilled";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+
+//MUI Icons
+import HomeFilledIcon from "@mui/icons-material/HomeFilled";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
+
+//Components
+import Btn from "../components/Btn";
 
 const EmailVerify = () => {
   const { backendUrl } = React.useContext(AppContext);
@@ -147,21 +152,23 @@ const EmailVerify = () => {
             ))}
           </div>
 
-          <button
+          <Btn
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-accent text-white font-bold shadow-md hover:bg-accent-hover transition"
+            variant="primary"
+            className="w-full rounded-xl py-3 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Verifying..." : "Verify"}
-          </button>
+          </Btn>
 
-          <button
-            onClick={handleSendCode}
+          <Btn
             type="button"
+            onClick={handleSendCode}
             disabled={timer > 0 || loading}
-            className={`text-sm font-semibold transition ${
-              timer > 0
-                ? "text-text-muted cursor-not-allowed"
+            variant="ghost"
+            className={`text-sm font-semibold ${
+              timer > 0 || loading
+                ? "cursor-not-allowed text-text-muted hover:text-text-muted"
                 : "text-primary hover:text-primary-light"
             }`}
           >
@@ -169,8 +176,8 @@ const EmailVerify = () => {
               ? "Sending..."
               : timer > 0
                 ? `Resend Code in ${formatTime(timer)}`
-                : "Resend Code"}{" "}
-          </button>
+                : "Resend Code"}
+          </Btn>
         </form>
       </div>
     </div>

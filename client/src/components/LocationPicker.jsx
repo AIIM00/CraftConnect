@@ -75,24 +75,46 @@ const LocationPicker = ({
       );
 
       const data = await response.json();
-
-      return data.display_name || `${latitude}, ${longitude}`;
+      const address = data.address || {};
+      const city =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.municipality ||
+        address.county ||
+        "";
+      return {
+        locationName: data.display_name || `${latitude}, ${longitude}`,
+        city,
+      };
     } catch (error) {
       console.error("Reverse geocoding failed:", error);
-      return `${latitude}, ${longitude}`;
+      return { locationName: `${latitude}, ${longitude}`, city: "" };
     } finally {
       setGettingAddress(false);
     }
   };
 
   const handleLocationSelect = async (latitude, longitude) => {
-    const locationName = await getLocationName(latitude, longitude);
+    try {
+      const locationName = await getLocationName(latitude, longitude);
 
-    onChange({
-      latitude,
-      longitude,
-      locationName,
-    });
+      onChange({
+        latitude,
+        longitude,
+        locationName: locationName.locationName,
+        city: locationName.city,
+      });
+    } catch (error) {
+      console.error("Failed to get location name:", error);
+
+      onChange({
+        latitude,
+        longitude,
+        locationName: `${latitude}, ${longitude}`,
+        city: "",
+      });
+    }
   };
 
   const handleUseCurrentLocation = () => {
@@ -170,6 +192,10 @@ const LocationPicker = ({
 
               <p className="text-sm text-text-muted">
                 Longitude: {value.longitude}
+              </p>
+              <p className="text-sm text-text font-bold">{value.location}</p>
+              <p className="text-sm text-text font-bold">
+                + City: {value.city || "Unknown"}+{" "}
               </p>
             </>
           )}

@@ -130,6 +130,8 @@ model Location {
   city      String?
   address   String?
   apartment String?
+  longitude Float?
+  latitude  Float?
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -173,20 +175,26 @@ model CategoryAssignmentQueue {
 
 model Task {
   id          String  @id @default(uuid())
-  categoryId  String
-  serviceId   String
-  customerId  String
-  craftsmanId String?
-
   title       String
   description String
 
   location  String
   latitude  Float?
   longitude Float?
+  status    TaskStatus @default(PENDING)
+  customerId  String
+  craftsmanId String?
+
+  categoryId  String
+  serviceId   String
+  
+
+  scheduledDate DateTime?
+  completedAt   DateTime?
+
 
   createdAt DateTime   @default(now())
-  status    TaskStatus @default(PENDING)
+  updatedAt   DateTime @updatedAt
 
   category        Category         @relation(fields: [categoryId], references: [id])
   service         Service          @relation(fields: [serviceId], references: [id])
@@ -222,6 +230,19 @@ model Review {
   craftsmanId String
 
   rating    Int
+  qualityRating         Int      @default(5)
+  punctualityRating     Int      @default(5)
+  communicationRating   Int      @default(5)
+  professionalismRating Int      @default(5)
+  cleanlinessRating     Int      @default(5)
+  priceFairnessRating   Int      @default(5)
+
+  detailedAverage       Float    @default(5)
+  
+  wouldRecommend        Boolean  @default(true)
+  wouldHireAgain        Boolean  @default(true)
+  issueTags             String[] @default([])
+
   comment   String?
   createdAt DateTime @default(now())
 
@@ -287,7 +308,7 @@ enum TaskStatus {
   WAITING
   IN_PROGRESS
   COMPLETED
-  CANCELED
+  CANCELLED
 }
 
 enum AssignmentStatus {

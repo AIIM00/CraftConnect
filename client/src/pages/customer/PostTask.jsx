@@ -3,6 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../../context/AppContext";
+
+//Components
+import Btn from "../../components/Btn";
 import LocationPicker from "../../components/LocationPicker";
 
 const PostTask = () => {
@@ -48,7 +51,7 @@ const PostTask = () => {
           description,
           latitude: selectedLocation.latitude,
           longitude: selectedLocation.longitude,
-          location: `${selectedLocation.latitude}, ${selectedLocation.longitude}`,
+          location: `${selectedLocation.location}`,
         },
         {
           withCredentials: true,
@@ -114,13 +117,14 @@ const PostTask = () => {
               </div>
             </div>
 
-            <button
+            <Btn
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent-hover transition disabled:opacity-60 disabled:cursor-not-allowed"
+              variant="primary"
+              className="w-full rounded-xl py-3 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Booking..." : "Confirm Booking"}
-            </button>
+            </Btn>
           </form>
         </div>
       </div>

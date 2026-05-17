@@ -4,6 +4,7 @@ import { isAdmin, isSuperAdmin, inviteCheck } from "../middleware/adminAuth.js";
 import {
   adminInfo,
   getAllCustomers,
+  getCustomerInsights,
   getUserById,
   deleteUserById,
 } from "../controllers/adminUserController.js";
@@ -42,6 +43,7 @@ adminRouter.post(
 //Admin User Controller
 adminRouter.get("/info", userAuth, isAdmin, adminInfo);
 adminRouter.get("/customers", userAuth, isAdmin, getAllCustomers);
+adminRouter.get("/customers/insights", userAuth, isAdmin, getCustomerInsights);
 adminRouter.get("/data/:id", userAuth, isAdmin, getUserById);
 adminRouter.delete("/delete/:id", userAuth, isAdmin, deleteUserById);
 

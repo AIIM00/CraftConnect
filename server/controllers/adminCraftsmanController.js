@@ -11,12 +11,32 @@ export const getAllCraftsmen = async (req, res) => {
         email: true,
         phoneNumber: true,
         isAccountVerified: true,
+        role: true,
         craftsman: {
           select: {
+            userId: true,
+            status: true,
             warningLevel: true,
+            isAvailable: true,
+            experience: true,
+            queueOrder: true,
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            service: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
-        role: true,
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
     res.json(craftsmen);
@@ -69,18 +89,26 @@ export const getCraftsmanApplication = async (req, res) => {
 export const updateApplicationStatus = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { status } = req.body; // "APPROVED" or "REJECTED"
-    if (status === "APPROVED") {
-      await prisma.$transaction(async (tx) => {
-        const application = await tx.application.findUnique({
-          where: { userId },
-        });
-        if (!application) {
-          throw new Error("Application not found");
-        }
-        if (!application.categoryId) {
-          throw new Error("Application has no category");
-        }
+    const { status } = req.body;
+
+    if (!["APPROVED", "REJECTED", "SUSPENDED"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const application = await prisma.application.findUnique({
+      where: { userId },
+    });
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    if (status === "APPROVED" && !application.categoryId) {
+      return res.status(400).json({ message: "Application has no category" });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (status === "APPROVED") {
         const last = await tx.craftsman.findFirst({
           where: {
             categoryId: application.categoryId,
@@ -91,70 +119,80 @@ export const updateApplicationStatus = async (req, res) => {
         });
 
         const nextOrder = (last?.queueOrder ?? 0) + 1;
-        await tx.craftsman.update({
-          where: { userId },
+
+        await tx.user.update({
+          where: { id: userId },
           data: {
+            role: "CRAFTSMAN",
+          },
+        });
+
+        await tx.craftsman.upsert({
+          where: { userId },
+          create: {
+            userId,
+            status: "APPROVED",
+            categoryId: application.categoryId,
+            queueOrder: nextOrder,
+            experience: application.yearsOfExperience,
+          },
+          update: {
             status: "APPROVED",
             categoryId: application.categoryId,
             queueOrder: nextOrder,
             experience: application.yearsOfExperience,
           },
         });
+
         await tx.application.update({
           where: { userId },
           data: { status: "APPROVED" },
         });
-      });
-      return res.json({ message: "Craftsman approved successfully" });
-    } else if (status === "REJECTED") {
-      await prisma.$transaction(async (tx) => {
-        const application = await tx.application.findUnique({
-          where: { userId },
-        });
+      }
 
-        if (!application) {
-          throw new Error("Application not found");
-        }
-
-        await tx.craftsman.update({
+      if (status === "REJECTED") {
+        await tx.craftsman.upsert({
           where: { userId },
-          data: { status: "REJECTED" },
+          create: {
+            userId,
+            status: "REJECTED",
+          },
+          update: {
+            status: "REJECTED",
+          },
         });
 
         await tx.application.update({
           where: { userId },
           data: { status: "REJECTED" },
         });
-      });
+      }
 
-      return res.json({ message: "Craftsman rejected successfully" });
-    } else if (status === "SUSPENDED") {
-      await prisma.craftsman.update({
-        where: { userId },
-        data: { status: "SUSPENDED" },
-      });
+      if (status === "SUSPENDED") {
+        await tx.craftsman.update({
+          where: { userId },
+          data: { status: "SUSPENDED" },
+        });
+      }
+    });
 
-      return res.json({ message: "Craftsman suspended successfully" });
-    }
-
-    return res.status(400).json({ message: "Invalid status value" });
-    //⚠️SEND EMAIL AFTER APPROVAL/REJECTION/SUSPENSION
+    return res.json({
+      success: true,
+      message: `Craftsman ${status.toLowerCase()} successfully`,
+    });
   } catch (error) {
-    console.error(error);
-    if (error.message === "Application not found") {
-      return res.status(404).json({ message: error.message });
-    }
+    console.error("Update application status error:", error);
 
-    if (error.message === "Application has no category") {
-      return res.status(400).json({ message: error.message });
-    }
-
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 //CRAFTSMAN INVENTORY BY CATEGORY AND AVAILIBILTY
 export const getCraftsmenCountByCategory = async (req, res) => {
   try {
+  
     const categories = await prisma.category.findMany({
       select: {
         id: true,

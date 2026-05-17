@@ -1,17 +1,13 @@
 import { AppContext } from "../../context/AppContext";
-import { useNavigate } from "react-router-dom";
 
 //Components
-import NavBar from "../../components/NavBar";
-import Footer from "../../components/Footer";
 import Services from "../../components/Services";
+import Btn from "../../components/Btn";
 
 //MUI Icons
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SearchIcon from "@mui/icons-material/Search";
 
 export default function ServicesPage({ id }) {
-  const navigate = useNavigate();
   return (
     <>
       <main id={id} className="w-full bg-bg">
@@ -30,18 +26,22 @@ export default function ServicesPage({ id }) {
               Browse trusted craftsmen and home service experts by category.
             </p>
 
-            <div className="mt-8 max-w-xl mx-auto bg-white rounded-2xl p-2 flex items-center shadow-lg">
-              <SearchIcon className="text-text-muted mx-3" />
+            <div className="mt-8 max-w-xl mx-auto flex items-center rounded-3xl border border-white/30 bg-white/15 p-2 shadow-[0_0_35px_rgba(255,255,255,0.18)] backdrop-blur-xl">
+              <SearchIcon className="mx-3 text-white/80 drop-shadow-sm" />
 
               <input
                 type="text"
                 placeholder="Search for plumber, cleaner, carpenter..."
-                className="flex-1 outline-none text-text px-2"
+                className="flex-1 bg-transparent px-2 text-white placeholder:text-white/60 outline-none"
               />
 
-              <button className="bg-accent hover:bg-accent-hover text-white px-5 py-3 rounded-xl font-semibold transition">
+              <Btn
+                type="button"
+                variant="primary"
+                className="rounded-full px-5 py-2 font-semibold"
+              >
                 Search
-              </button>
+              </Btn>
             </div>
           </div>
         </section>
@@ -63,14 +63,6 @@ export default function ServicesPage({ id }) {
                   near you.
                 </p>
               </div>
-
-              <button
-                onClick={() => navigate("/")}
-                className="self-start sm:self-auto flex items-center gap-2 text-primary font-semibold hover:text-primary-light transition"
-              >
-                Back home
-                <ArrowForwardIcon fontSize="small" />
-              </button>
             </div>
             <Services />
           </div>

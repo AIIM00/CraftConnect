@@ -6,11 +6,52 @@ export const inProgressTasks = async (req, res) => {
     const tasks = await prisma.task.findMany({
       where: { status: "IN_PROGRESS" },
       select: {
+        id: true,
         title: true,
         description: true,
+        location: true,
+        status: true,
         createdAt: true,
-        userId: true,
-        categoryId: true,
+        scheduledDate: true,
+
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phoneNumber: true,
+          },
+        },
+
+        craftsman: {
+          select: {
+            userId: true,
+            status: true,
+            warningLevel: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+              },
+            },
+          },
+        },
+
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+
+        service: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
     res.json(tasks);
@@ -28,6 +69,18 @@ export const getAllReviews = async (req, res) => {
       select: {
         id: true,
         rating: true,
+        qualityRating: true,
+        punctualityRating: true,
+        communicationRating: true,
+        professionalismRating: true,
+        cleanlinessRating: true,
+        priceFairnessRating: true,
+        detailedAverage: true,
+
+        wouldRecommend: true,
+        wouldHireAgain: true,
+        issueTags: true,
+
         comment: true,
         createdAt: true,
 
@@ -56,9 +109,14 @@ export const getAllReviews = async (req, res) => {
           },
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [
+        {
+          detailedAverage: "asc",
+        },
+        {
+          createdAt: "desc",
+        },
+      ],
     });
 
     res.json(reviews);

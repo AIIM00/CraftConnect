@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Review" ADD COLUMN     "detailedAverage" DOUBLE PRECISION NOT NULL DEFAULT 5;

@@ -39,10 +39,10 @@ export const addAdmin = async (req, res) => {
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: email,
-      subject: "Admin invitation to EquiServe Dashboard",
+      subject: "Admin invitation to CraftConnect Dashboard",
       text: `Hi,
 
-You have been invited to become an admin on EquiServe.
+You have been invited to become an admin on CraftConnect.
 
 Click the link below to set your password and login:
 
@@ -51,7 +51,7 @@ ${process.env.FRONTEND_URL}/admin/invite?token=${token}
 This link will expire in 24 hours.
 
 Best,
-The EquiServe Team
+The CraftConnect Team
 `,
     };
     await transporter.sendMail(mailOptions);

@@ -17,6 +17,7 @@
     "@mui/styled-engine-sc": "^9.0.0",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.15.2",
+    "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 //Components
+import Btn from "../../components/Btn";
 import Header from "../../components/Header";
 import HowItWorksSteps from "../../components/HowItWorksSteps";
 import HowItWorks from "../../components/HowItWorks";
@@ -48,15 +49,15 @@ const Home = () => {
               </p>
             </div>
 
-            <button
-              onClick={() => {
-                navigate("/customer/services");
-              }}
-              className="self-start sm:self-auto flex items-center gap-2 text-primary font-semibold hover:text-primary-light transition"
+            <Btn
+              type="button"
+              onClick={() => navigate("/customer/services")}
+              variant="ghost"
+              className="self-start sm:self-auto px-0 py-0 font-semibold"
             >
               View all
               <ArrowForwardIcon fontSize="small" />
-            </button>
+            </Btn>
           </div>
           <Services id="services" limit={4} />
         </div>

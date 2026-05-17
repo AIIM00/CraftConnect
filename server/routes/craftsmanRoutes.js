@@ -5,16 +5,26 @@ import {
   checkCraftsmanStatus,
 } from "../middleware/craftsmanAuth.js";
 import {
+  getMyApplication,
   saveApplicationStep,
   submitApplication,
   dashboard,
+  getCraftsmanCalendarTasks,
   assignRejectTask,
   updateProfile,
   getAllTasks,
+  toggleAvailability,
+  showAvailability,
+  completeTask,
 } from "../controllers/craftsmanController.js";
 
 export const craftsmanRouter = express.Router();
-
+craftsmanRouter.get(
+  "/applications/me",
+  userAuth,
+  isCraftsman,
+  getMyApplication,
+);
 craftsmanRouter.post(
   "/applications/save",
   userAuth,
@@ -43,6 +53,12 @@ craftsmanRouter.get(
   getAllTasks,
 );
 
+craftsmanRouter.get(
+  "/calendar-tasks",
+  userAuth,
+  isCraftsman,
+  getCraftsmanCalendarTasks,
+);
 craftsmanRouter.patch(
   "/tasks/:taskId/respond",
   userAuth,
@@ -50,7 +66,27 @@ craftsmanRouter.patch(
   checkCraftsmanStatus,
   assignRejectTask,
 );
+craftsmanRouter.patch(
+  "/tasks/:taskId/complete",
+  userAuth,
+  isCraftsman,
+  completeTask,
+);
 
 craftsmanRouter.patch("/profile", userAuth, isCraftsman, updateProfile);
+craftsmanRouter.get(
+  "/availability",
+  userAuth,
+  isCraftsman,
+  checkCraftsmanStatus,
+  showAvailability,
+);
 
+craftsmanRouter.patch(
+  "/availability/toggle",
+  userAuth,
+  isCraftsman,
+  checkCraftsmanStatus,
+  toggleAvailability,
+);
 export default craftsmanRouter;

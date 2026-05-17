@@ -6,9 +6,15 @@ export const saveApplicationStep = async (req, res) => {
   const { step, data } = req.body;
 
   try {
-    let application = await prisma.application.findFirst({
-      where: { userId, status: "DRAFT" },
+    let application = await prisma.application.findUnique({
+      where: { userId },
     });
+
+    if (application && application.status === "SUBMITTED") {
+      return res.status(400).json({
+        message: "Application already submitted",
+      });
+    }
 
     if (!application) {
       application = await prisma.application.create({
@@ -39,12 +45,17 @@ export const submitApplication = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const application = await prisma.application.findFirst({
-      where: { userId, status: "DRAFT" },
+    const application = await prisma.application.findUnique({
+      where: { userId },
     });
 
     if (!application) {
-      return res.status(400).json({ message: "No draft found" });
+      return res.status(400).json({ message: "No application found" });
+    }
+    if (application.status === "SUBMITTED") {
+      return res.status(400).json({
+        message: "Application already submitted",
+      });
     }
 
     const updated = await prisma.application.update({
@@ -61,6 +72,28 @@ export const submitApplication = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+export const getMyApplication = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const application = await prisma.application.findUnique({
+      where: { userId },
+      include: {
+        category: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      application,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -213,7 +246,27 @@ export const assignRejectTask = async (req, res) => {
   try {
     const { taskId } = req.params;
     const craftsmanId = req.user.id;
-    const { action } = req.body;
+    const { action, scheduledDate } = req.body;
+    if (!["ACCEPT", "REJECT"].includes(action)) {
+      return res.status(400).json({ message: "Invalid action" });
+    }
+
+    let parsedScheduledDate = null;
+    if (action === "ACCEPT") {
+      if (!scheduledDate) {
+        return res.status(400).json({
+          message: "Scheduled date is required when accepting a task",
+        });
+      }
+
+      parsedScheduledDate = new Date(scheduledDate);
+
+      if (Number.isNaN(parsedScheduledDate.getTime())) {
+        return res.status(400).json({
+          message: "Invalid scheduled date",
+        });
+      }
+    }
 
     const assignment = await prisma.taskAssignment.findUnique({
       where: {
@@ -255,6 +308,7 @@ export const assignRejectTask = async (req, res) => {
           data: {
             status: "IN_PROGRESS",
             craftsmanId,
+            scheduledDate: parsedScheduledDate,
           },
         });
 
@@ -272,7 +326,7 @@ export const assignRejectTask = async (req, res) => {
         });
       });
 
-      return res.json({ message: "Task accepted" });
+      return res.json({ message: "Task accepted and scheduled successfully" });
     }
 
     if (action === "REJECT") {
@@ -409,5 +463,128 @@ export const getReviews = async (req, res) => {
     res.json({ reviews });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+//Craftsman Calendar Tasks
+export const getCraftsmanCalendarTasks = async (req, res) => {
+  try {
+    const craftsmanId = req.user.id;
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: "startDate and endDate are required",
+      });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date range",
+      });
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: {
+        craftsmanId,
+        OR: [
+          {
+            scheduledDate: {
+              gte: start,
+              lte: end,
+            },
+          },
+          {
+            completedAt: {
+              gte: start,
+              lte: end,
+            },
+          },
+        ],
+        status: {
+          in: ["IN_PROGRESS", "COMPLETED"],
+        },
+      },
+      include: {
+        category: true,
+        service: true,
+        customer: {
+          select: {
+            name: true,
+            email: true,
+            phoneNumber: true,
+          },
+        },
+      },
+      orderBy: {
+        scheduledDate: "asc",
+      },
+    });
+
+    res.json({
+      success: true,
+      tasks,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const completeTask = async (req, res) => {
+  try {
+    const craftsmanId = req.user.id;
+    const { taskId } = req.params;
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    if (task.craftsmanId !== craftsmanId) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not assigned to this task",
+      });
+    }
+
+    if (task.status === "COMPLETED") {
+      return res.status(400).json({
+        success: false,
+        message: "Task is already completed",
+      });
+    }
+
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        status: "COMPLETED",
+        completedAt: new Date(),
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Task completed successfully",
+      task: updatedTask,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

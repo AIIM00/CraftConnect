@@ -25,7 +25,7 @@ import RouteIcon from "@mui/icons-material/Route";
 const pages = [
   { name: "Home", path: "/", icon: <HomeIcon /> },
   { name: "Services", path: "/services", icon: <MiscellaneousServicesIcon /> },
-  { name: "How It Works", path: "/guide", icon: <RouteIcon /> },
+  { name: "How It Works", path: "/how-it-works", icon: <RouteIcon /> },
   { name: "About Us", path: "/about", icon: <InfoIcon /> },
   { name: "Help", path: "/help", icon: <HelpIcon /> },
 ];

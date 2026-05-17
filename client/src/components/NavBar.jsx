@@ -8,12 +8,13 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
-import MenuItem from "@mui/material/MenuItem";
 import Avatar from "@mui/material/Avatar";
+
+//Icons
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { deepPurple } from "@mui/material/colors";
 
@@ -22,32 +23,21 @@ import Btn from "./Btn";
 import SideMenu from "../components/SideMenu";
 
 const pages = [
-  { name: "Home", id: "header" },
-  { name: "Services", id: "services" },
-  { name: "How It Works", id: "howItWorks" },
-  { name: "About Us", id: "about" },
+  { name: "Home", id: "header", path: "/" },
+  { name: "Services", id: "services", path: "/services" },
+  { name: "How It Works", id: "howItWorks", path: "/how-it-works" },
+  { name: "About Us", id: "about", path: "/about" },
   { name: "Help", id: "help" },
 ];
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const { userData, logout } = React.useContext(AppContext);
+  const { userData, frontendUrl } = React.useContext(AppContext);
 
   const [openDrawer, setOpenDrawer] = React.useState(false);
 
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
   const handleOpenNavMenu = () => setOpenDrawer(true);
   const handleCloseNavMenu = () => setOpenDrawer(false);
-
-  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
-  const handleCloseUserMenu = () => setAnchorElUser(null);
-
-  const goTo = (path) => {
-    navigate(path);
-    handleCloseNavMenu();
-    handleCloseUserMenu();
-  };
 
   return (
     <AppBar
@@ -91,7 +81,7 @@ const NavBar = () => {
           {/* Desktop nav links */}
           <Box className="hidden md:flex flex-1 justify-center items-center gap-1">
             {pages.map((page) => (
-              <Link key={page.name} to={`/#${page.id}`}>
+              <Link key={page.name} to={`${frontendUrl}/${page.path}`}>
                 <Button className="!text-white/90 !font-bold hover:!bg-white/10 !capitalize !px-4">
                   {page.name}
                 </Button>
@@ -100,35 +90,25 @@ const NavBar = () => {
           </Box>
 
           {/* Right side */}
-          <Box className="flex items-center justify-end shrink-0">
+          <Box className="flex items-center justify-end gap-2 shrink-0">
             {userData ? (
               <>
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <IconButton onClick={() => navigate("/bookings")}>
+                  <EventAvailableIcon
+                    fontSize="large"
+                    className="text-accent-hover"
+                  />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    navigate("/profile");
+                  }}
+                  sx={{ p: 0 }}
+                >
                   <Avatar sx={{ bgcolor: deepPurple[500] }}>
                     {userData?.name?.[0]?.toUpperCase()}
                   </Avatar>
                 </IconButton>
-
-                <Menu
-                  anchorEl={anchorElUser}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {!userData.isAccountVerified && (
-                    <MenuItem onClick={() => goTo("/email-verify")}>
-                      Verify Email
-                    </MenuItem>
-                  )}
-
-                  <MenuItem
-                    onClick={() => {
-                      handleCloseUserMenu();
-                      logout();
-                    }}
-                  >
-                    Logout
-                  </MenuItem>
-                </Menu>
               </>
             ) : (
               <Btn onClick={() => navigate("/login")}>

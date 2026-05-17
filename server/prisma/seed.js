@@ -106,7 +106,7 @@ async function main() {
   const superadmin = await prisma.user.create({
     data: {
       name: "Super Admin",
-      email: "superadmin@equiserve.com",
+      email: "superadmin@craftconnect.com",
       password,
       role: "SUPERADMIN",
       isAccountVerified: true,
@@ -118,7 +118,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       name: "Maya Admin",
-      email: "admin@equiserve.com",
+      email: "admin@craftconnect.com",
       password,
       role: "ADMIN",
       isAccountVerified: true,
@@ -814,8 +814,8 @@ async function main() {
   console.log("Seed completed.");
   console.log("");
   console.log("Login accounts:");
-  console.log("SUPERADMIN: superadmin@equiserve.com / Pass1234!");
-  console.log("ADMIN: admin@equiserve.com / Pass1234!");
+  console.log("SUPERADMIN: superadmin@craftconnect.com / Pass1234!");
+  console.log("ADMIN: admin@craftconnect.com / Pass1234!");
   console.log("CUSTOMER: ali.customer@test.com / Pass1234!");
   console.log("CUSTOMER: sara.customer@test.com / Pass1234!");
   console.log("UNVERIFIED CUSTOMER: jaafar.customer@test.com / Pass1234!");

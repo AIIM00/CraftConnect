@@ -51,14 +51,14 @@ export const register = async (req, res) => {
       const mailOptions = {
         from: process.env.SENDER_EMAIL,
         to: newUser.email,
-        subject: "Welcome to EquiServe! Please verify your email",
+        subject: "Welcome to CraftConnect! Please verify your email",
         text: `Hi ${newUser.name},
 
-Thank you for registering on EquiServe.
+Thank you for registering on CraftConnect.
 Please request the verification OTP and enter it in the app to verify your email.
 
 Best regards,
-The EquiServe Team`,
+The CraftConnect Team`,
       };
       await transporter.sendMail(mailOptions);
       res.status(201).json({
@@ -168,7 +168,7 @@ export const sendVerifyOtp = async (req, res) => {
         from: process.env.SENDER_EMAIL,
         to: user.email,
         subject: "Your OTP for email verification",
-        text: `Hi ${user.name},\n\nYour OTP for email verification is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe EquiServe Team`,
+        text: `Hi ${user.name},\n\nYour OTP for email verification is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe CraftConnect Team`,
       };
       await transporter.sendMail(mailOptions);
       res.json({ success: true, message: "Code sent successfully" });
@@ -252,7 +252,7 @@ export const sendResetOtp = async (req, res) => {
           from: process.env.SENDER_EMAIL,
           to: email,
           subject: "Your OTP for password reset",
-          text: `Hi,\n\nYour OTP for password reset is: ${passwordResetOtp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe EquiServe Team`,
+          text: `Hi,\n\nYour OTP for password reset is: ${passwordResetOtp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe CraftConnect Team`,
         };
         await transporter.sendMail(mailOptions);
         res.json({ message: "OTP sent to email successfully" });

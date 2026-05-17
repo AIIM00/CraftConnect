@@ -1,8 +1,12 @@
 import * as React from "react";
+
+import { AppContext } from "../../context/AppContext";
+//Components
+import Btn from "../../components/Btn";
+//MUI Icons
 import BlockIcon from "@mui/icons-material/Block";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import { AppContext } from "../../context/AppContext";
 
 const CraftsmanSuspended = () => {
   const { logout } = React.useContext(AppContext);
@@ -12,14 +16,14 @@ const CraftsmanSuspended = () => {
       <div className="min-h-[calc(100vh-88px)] flex items-center justify-center px-4">
         <div className="max-w-xl w-full bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sm:p-10 text-center">
           <div className="w-full flex justify-end">
-            <button
-              onClick={() => {
-                logout("/");
-              }}
-              className="w-fit p-3 m-2 rounded-full bg-primary text-white font-bold hover:opacity-90 transition"
+            <Btn
+              type="button"
+              onClick={() => logout("/")}
+              variant="danger"
+              className="m-2 h-11 w-11 rounded-full p-0"
             >
               <LogoutIcon />
-            </button>
+            </Btn>
           </div>
           <div className="w-20 h-20 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-6">
             <BlockIcon sx={{ fontSize: 44 }} />

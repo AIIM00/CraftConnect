@@ -4,6 +4,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 
+//Components
+import Btn from "../components/Btn";
+//MUI Icons
 import HomeFilledIcon from "@mui/icons-material/HomeFilled";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
@@ -143,18 +146,24 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-accent-soft via-bg to-primary-light px-4">
       <div className="relative w-full max-w-md bg-surface rounded-3xl shadow-2xl px-8 py-10 text-center">
-        <div className="flex justify-between items-center w-full px-2 mb-10">
-          <KeyboardArrowLeftIcon
+        <div className="mb-10 flex w-full items-center justify-between px-2">
+          <Btn
+            type="button"
             onClick={() => navigate("/login")}
-            sx={{ fontSize: 52 }}
-            className="text-accent hover:text-accent-hover hover:bg-gray-300 rounded-full cursor-pointer transition"
-          />
+            variant="ghost"
+            className="h-12 w-12 rounded-full border border-white/30 bg-white/20 p-0 text-accent shadow-sm backdrop-blur-xl hover:bg-white/40 hover:text-accent-hover"
+          >
+            <KeyboardArrowLeftIcon sx={{ fontSize: 42 }} />
+          </Btn>
 
-          <HomeFilledIcon
+          <Btn
+            type="button"
             onClick={() => navigate("/")}
-            sx={{ fontSize: 52 }}
-            className="text-accent p-2 hover:text-accent-hover hover:bg-gray-300 rounded-full cursor-pointer transition"
-          />
+            variant="ghost"
+            className="h-12 w-12 rounded-full border border-white/30 bg-white/20 p-0 text-accent shadow-sm backdrop-blur-xl hover:bg-white/40 hover:text-accent-hover"
+          >
+            <HomeFilledIcon sx={{ fontSize: 32 }} />
+          </Btn>
         </div>
 
         <div className="mx-auto mb-6 w-24 h-24 rounded-full bg-accent-soft flex items-center justify-center">
@@ -183,13 +192,14 @@ const ResetPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <button
+            <Btn
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent-hover transition disabled:opacity-60"
+              variant="primary"
+              className="w-full rounded-xl py-3 font-bold disabled:opacity-60"
             >
               {loading ? "Sending..." : "Send Code"}
-            </button>
+            </Btn>
           </form>
         )}
 
@@ -215,27 +225,29 @@ const ResetPassword = () => {
               ))}
             </div>
 
-            <button
+            <Btn
               type="submit"
-              className="w-full py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent-hover transition"
+              variant="primary"
+              className="w-full rounded-xl py-3 font-bold"
             >
               Verify Code
-            </button>
+            </Btn>
 
-            <button
+            <Btn
               type="button"
               onClick={handleSendCode}
               disabled={timer > 0}
-              className={`text-sm font-semibold text-primary hover:text-primary-light transition ${
+              variant="ghost"
+              className={`text-sm font-semibold ${
                 timer > 0
-                  ? "text-text-muted cursor-not-allowed"
+                  ? "cursor-not-allowed text-text-muted hover:text-text-muted"
                   : "text-primary hover:text-primary-light"
               }`}
             >
               {timer > 0
                 ? `Resend Code in ${formatTime(timer)}`
                 : "Resend Code"}
-            </button>
+            </Btn>
           </form>
         )}
 
@@ -253,13 +265,14 @@ const ResetPassword = () => {
               onChange={(e) => setNewPassword(e.target.value)}
             />
 
-            <button
+            <Btn
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-accent text-white font-bold hover:bg-accent-hover transition disabled:opacity-60"
+              variant="primary"
+              className="w-full rounded-xl py-3 font-bold disabled:opacity-60"
             >
               {loading ? "Resetting..." : "Reset Password"}
-            </button>
+            </Btn>
           </form>
         )}
       </div>
