@@ -54,7 +54,11 @@ export const processTimedOutAssignments = async () => {
             },
           });
 
-          if (!task || task.status === "IN_PROGRESS" || task.craftsmanId) {
+          if (
+            !task ||
+            ["IN_PROGRESS", "COMPLETED", "CANCELLED"].includes(task.status) ||
+            task.craftsmanId
+          ) {
             return false;
           }
 
@@ -86,7 +90,8 @@ export const processTimedOutAssignments = async () => {
           await prisma.task.update({
             where: { id: assignment.taskId },
             data: {
-              status: "PENDING",
+              status: "UNASSIGNABLE",
+              becameUnassignableAt: new Date(),
             },
           });
         }

@@ -9,84 +9,104 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-white mt-16">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-1 gap-10">
-        {/* Brand + Social */}
-        <Link to="/#header">
-          <div>
-            <div className="flex items-center gap-3 mb-4 cursor-pointer">
-              <img src={assets.logo} alt="logo" className="w-12" />
-              <h2 className="text-xl font-bold">CraftConnect</h2>
-            </div>
+    <footer className="relative overflow-hidden bg-[radial-gradient(circle_at_12%_20%,rgba(218,165,32,0.18),transparent_28%),radial-gradient(circle_at_88%_80%,rgba(0,128,128,0.22),transparent_30%),linear-gradient(135deg,#0B2540_0%,#133A63_52%,#0B2540_100%)] text-text-light">
+      <div className="pointer-events-none absolute -left-32 -top-32 h-[360px] w-[360px] rounded-full bg-accent/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 -bottom-32 h-[360px] w-[360px] rounded-full bg-teal/20 blur-3xl" />
 
-            <p className="text-white/70 text-sm mb-4">
-              Your trusted marketplace for services.
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-12">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_2fr]">
+          {/* Brand + Social */}
+          <div className="rounded-[28px] border border-white/15 bg-white/10 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.22),inset_0_0_35px_rgba(255,255,255,0.05)] backdrop-blur-xl">
+            <Link to="/#header" className="inline-block">
+              <div className="mb-4 flex cursor-pointer items-center gap-3">
+                <img
+                  src={assets.logo}
+                  alt="CraftConnect logo"
+                  className="w-12 rounded-2xl"
+                />
+
+                <h2 className="font-heading text-2xl font-extrabold tracking-[0.5px] text-text-light">
+                  CraftConnect
+                </h2>
+              </div>
+            </Link>
+
+            <p className="mb-6 max-w-sm text-sm leading-6 text-[rgba(247,244,237,0.7)]">
+              Your trusted marketplace for reliable craftsmen and everyday
+              services.
             </p>
-            <div className="flex items-center gap-3">
-              <p className="font-semibold mb-0">Follow us! We're friendly:</p>
 
-              <div className="flex gap-4">
-                <FacebookIcon className="cursor-pointer hover:text-accent transition" />
-                <InstagramIcon className="cursor-pointer hover:text-accent transition" />
-                <MusicNoteIcon className="cursor-pointer hover:text-accent transition" />
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <p className="mb-0 text-sm font-semibold text-[rgba(247,244,237,0.82)]">
+                Follow us! We&apos;re friendly:
+              </p>
+
+              <div className="flex gap-3">
+                <FacebookIcon className="cursor-pointer rounded-full border border-white/15 bg-white/10 p-1 text-[34px] transition hover:border-accent/50 hover:bg-accent/20 hover:text-accent-soft" />
+                <InstagramIcon className="cursor-pointer rounded-full border border-white/15 bg-white/10 p-1 text-[34px] transition hover:border-accent/50 hover:bg-accent/20 hover:text-accent-soft" />
+                <MusicNoteIcon className="cursor-pointer rounded-full border border-white/15 bg-white/10 p-1 text-[34px] transition hover:border-accent/50 hover:bg-accent/20 hover:text-accent-soft" />
               </div>
             </div>
           </div>
-        </Link>
-        <div className="grid grid-cols-3 gap-10">
-          {/* Discover */}
-          <div>
-            <h3 className="font-semibold mb-4">Discover</h3>
-            <ul className="space-y-2 text-sm text-white/70">
-              <li className="hover:text-white cursor-pointer">
-                Become a Tasker
-              </li>
-              <li className="hover:text-white cursor-pointer">
-                Services By City
-              </li>
-              <li className="hover:text-white cursor-pointer">
-                Services Nearby
-              </li>
-              <li className="hover:text-white cursor-pointer">All Services</li>
-            </ul>
-          </div>
 
-          {/* Company + Help */}
-          <div>
-            <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-white/70">
-              <li className="hover:text-white cursor-pointer">About Us</li>
-              <li className="hover:text-white cursor-pointer">Careers</li>
-              <li className="hover:text-white cursor-pointer">
-                Partner with CraftConnect
-              </li>
-              <li className="hover:text-white cursor-pointer">Help</li>
-              <li className="hover:text-white cursor-pointer">
-                Terms & Privacy
-              </li>
-            </ul>
-          </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Discover */}
+            <div className="rounded-[24px] border border-white/15 bg-white/10 p-6 backdrop-blur-xl">
+              <h3 className="mb-4 font-display text-base font-bold text-accent-soft">
+                Discover
+              </h3>
 
-          {/* App Download */}
-          <div>
-            <h3 className="font-semibold mb-4">Download our app</h3>
-            <p className="text-sm text-white/70 mb-4">
-              Tackle your to-do list wherever you are with our mobile app.
-            </p>
+              <ul className="space-y-3 text-sm text-[rgba(247,244,237,0.7)]">
+                <li>
+                  <Link
+                    to="/login"
+                    className="block cursor-pointer transition hover:translate-x-1 hover:text-text-light"
+                  >
+                    Become a Tasker
+                  </Link>
+                </li>
 
-            <div className="space-y-3">
-              <button className="w-full bg-white text-primary py-2 rounded-xl font-medium hover:bg-gray-200 transition">
-                Apple Store
-              </button>
-              <button className="w-full bg-accent py-2 rounded-xl font-medium hover:bg-accent-hover transition">
-                Google Play
-              </button>
+                <li>
+                  <Link
+                    to="/services"
+                    className="block cursor-pointer transition hover:translate-x-1 hover:text-text-light"
+                  >
+                    All Services
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company + Help */}
+            <div className="rounded-[24px] border border-white/15 bg-white/10 p-6 backdrop-blur-xl">
+              <h3 className="mb-4 font-display text-base font-bold text-accent-soft">
+                Company
+              </h3>
+
+              <ul className="space-y-3 text-sm text-[rgba(247,244,237,0.7)]">
+                <li>
+                  <Link
+                    to="/about"
+                    className="cursor-pointer transition hover:translate-x-1 hover:text-text-light"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/terms-privacy"
+                    className="cursor-pointer transition hover:translate-x-1 hover:text-text-light"
+                  >
+                    Terms & Privacy
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 text-center text-sm text-white/60 py-2">
+        <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-[rgba(247,244,237,0.58)]">
           © {new Date().getFullYear()} CraftConnect. All rights reserved.
         </div>
       </div>

@@ -4,9 +4,7 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { AppProvider } from "./context/AppProvider";
 import axios from "axios";
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "./theme/theme.js";
-
+import ScrollToTop from "./components/ScrollToTop";
 import "leaflet/dist/leaflet.css";
 
 //Global Setup
@@ -15,10 +13,9 @@ axios.defaults.withCredentials = true;
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
+    <ScrollToTop />
     <AppProvider>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <App />
     </AppProvider>
   </BrowserRouter>,
 );

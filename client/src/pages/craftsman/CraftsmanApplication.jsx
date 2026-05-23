@@ -3,7 +3,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+
+// Components
+import LocationPicker from "../../components/LocationPicker";
 import Btn from "../../components/Btn";
+//MUI Icons
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 const CraftsmanApplication = () => {
   const { backendUrl, getUserData } = React.useContext(AppContext);
@@ -15,6 +20,9 @@ const CraftsmanApplication = () => {
 
   const [formData, setFormData] = React.useState({
     categoryId: "",
+    serviceId: "",
+    customCategory: "",
+    customService: "",
     yearsOfExperience: "",
     city: "",
     address1: "",
@@ -45,6 +53,9 @@ const CraftsmanApplication = () => {
     "Sunday",
   ];
 
+  const [categories, setCategories] = React.useState([]);
+  const [selectedLocation, setSelectedLocation] = React.useState(null);
+
   const getApplication = async () => {
     try {
       setLoading(true);
@@ -69,6 +80,9 @@ const CraftsmanApplication = () => {
         setFormData((prev) => ({
           ...prev,
           categoryId: application.categoryId || "",
+          serviceId: application.serviceId || "",
+          customCategory: application.customCategory || "",
+          customService: application.customService || "",
           yearsOfExperience: application.yearsOfExperience || "",
           city: application.city || "",
           address1: application.address1 || "",
@@ -98,6 +112,7 @@ const CraftsmanApplication = () => {
 
   React.useEffect(() => {
     getApplication();
+    getCategoriesAndServices();
   }, []);
 
   const saveStep = async (nextStep = step) => {
@@ -109,7 +124,20 @@ const CraftsmanApplication = () => {
 
       if (step === 1) {
         payload.data = {
-          categoryId: formData.categoryId || null,
+          categoryId:
+            formData.categoryId === "other"
+              ? null
+              : formData.categoryId || null,
+          serviceId:
+            formData.serviceId === "other" ? null : formData.serviceId || null,
+          customCategory:
+            formData.categoryId === "other"
+              ? formData.customCategory || null
+              : null,
+          customService:
+            formData.serviceId === "other"
+              ? formData.customService || null
+              : null,
           yearsOfExperience: Number(formData.yearsOfExperience),
         };
       }
@@ -159,6 +187,27 @@ const CraftsmanApplication = () => {
     setStep((prev) => Math.max(1, prev - 1));
   };
 
+  const getCategoriesAndServices = async () => {
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/craftsman/categories-services`,
+        {
+          withCredentials: true,
+        },
+      );
+
+      if (data.success) {
+        setCategories(data.categories);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const selectedCategory = categories.find(
+    (category) => category.id === formData.categoryId,
+  );
+
+  const filteredServices = selectedCategory ? selectedCategory.services : [];
   const submitApplication = async () => {
     try {
       setSubmitting(true);
@@ -199,6 +248,15 @@ const CraftsmanApplication = () => {
       };
     });
   };
+  const updateWorkingHours = (key, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      workingHours: {
+        ...prev.workingHours,
+        [key]: value,
+      },
+    }));
+  };
 
   if (loading) {
     return (
@@ -208,6 +266,52 @@ const CraftsmanApplication = () => {
     );
   }
 
+  const isStepValid = () => {
+    // STEP 1
+    if (step === 1) {
+      const categoryValid =
+        formData.categoryId &&
+        (formData.categoryId !== "other" || formData.customCategory?.trim());
+
+      const serviceValid =
+        formData.serviceId &&
+        (formData.serviceId !== "other" || formData.customService?.trim());
+
+      return categoryValid && serviceValid && formData.yearsOfExperience !== "";
+    }
+
+    // STEP 2
+    if (step === 2) {
+      return (
+        selectedLocation &&
+        formData.city.trim() &&
+        formData.address1.trim() &&
+        formData.apartment.trim()
+      );
+    }
+
+    // STEP 3
+    if (step === 3) {
+      return (
+        formData.workingDays.length > 0 &&
+        formData.workingHours.from &&
+        formData.workingHours.to &&
+        Number(formData.maxTravelDistance) > 0
+      );
+    }
+
+    // STEP 4
+    if (step === 4) {
+      return (
+        formData.scenarioQA.emergency.trim() &&
+        formData.scenarioQA.difficultCustomer.trim() &&
+        formData.workBehaviorQA.punctuality.trim() &&
+        formData.workBehaviorQA.safety.trim()
+      );
+    }
+
+    return false;
+  };
   return (
     <div className="min-h-screen bg-bg px-4 py-10 text-text">
       <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-sm border border-gray-100">
@@ -234,18 +338,91 @@ const CraftsmanApplication = () => {
             <h2 className="text-xl font-bold">Professional Information</h2>
 
             <div>
-              <label className="block font-semibold mb-2">Category ID</label>
-              <input
+              <label className="block font-semibold mb-2">Category</label>
+
+              <select
+                required
                 value={formData.categoryId}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
                     categoryId: e.target.value,
+                    customCategory: "",
+                    serviceId: "",
                   }))
                 }
-                placeholder="Paste category id here"
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
-              />
+              >
+                <option value="">Select category</option>
+
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+
+                <option value="other">Other</option>
+              </select>
+
+              {formData.categoryId === "other" && (
+                <input
+                  required
+                  type="text"
+                  placeholder="Enter your category"
+                  value={formData.customCategory || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customCategory: e.target.value,
+                    }))
+                  }
+                  className="mt-3 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
+                />
+              )}
+            </div>
+
+            {/* SERVICE */}
+            <div>
+              <label className="block font-semibold mb-2">Service</label>
+
+              <select
+                required
+                value={formData.serviceId}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    serviceId: e.target.value,
+                    customService: "",
+                  }))
+                }
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
+              >
+                <option value="">Select service</option>
+
+                {filteredServices.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+
+                <option value="other">Other</option>
+              </select>
+
+              {formData.serviceId === "other" && (
+                <input
+                  required
+                  type="text"
+                  placeholder="Enter your service"
+                  value={formData.customService || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      customService: e.target.value,
+                    }))
+                  }
+                  className="mt-3 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
+                />
+              )}
             </div>
 
             <div>
@@ -253,6 +430,7 @@ const CraftsmanApplication = () => {
                 Years of Experience
               </label>
               <input
+                required
                 type="number"
                 min="0"
                 value={formData.yearsOfExperience}
@@ -273,31 +451,42 @@ const CraftsmanApplication = () => {
             <h2 className="text-xl font-bold">Location Information</h2>
 
             <div>
-              <label className="block font-semibold mb-2">City</label>
-              <input
-                value={formData.city}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    city: e.target.value,
-                  }))
-                }
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
-              />
-            </div>
+              <div className="overflow-hidden rounded-[28px] border border-white/60 bg-white/55 p-8 shadow-sm backdrop-blur-md">
+                <label className="mb-3 flex items-center gap-2 text-sm font-extrabold text-primary">
+                  <LocationOnIcon fontSize="small" />
+                  Select your location
+                </label>
 
-            <div>
-              <label className="block font-semibold mb-2">Address</label>
-              <input
-                value={formData.address1}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    address1: e.target.value,
-                  }))
-                }
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
-              />
+                <div className="overflow-hidden rounded-[22px] border border-primary/10">
+                  <LocationPicker
+                    value={selectedLocation}
+                    onChange={(location) => {
+                      setSelectedLocation(location);
+
+                      setFormData((prev) => ({
+                        ...prev,
+                        city: location?.city || "",
+                        address1: location?.locationName || "",
+                      }));
+                    }}
+                    defaultCenter={[34.436, 35.835]}
+                    zoom={13}
+                    height="350px"
+                  />
+                </div>
+
+                {selectedLocation && (
+                  <div className="mt-4 rounded-[20px] border border-success/20 bg-success/10 p-4 text-sm text-success">
+                    <p className="font-extrabold">Location selected</p>
+                    <p className="mt-1 leading-6">
+                      {selectedLocation.location ||
+                        selectedLocation.locationName ||
+                        selectedLocation.address ||
+                        "Your selected map location is ready."}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -345,16 +534,8 @@ const CraftsmanApplication = () => {
                 <label className="block font-semibold mb-2">From</label>
                 <input
                   type="time"
-                  value={formData.workingHours.from}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      workingHours: {
-                        ...prev.workingHours,
-                        from: e.target.value,
-                      },
-                    }))
-                  }
+                  value={formData.workingHours?.from || ""}
+                  onChange={(e) => updateWorkingHours("from", e.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
                 />
               </div>
@@ -363,16 +544,8 @@ const CraftsmanApplication = () => {
                 <label className="block font-semibold mb-2">To</label>
                 <input
                   type="time"
-                  value={formData.workingHours.to}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      workingHours: {
-                        ...prev.workingHours,
-                        to: e.target.value,
-                      },
-                    }))
-                  }
+                  value={formData.workingHours?.to || ""}
+                  onChange={(e) => updateWorkingHours("to", e.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-primary"
                 />
               </div>
@@ -397,6 +570,7 @@ const CraftsmanApplication = () => {
             </div>
           </div>
         )}
+        {console.log("formdata:", formData)}
 
         {step === 4 && (
           <div className="space-y-5">
@@ -491,14 +665,20 @@ const CraftsmanApplication = () => {
           </Btn>
 
           {step < 4 ? (
-            <Btn type="button" onClick={next} variant="primary">
+            <Btn
+              type="button"
+              onClick={next}
+              disabled={!isStepValid()}
+              variant="primary"
+              className=""
+            >
               Save and Continue
             </Btn>
           ) : (
             <Btn
               type="button"
               onClick={submitApplication}
-              disabled={submitting}
+              disabled={submitting || !isStepValid()}
               variant="primary"
             >
               {submitting ? "Submitting..." : "Submit Application"}

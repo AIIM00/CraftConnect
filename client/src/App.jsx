@@ -12,9 +12,6 @@ import AdminApplications from "./pages/admin/AdminApplications";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminWarnings from "./pages/admin/AdminWarnings";
 import AdminTasks from "./pages/admin/AdminTasks";
-import AdminInvites from "./pages/admin/AdminInvites";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AcceptAdminInvite from "./pages/admin/AcceptAdminInvite";
 
 // Customer imports
 import CustomerLayout from "./pages/customer/CustomerLayout";
@@ -26,6 +23,7 @@ import ServicesPage from "./pages/customer/Services";
 import PostTask from "./pages/customer/PostTask";
 import Profile from "./pages/Profile";
 import HowItWorksPage from "./pages/customer/HowItWorksPage";
+import TermsPrivacy from "./pages/TermsPrivacy";
 import AboutUs from "./pages/customer/AboutUs";
 import Bookings from "./pages/customer/Bookings";
 import BookingDetails from "./pages/customer/BookingDetails";
@@ -34,11 +32,9 @@ import LeaveReview from "./pages/customer/LeaveReview";
 // Craftsman imports
 import CraftsmanLayout from "./pages/craftsman/CraftsmanLayout";
 import Dashboard from "./pages/craftsman/Dashboard";
-import Earnings from "./pages/craftsman/Earnings";
 import Notifications from "./pages/craftsman/Notifications";
 import Reviews from "./pages/craftsman/Reviews";
 import Schedule from "./pages/craftsman/Schedule";
-import Settings from "./pages/craftsman/Settings";
 import Tasks from "./pages/craftsman/Tasks";
 import CraftsmanApplication from "./pages/craftsman/CraftsmanApplication";
 import CraftsmanPendingApproval from "./pages/craftsman/CraftsmanPendingApproval";
@@ -71,6 +67,7 @@ const App = () => {
           <Route path="post-task" element={<PostTask />} />
           <Route path="how-it-works" element={<HowItWorksPage />} />
           <Route path="about" element={<AboutUs />} />
+          <Route path="/terms-privacy" element={<TermsPrivacy />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="bookings/:taskId" element={<BookingDetails />} />
           <Route path="bookings/:taskId/review" element={<LeaveReview />} />
@@ -97,11 +94,9 @@ const App = () => {
         >
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="tasks" element={<Tasks />} />
-          <Route path="earnings" element={<Earnings />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="schedule" element={<Schedule />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="settings" element={<Settings />} />
           <Route path="notifications" element={<Notifications />} />
         </Route>
 
@@ -172,28 +167,7 @@ const App = () => {
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="warnings" element={<AdminWarnings />} />
           <Route path="tasks" element={<AdminTasks />} />
-          <Route
-            path="invites"
-            element={
-              <ProtectedRoute
-                allowedRoles={["SUPERADMIN"]}
-                fallbackRedirect="/admin/dashboard"
-              >
-                <AdminInvites />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="settings" element={<AdminSettings />} />
         </Route>
-
-        <Route
-          path="/admin/invite/:token"
-          element={
-            <ProtectedRoute allowedRoles={["SUPERADMIN"]} fallbackRedirect="/">
-              <AcceptAdminInvite />
-            </ProtectedRoute>
-          }
-        />
       </Routes>
     </div>
   );

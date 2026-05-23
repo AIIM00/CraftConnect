@@ -62,13 +62,14 @@ export const inProgressTasks = async (req, res) => {
 };
 
 //GET CUSTOMERS REVIEWS
-
+//GET CUSTOMERS REVIEWS
 export const getAllReviews = async (req, res) => {
   try {
     const reviews = await prisma.review.findMany({
       select: {
         id: true,
         rating: true,
+
         qualityRating: true,
         punctualityRating: true,
         communicationRating: true,
@@ -88,14 +89,33 @@ export const getAllReviews = async (req, res) => {
           select: {
             id: true,
             name: true,
+            email: true,
+            phoneNumber: true,
           },
         },
 
         craftsman: {
           select: {
             userId: true,
+            status: true,
+            warningLevel: true,
             user: {
               select: {
+                id: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+              },
+            },
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            service: {
+              select: {
+                id: true,
                 name: true,
               },
             },
@@ -106,6 +126,30 @@ export const getAllReviews = async (req, res) => {
           select: {
             id: true,
             title: true,
+            description: true,
+            location: true,
+            status: true,
+            scheduledDate: true,
+            completedAt: true,
+
+            warnings: {
+              select: {
+                id: true,
+                message: true,
+                createdAt: true,
+                isRead: true,
+                admin: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+            },
           },
         },
       },
@@ -119,10 +163,10 @@ export const getAllReviews = async (req, res) => {
       ],
     });
 
-    res.json(reviews);
+    return res.json(reviews);
   } catch (error) {
     console.error("Error fetching reviews:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -165,25 +209,59 @@ const updateWarningLevel = async (craftsmanId) => {
 };
 //CREATE WARNINGS
 
+//CREATE WARNINGS
 export const createWarning = async (req, res) => {
   try {
     const adminId = req.user.id;
     const { message, taskId } = req.body;
-    const craftsmanId = req.params.craftsmanId;
+    const { craftsmanId } = req.params;
 
     if (!craftsmanId || !message || !taskId) {
       return res.status(400).json({ message: "Missing fields" });
     }
 
+    const craftsman = await prisma.craftsman.findUnique({
+      where: { userId: craftsmanId },
+      select: {
+        userId: true,
+        status: true,
+      },
+    });
+
+    if (!craftsman) {
+      return res.status(404).json({ message: "Craftsman not found" });
+    }
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: {
+        id: true,
+        craftsmanId: true,
+        status: true,
+      },
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    if (task.craftsmanId !== craftsmanId) {
+      return res.status(400).json({
+        message: "This task does not belong to this craftsman",
+      });
+    }
+
     const warning = await prisma.warning.create({
       data: {
-        message,
+        message: message.trim(),
         craftsmanId,
         adminId,
         taskId,
       },
     });
+
     const stats = await updateWarningLevel(craftsmanId);
+
     return res.status(201).json({
       message: "Warning sent successfully",
       warning,
@@ -191,7 +269,7 @@ export const createWarning = async (req, res) => {
       warningCount: stats.warningsCount,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Create warning error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };

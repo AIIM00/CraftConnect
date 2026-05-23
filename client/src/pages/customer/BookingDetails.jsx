@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 import { AppContext } from "../../context/AppContext";
 
 import Btn from "../../components/Btn";
-// MUI Components
+
+// MUI Icons
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PersonIcon from "@mui/icons-material/Person";
@@ -13,13 +14,23 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import RateReviewIcon from "@mui/icons-material/RateReview";
+import HomeRepairServiceIcon from "@mui/icons-material/HomeRepairService";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const statusStyles = {
-  PENDING: "bg-orange-100 text-orange-600",
-  WAITING: "bg-yellow-100 text-yellow-700",
-  IN_PROGRESS: "bg-blue-100 text-blue-600",
-  COMPLETED: "bg-green-100 text-green-600",
-  CANCELLED: "bg-red-100 text-red-600",
+  PENDING: "bg-[rgba(218,165,32,0.14)] text-accent-hover border-accent/20",
+  WAITING: "bg-[rgba(218,165,32,0.16)] text-accent-hover border-accent/25",
+  IN_PROGRESS: "bg-[rgba(0,128,128,0.12)] text-teal border-teal/20",
+  COMPLETED: "bg-[rgba(85,107,47,0.12)] text-success border-success/20",
+  CANCELLED: "bg-[rgba(192,80,77,0.12)] text-error border-error/20",
+};
+
+const statusLabels = {
+  PENDING: "Pending",
+  WAITING: "Waiting",
+  IN_PROGRESS: "Scheduled",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
 };
 
 const timelineSteps = [
@@ -75,7 +86,18 @@ export default function BookingDetails() {
   }, [backendUrl, taskId]);
 
   if (loading) {
-    return <p className="text-text-muted">Loading booking details...</p>;
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-10 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-5xl rounded-[28px] border border-white/60 bg-white/55 p-8 text-center shadow-soft backdrop-blur-xl">
+          <p className="font-extrabold text-primary">
+            Loading booking details...
+          </p>
+          <p className="mt-2 text-sm text-text-muted">
+            Please wait while we fetch your booking status.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   if (!booking) {
@@ -86,124 +108,138 @@ export default function BookingDetails() {
   const isCompleted = booking.status === "COMPLETED";
 
   return (
-    <div className=" p-2 max-w-5xl mx-auto">
-      <Btn
-        type="button"
-        onClick={() => navigate("/bookings")}
-        variant="ghost"
-        className="self-start lg:self-auto border-none bg-transparent px-0 py-0 text-primary font-semibold shadow-none hover:bg-transparent hover:text-primary-light"
-      >
-        <ArrowBackIcon fontSize="small" />
-        Back to bookings
-      </Btn>
+    <main className="relative  min-h-screen overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-16 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
 
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-primary-light mb-2">
-              Booking Tracking
-            </p>
+      <div className="p-16 md:p-8 relative z-10 mx-auto max-w-7xl">
+        <Btn
+          type="button"
+          onClick={() => navigate("/bookings")}
+          variant="ghost"
+          className="mb-6 rounded-full border border-primary/10 bg-white/45 px-5 py-3 font-extrabold text-primary shadow-soft backdrop-blur-md transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-white/70 hover:text-accent-hover"
+        >
+          <ArrowBackIcon fontSize="small" />
+          Back to bookings
+        </Btn>
 
-            <h1 className="text-3xl font-extrabold text-primary">
-              Service Request
-            </h1>
+        <section className="mb-6 overflow-hidden rounded-[32px] border border-white/60 bg-white/55 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.14),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl md:p-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
+                BOOKING TRACKING
+              </p>
 
-            <p className="text-text-muted mt-2">
-              Track your booking status and craftsman details.
-            </p>
+              <h1 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
+                Service Request
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
+                Track your booking status and craftsman details.
+              </p>
+            </div>
+
+            <StatusBadge status={booking.status} />
           </div>
 
-          <span
-            className={`w-fit text-xs font-bold px-4 py-2 rounded-full ${
-              statusStyles[booking.status] || "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {booking.status}
-          </span>
-        </div>
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <InfoCard icon={<AccessTimeIcon />} label="Scheduled Date">
+              {booking.scheduledDate
+                ? new Date(booking.scheduledDate).toLocaleString()
+                : "Not scheduled yet"}
+            </InfoCard>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          <InfoCard icon={<AccessTimeIcon />} label="Scheduled Date">
-            {booking.scheduledDate
-              ? new Date(booking.scheduledDate).toLocaleString()
-              : "Not scheduled yet"}
-          </InfoCard>
-
-          <InfoCard icon={<AccessTimeIcon />} label="Completed At">
-            {booking.completedAt
-              ? new Date(booking.completedAt).toLocaleString()
-              : "Not completed yet"}
-          </InfoCard>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <section className="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-          <h2 className="text-xl font-extrabold text-text mb-6">
-            Booking Timeline
-          </h2>
-
-          <div className="space-y-5">
-            {timelineSteps.map((step, index) => {
-              const currentIndex = timelineSteps.findIndex(
-                (item) => item.key === booking.status,
-              );
-
-              const isDone =
-                booking.status === "COMPLETED" || index <= currentIndex;
-
-              const isCurrent = step.key === booking.status;
-
-              return (
-                <div key={step.key} className="flex gap-4">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shrink-0 ${
-                      isDone
-                        ? "bg-primary text-white"
-                        : "bg-gray-100 text-text-muted"
-                    }`}
-                  >
-                    {index + 1}
-                  </div>
-
-                  <div className="pb-5 border-b border-gray-100 flex-1">
-                    <p
-                      className={`font-bold ${
-                        isCurrent ? "text-primary" : "text-text"
-                      }`}
-                    >
-                      {step.label}
-                    </p>
-
-                    <p className="text-sm text-text-muted mt-1">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+            <InfoCard icon={<CheckCircleIcon />} label="Completed At">
+              {booking.completedAt
+                ? new Date(booking.completedAt).toLocaleString()
+                : "Not completed yet"}
+            </InfoCard>
           </div>
         </section>
 
-        <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 h-fit">
-          <h2 className="text-xl font-extrabold text-text mb-6">
-            Assigned Craftsman
-          </h2>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <section className="rounded-[32px] border border-white/60 bg-white/55 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.14),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl md:p-8 xl:col-span-2">
+            <h2 className="mb-6 font-heading text-2xl font-extrabold text-primary">
+              Booking Timeline
+            </h2>
 
-          {assignedCraftsman ? (
-            <div className="space-y-4">
-              <InfoCard icon={<PersonIcon />} label="Name">
-                {assignedCraftsman.user?.name || "Unknown"}
-              </InfoCard>
+            <div className="space-y-5">
+              {timelineSteps.map((step, index) => {
+                const currentIndex = timelineSteps.findIndex(
+                  (item) => item.key === booking.status,
+                );
 
-              <InfoCard icon={<EmailIcon />} label="Email">
-                {assignedCraftsman.user?.email || "No email"}
-              </InfoCard>
+                const isDone =
+                  booking.status === "COMPLETED" || index <= currentIndex;
 
-              <InfoCard icon={<PhoneIcon />} label="Phone">
-                {assignedCraftsman.user?.phoneNumber || "No phone"}
-              </InfoCard>
-              <div>
+                const isCurrent = step.key === booking.status;
+
+                return (
+                  <div key={step.key} className="flex gap-4">
+                    <div className="relative flex flex-col items-center">
+                      <div
+                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border font-extrabold transition ${
+                          isDone
+                            ? "border-[rgba(247,244,237,0.65)] bg-gold-gradient text-primary-dark shadow-[0_0_24px_rgba(218,165,32,0.25)]"
+                            : "border-primary/10 bg-white/60 text-text-muted"
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+
+                      {index !== timelineSteps.length - 1 && (
+                        <div
+                          className={`mt-2 h-full min-h-[48px] w-px ${
+                            isDone ? "bg-accent/50" : "bg-primary/10"
+                          }`}
+                        />
+                      )}
+                    </div>
+
+                    <div className="flex-1 pb-5">
+                      <p
+                        className={`font-extrabold ${
+                          isCurrent ? "text-primary" : "text-text"
+                        }`}
+                      >
+                        {step.label}
+                      </p>
+
+                      <p className="mt-1 text-sm leading-6 text-text-muted">
+                        {step.description}
+                      </p>
+
+                      {isCurrent && (
+                        <span className="mt-3 inline-flex rounded-full border border-primary/10 bg-white/55 px-3 py-1 text-xs font-bold text-primary shadow-sm backdrop-blur-md">
+                          Current status
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <aside className="h-fit rounded-[32px] border border-white/60 bg-white/55 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.14),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl md:p-8">
+            <h2 className="mb-6 font-heading text-2xl font-extrabold text-primary">
+              Assigned Craftsman
+            </h2>
+
+            {assignedCraftsman ? (
+              <div className="space-y-4">
+                <InfoCard icon={<PersonIcon />} label="Name">
+                  {assignedCraftsman.user?.name || "Unknown"}
+                </InfoCard>
+
+                <InfoCard icon={<EmailIcon />} label="Email">
+                  {assignedCraftsman.user?.email || "No email"}
+                </InfoCard>
+
+                <InfoCard icon={<PhoneIcon />} label="Phone">
+                  {assignedCraftsman.user?.phoneNumber || "No phone"}
+                </InfoCard>
+
                 {assignedCraftsman.user?.phoneNumber && (
                   <a
                     href={`https://wa.me/${assignedCraftsman.user.phoneNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
@@ -211,14 +247,13 @@ export default function BookingDetails() {
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative flex h-16 w-full max-w-md items-center overflow-hidden rounded-full   p-1 shadow-lg transition-all duration-500 hover:bg-[#7CFF1E]"
+                    className="block"
                   >
                     <Btn
                       type="button"
-                      variant="success"
-                      className="w-full px-6 py-3 font-bold"
+                      variant="ghost"
+                      className="min-h-[52px] w-full rounded-full border border-success/20 bg-success/10 px-5 py-3 font-extrabold text-success shadow-none transition hover:-translate-y-0.5 hover:bg-success/20"
                     >
-                      {" "}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 32 32"
@@ -231,48 +266,61 @@ export default function BookingDetails() {
                   </a>
                 )}
               </div>
-            </div>
-          ) : (
-            <div className="p-5 rounded-2xl bg-bg text-center">
-              <p className="font-bold text-text">No craftsman assigned yet</p>
-              <p className="text-sm text-text-muted mt-2">
-                We are still looking for an available craftsman.
-              </p>
-            </div>
-          )}
+            ) : (
+              <div className="rounded-[24px] border border-dashed border-primary/20 bg-white/45 p-5 text-center shadow-soft backdrop-blur-xl">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-[rgba(247,244,237,0.65)] bg-[linear-gradient(135deg,#A9D1E8_0%,#DAA520_100%)] text-primary-dark shadow-[0_0_24px_rgba(218,165,32,0.25)]">
+                  <PersonIcon />
+                </div>
 
-          {isCompleted && (
-            <Link
-              to={`/bookings/${taskId}/review`}
-              className="group relative mt-4 flex h-16 w-full max-w-md items-center overflow-hidden rounded-full border-[6px] border-black bg-black p-1 shadow-lg transition-all duration-500 hover:bg-[#7CFF1E]"
-            >
-              <span className="flex h-full w-36 items-center justify-center rounded-full bg-[#7CFF1E] transition-all duration-500 group-hover:w-full">
-                <RateReviewIcon className="text-black" />
-              </span>
+                <p className="font-extrabold text-text">
+                  No craftsman assigned yet
+                </p>
 
-              <span className="absolute left-40 text-xl font-semibold text-white transition-all duration-300 group-hover:opacity-0">
-                Leave Review
-              </span>
+                <p className="mt-2 text-sm leading-6 text-text-muted">
+                  We are still looking for an available craftsman.
+                </p>
+              </div>
+            )}
 
-              <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
-                <RateReviewIcon className="text-black" />
-              </span>
-            </Link>
-          )}
-        </aside>
+            {isCompleted && (
+              <Link to={`/bookings/${taskId}/review`} className="mt-5 block">
+                <Btn
+                  type="button"
+                  variant="ghost"
+                  className="min-h-[52px] w-full rounded-full border border-success/20 bg-success/10 px-5 py-3 font-extrabold text-success shadow-none transition hover:-translate-y-0.5 hover:bg-success/20"
+                >
+                  <RateReviewIcon fontSize="small" />
+                  Leave Review
+                </Btn>
+              </Link>
+            )}
+          </aside>
+        </div>
       </div>
-    </div>
+    </main>
+  );
+}
+
+function StatusBadge({ status }) {
+  return (
+    <span
+      className={`w-fit shrink-0 rounded-full border px-4 py-2 text-xs font-extrabold ${
+        statusStyles[status] || "border-gray-200 bg-gray-100 text-text-muted"
+      }`}
+    >
+      {statusLabels[status] || status}
+    </span>
   );
 }
 
 function InfoCard({ icon, label, children }) {
   return (
-    <div className="p-4 rounded-2xl bg-bg">
-      <p className="text-xs font-bold text-text-muted uppercase mb-2">
+    <div className="rounded-[24px] border border-white/60 bg-white/55 p-4 shadow-sm backdrop-blur-md">
+      <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.08em] text-text-muted">
         {label}
       </p>
 
-      <div className="flex items-center gap-2 text-sm font-semibold text-text">
+      <div className="flex items-center gap-2 text-sm font-semibold leading-6 text-text">
         <span className="text-primary">{icon}</span>
         <span>{children}</span>
       </div>

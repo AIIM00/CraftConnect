@@ -53,7 +53,14 @@ export const getCraftsmanApplication = async (req, res) => {
       where: { status: "SUBMITTED" },
       select: {
         id: true,
+        categoryId: true,
+        serviceId: true,
+        customCategory: true,
+        customService: true,
         category: {
+          select: { name: true },
+        },
+        service: {
           select: { name: true },
         },
         yearsOfExperience: true,
@@ -64,6 +71,7 @@ export const getCraftsmanApplication = async (req, res) => {
         scenarioQA: true,
         workBehaviorQA: true,
         status: true,
+        createdAt: true,
         user: {
           select: {
             id: true,
@@ -112,6 +120,7 @@ export const updateApplicationStatus = async (req, res) => {
         const last = await tx.craftsman.findFirst({
           where: {
             categoryId: application.categoryId,
+            serviceId: application.serviceId,
             queueOrder: { not: null },
           },
           orderBy: { queueOrder: "desc" },
@@ -133,12 +142,14 @@ export const updateApplicationStatus = async (req, res) => {
             userId,
             status: "APPROVED",
             categoryId: application.categoryId,
+            serviceId: application.serviceId,
             queueOrder: nextOrder,
             experience: application.yearsOfExperience,
           },
           update: {
             status: "APPROVED",
             categoryId: application.categoryId,
+            serviceId: application.serviceId,
             queueOrder: nextOrder,
             experience: application.yearsOfExperience,
           },
@@ -192,13 +203,12 @@ export const updateApplicationStatus = async (req, res) => {
 //CRAFTSMAN INVENTORY BY CATEGORY AND AVAILIBILTY
 export const getCraftsmenCountByCategory = async (req, res) => {
   try {
-  
     const categories = await prisma.category.findMany({
       select: {
         id: true,
         name: true,
         craftsmen: {
-          where: { availability: "AVAILABLE" },
+          where: { availability: true, status: "APPROVED" },
           select: { userId: true },
         },
       },
@@ -258,5 +268,95 @@ export const restoreCraftsman = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const addCustomCategoryServiceForApplication = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const { categoryName, serviceName } = req.body;
+
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId },
+      include: {
+        category: true,
+        service: true,
+      },
+    });
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    const finalCategoryName = categoryName?.trim();
+
+    const finalServiceName = serviceName?.trim();
+
+    if (!finalCategoryName || !finalServiceName) {
+      return res.status(400).json({
+        message: "Category and service are required",
+      });
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const category = await tx.category.upsert({
+        where: {
+          name: finalCategoryName,
+        },
+        update: {},
+        create: {
+          name: finalCategoryName,
+        },
+      });
+
+      const service = await tx.service.upsert({
+        where: {
+          name_categoryId: {
+            name: finalServiceName,
+            categoryId: category.id,
+          },
+        },
+        update: {},
+        create: {
+          name: finalServiceName,
+          categoryId: category.id,
+        },
+      });
+
+      const updatedApplication = await tx.application.update({
+        where: {
+          id: applicationId,
+        },
+        data: {
+          categoryId: category.id,
+          serviceId: service.id,
+          customCategory: null,
+          customService: null,
+        },
+        include: {
+          category: true,
+          service: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+            },
+          },
+        },
+      });
+
+      return updatedApplication;
+    });
+
+    return res.json({
+      success: true,
+      message: "Category and service added to application",
+      application: result,
+    });
+  } catch (error) {
+    console.error("Add custom category/service error:", error);
+    return res.status(500).json({ message: error.message });
   }
 };

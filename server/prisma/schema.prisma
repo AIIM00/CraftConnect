@@ -29,6 +29,7 @@ model User {
 
   sentWarnings Warning[]     @relation("AdminWarnings")
   applications Application[]
+  handledReassignmentRequests TaskReassignmentRequest[]
 }
 
 model AdminInvite {
@@ -68,7 +69,9 @@ model Craftsman {
   warnings Warning[]
   tasks    Task[]
 
-  @@unique([categoryId, queueOrder])
+oldReassignmentRequests TaskReassignmentRequest[] @relation("OldCraftsmanReassignment")
+newReassignmentRequests TaskReassignmentRequest[] @relation("NewCraftsmanReassignment")
+  @@unique([categoryId,serviceId, queueOrder])
 }
 
 model Application {
@@ -79,6 +82,11 @@ model Application {
 
   // Step 1
   categoryId        String?
+  serviceId         String?
+
+  customCategory    String?
+  customService     String?
+
   yearsOfExperience Int?
 
   // Step 2
@@ -103,6 +111,7 @@ model Application {
   updatedAt DateTime @updatedAt
 
   category Category? @relation(fields: [categoryId], references: [id])
+  service  Service?  @relation(fields: [serviceId], references: [id])
 }
 
 model Warning {
@@ -144,8 +153,7 @@ model Category {
   craftsmen    Craftsman[]
   tasks        Task[]
   applications Application[]
-  queue        CategoryAssignmentQueue?
-
+queue CategoryAssignmentQueue[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -157,7 +165,10 @@ model Service {
   categoryId String
   category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   tasks      Task[]
+    applications Application[]
+
   craftsman  Craftsman[]
+  queue CategoryAssignmentQueue[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -166,11 +177,16 @@ model Service {
 }
 
 model CategoryAssignmentQueue {
-  categoryId     String   @id
+  id             String   @id @default(uuid())
+  categoryId     String
+  serviceId      String
   lastAssignedTo String?
   updatedAt      DateTime @updatedAt
 
   category Category @relation(fields: [categoryId], references: [id])
+  service  Service  @relation(fields: [serviceId], references: [id])
+
+  @@unique([categoryId, serviceId])
 }
 
 model Task {
@@ -191,6 +207,10 @@ model Task {
 
   scheduledDate DateTime?
   completedAt   DateTime?
+  
+  lastAssignmentAttemptAt DateTime?
+  becameUnassignableAt    DateTime?
+
 
 
   createdAt DateTime   @default(now())
@@ -204,6 +224,7 @@ model Task {
   reviews         Review[]
   taskCompletions TaskCompletion[]
   warnings        Warning[]
+  reassignmentRequests TaskReassignmentRequest[]
 }
 
 model TaskAssignment {
@@ -222,6 +243,38 @@ model TaskAssignment {
   @@unique([taskId, craftsmanId])
 }
 
+model TaskReassignmentRequest {
+  id String @id @default(uuid())
+
+  taskId String
+  task   Task @relation(fields: [taskId], references: [id])
+
+  oldCraftsmanId String
+  oldCraftsman   Craftsman @relation("OldCraftsmanReassignment", fields: [oldCraftsmanId], references: [userId])
+
+  newCraftsmanId String?
+  newCraftsman   Craftsman? @relation("NewCraftsmanReassignment", fields: [newCraftsmanId], references: [userId])
+
+  adminId String?
+  admin   User? @relation(fields: [adminId], references: [id])
+
+  reason String?
+
+  status ReassignmentStatus @default(PENDING_ADMIN)
+
+  adminMessage String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ReassignmentStatus {
+  PENDING_ADMIN
+  PENDING_CRAFTSMAN
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
 model Review {
   id String @id @default(uuid())
 
@@ -309,6 +362,7 @@ enum TaskStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+  UNASSIGNABLE
 }
 
 enum AssignmentStatus {
@@ -316,6 +370,7 @@ enum AssignmentStatus {
   ACCEPTED
   DECLINED
   TIMEOUT
+  TRANSFERRED
 }
 
 enum CraftsmanStatus {

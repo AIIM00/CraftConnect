@@ -123,7 +123,7 @@ export const getCustomerInsights = async (req, res) => {
         (task) => task.status === "COMPLETED",
       );
       const pendingTasks = customer.tasks.filter((task) =>
-        ["PENDING", "WAITING"].includes(task.status),
+        ["PENDING", "WAITING", "UNASSIGNABLE"].includes(task.status),
       );
 
       return {

@@ -4,12 +4,32 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 
-//Components
+// Components
 import Btn from "../components/Btn";
-//MUI Icons
+
+// MUI Icons
 import HomeFilledIcon from "@mui/icons-material/HomeFilled";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
+import LockIcon from "@mui/icons-material/Lock";
+
+import {
+  glassPage,
+  glassCard,
+  glassNav,
+  glassIconBtn,
+  glassCenterIcon,
+  glassTitle,
+  glassSmallText,
+  glassInputWrap,
+  glassLabel,
+  glassInputBox,
+  glassInput,
+  glassSubmit,
+  glassOtpRow,
+  glassOtpInput,
+  glassSecondaryAction,
+} from "../styles/glassTailwind";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -20,11 +40,13 @@ const ResetPassword = () => {
   const [code, setCode] = React.useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [timer, setTimer] = React.useState(180);
 
   const inputsRef = React.useRef([]);
 
   const handleSendCode = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+
     if (!email) {
       toast.error("Please enter your email");
       return;
@@ -35,11 +57,11 @@ const ResetPassword = () => {
 
       const { data } = await axios.post(
         `${backendUrl}/api/auth/send-reset-otp`,
-        {
-          email,
-        },
+        { email },
       );
+
       setTimer(180);
+      setCode(["", "", "", "", "", ""]);
       toast.success(data.message || "Code sent to your email");
       setStep(2);
     } catch (err) {
@@ -57,25 +79,29 @@ const ResetPassword = () => {
     setCode(newCode);
 
     if (value && index < 5) {
-      inputsRef.current[index + 1].focus();
+      inputsRef.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputsRef.current[index - 1].focus();
+      inputsRef.current[index - 1]?.focus();
     }
   };
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
-    try {
-      const enteredOtp = code.join("");
 
-      if (enteredOtp.length !== 6) {
-        toast.error("Please enter the 6-digit code");
-        return;
-      }
+    const enteredOtp = code.join("");
+
+    if (enteredOtp.length !== 6) {
+      toast.error("Please enter the 6-digit code");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
       const { data } = await axios.post(
         `${backendUrl}/api/auth/verify-reset-otp`,
         {
@@ -83,12 +109,15 @@ const ResetPassword = () => {
           enteredOtp,
         },
       );
+
       if (data.success) {
-        toast.success(data.message);
+        toast.success(data.message || "Code verified");
         setStep(3);
+      } else {
+        toast.error(data.message || "Invalid code");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to reset password");
+      toast.error(err.response?.data?.message || "Failed to verify code");
     } finally {
       setLoading(false);
     }
@@ -126,7 +155,6 @@ const ResetPassword = () => {
     }
   };
 
-  const [timer, setTimer] = React.useState(180); // 3 minutes
   React.useEffect(() => {
     if (timer <= 0) return;
 
@@ -140,140 +168,161 @@ const ResetPassword = () => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
+
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-accent-soft via-bg to-primary-light px-4">
-      <div className="relative w-full max-w-md bg-surface rounded-3xl shadow-2xl px-8 py-10 text-center">
-        <div className="mb-10 flex w-full items-center justify-between px-2">
+    <div className={glassPage}>
+      <div className={glassCard}>
+        <div className={glassNav}>
           <Btn
             type="button"
+            variant="ghost"
             onClick={() => navigate("/login")}
-            variant="ghost"
-            className="h-12 w-12 rounded-full border border-white/30 bg-white/20 p-0 text-accent shadow-sm backdrop-blur-xl hover:bg-white/40 hover:text-accent-hover"
+            className={glassIconBtn}
+            aria-label="Back to login"
           >
-            <KeyboardArrowLeftIcon sx={{ fontSize: 42 }} />
+            <KeyboardArrowLeftIcon sx={{ fontSize: 30 }} />
           </Btn>
 
           <Btn
             type="button"
-            onClick={() => navigate("/")}
             variant="ghost"
-            className="h-12 w-12 rounded-full border border-white/30 bg-white/20 p-0 text-accent shadow-sm backdrop-blur-xl hover:bg-white/40 hover:text-accent-hover"
+            onClick={() => navigate("/")}
+            className={glassIconBtn}
+            aria-label="Go home"
           >
-            <HomeFilledIcon sx={{ fontSize: 32 }} />
+            <HomeFilledIcon sx={{ fontSize: 26 }} />
           </Btn>
         </div>
 
-        <div className="mx-auto mb-6 w-24 h-24 rounded-full bg-accent-soft flex items-center justify-center">
-          <MarkEmailReadOutlinedIcon
-            sx={{ fontSize: 58 }}
-            className="text-primary"
-          />
+        <div className={glassCenterIcon}>
+          <MarkEmailReadOutlinedIcon sx={{ fontSize: 58 }} />
         </div>
 
-        <h1 className="text-3xl font-extrabold text-text mb-3">
-          Reset Password
-        </h1>
+        <h1 className={glassTitle}>Reset Password</h1>
 
         {step === 1 && (
-          <form onSubmit={handleSendCode} className="space-y-6">
-            <p className="text-text-muted text-sm mb-6">
-              Enter your email and we’ll send you a reset code.
+          <>
+            <p className={glassSmallText}>
+              Enter your email address and we’ll send you a 6-digit reset code.
             </p>
 
-            <input
-              disabled={loading}
-              type="email"
-              placeholder="Enter your email"
-              className="w-full px-4 py-3 rounded-xl bg-bg border border-text-muted/30 outline-none focus:border-accent"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <form onSubmit={handleSendCode}>
+              <div className={`${glassInputWrap} mt-6`}>
+                <label className={glassLabel}>Email address</label>
 
-            <Btn
-              type="submit"
-              disabled={loading}
-              variant="primary"
-              className="w-full rounded-xl py-3 font-bold disabled:opacity-60"
-            >
-              {loading ? "Sending..." : "Send Code"}
-            </Btn>
-          </form>
+                <div className={glassInputBox}>
+                  <MarkEmailReadOutlinedIcon />
+
+                  <input
+                    disabled={loading}
+                    type="email"
+                    placeholder="Enter your email"
+                    className={glassInput}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <Btn
+                type="submit"
+                variant="ghost"
+                disabled={loading}
+                className={glassSubmit}
+              >
+                {loading ? "Sending..." : "Send Code"}
+              </Btn>
+            </form>
+          </>
         )}
 
         {step === 2 && (
-          <form onSubmit={handleVerifyCode} className="space-y-6">
-            <p className="text-text-muted text-sm mb-6">
+          <>
+            <p className={`${glassSmallText} [&_b]:text-accent`}>
               Enter the 6-digit code sent to <b>{email}</b>.
             </p>
 
-            <div className="flex justify-center gap-3">
-              {code.map((digit, index) => (
-                <input
-                  disabled={loading}
-                  key={index}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  ref={(el) => (inputsRef.current[index] = el)}
-                  onChange={(e) => handleCodeChange(e.target.value, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  className="w-12 h-14 text-center text-xl font-bold text-text bg-bg border border-text-muted/30 rounded-xl outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft transition"
-                />
-              ))}
-            </div>
+            <form onSubmit={handleVerifyCode}>
+              <div className={glassOtpRow}>
+                {code.map((digit, index) => (
+                  <input
+                    disabled={loading}
+                    key={index}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength="1"
+                    value={digit}
+                    ref={(el) => (inputsRef.current[index] = el)}
+                    onChange={(e) => handleCodeChange(e.target.value, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    className={glassOtpInput}
+                  />
+                ))}
+              </div>
 
-            <Btn
-              type="submit"
-              variant="primary"
-              className="w-full rounded-xl py-3 font-bold"
-            >
-              Verify Code
-            </Btn>
+              <Btn
+                type="submit"
+                variant="ghost"
+                disabled={loading}
+                className={glassSubmit}
+              >
+                {loading ? "Verifying..." : "Verify Code"}
+              </Btn>
 
-            <Btn
-              type="button"
-              onClick={handleSendCode}
-              disabled={timer > 0}
-              variant="ghost"
-              className={`text-sm font-semibold ${
-                timer > 0
-                  ? "cursor-not-allowed text-text-muted hover:text-text-muted"
-                  : "text-primary hover:text-primary-light"
-              }`}
-            >
-              {timer > 0
-                ? `Resend Code in ${formatTime(timer)}`
-                : "Resend Code"}
-            </Btn>
-          </form>
+              <Btn
+                type="button"
+                variant="ghost"
+                onClick={handleSendCode}
+                disabled={timer > 0 || loading}
+                className={glassSecondaryAction}
+              >
+                {loading
+                  ? "Sending..."
+                  : timer > 0
+                    ? `Resend Code in ${formatTime(timer)}`
+                    : "Resend Code"}
+              </Btn>
+            </form>
+          </>
         )}
 
         {step === 3 && (
-          <form onSubmit={handleResetPassword} className="space-y-6">
-            <p className="text-text-muted text-sm mb-6">
-              Enter your new password.
+          <>
+            <p className={glassSmallText}>
+              Your code is verified. Create a new password for your account.
             </p>
 
-            <input
-              type="password"
-              placeholder="New password"
-              className="w-full px-4 py-3 rounded-xl bg-bg border border-text-muted/30 outline-none focus:border-accent"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
+            <form onSubmit={handleResetPassword}>
+              <div className={`${glassInputWrap} mt-6`}>
+                <label className={glassLabel}>New Password</label>
 
-            <Btn
-              type="submit"
-              disabled={loading}
-              variant="primary"
-              className="w-full rounded-xl py-3 font-bold disabled:opacity-60"
-            >
-              {loading ? "Resetting..." : "Reset Password"}
-            </Btn>
-          </form>
+                <div className={glassInputBox}>
+                  <LockIcon />
+
+                  <input
+                    disabled={loading}
+                    type="password"
+                    placeholder="Enter new password"
+                    className={glassInput}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <Btn
+                type="submit"
+                variant="ghost"
+                disabled={loading}
+                className={glassSubmit}
+              >
+                {loading ? "Resetting..." : "Reset Password"}
+              </Btn>
+            </form>
+          </>
         )}
       </div>
     </div>

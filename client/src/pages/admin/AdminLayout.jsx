@@ -34,6 +34,7 @@ const adminNavItems = [
     label: "Craftsmen",
     path: "/admin/craftsmen",
     icon: <EngineeringIcon />,
+    exact: true,
     roles: ["ADMIN", "SUPERADMIN"],
   },
   {
@@ -52,24 +53,6 @@ const adminNavItems = [
     label: "Reviews",
     path: "/admin/reviews",
     icon: <RateReviewIcon />,
-    roles: ["ADMIN", "SUPERADMIN"],
-  },
-  {
-    label: "Warnings",
-    path: "/admin/warnings",
-    icon: <WarningAmberIcon />,
-    roles: ["ADMIN", "SUPERADMIN"],
-  },
-  {
-    label: "Invites",
-    path: "/admin/invites",
-    icon: <PersonAddAltIcon />,
-    roles: ["SUPERADMIN"],
-  },
-  {
-    label: "Settings",
-    path: "/admin/settings",
-    icon: <SettingsIcon />,
     roles: ["ADMIN", "SUPERADMIN"],
   },
 ];
@@ -137,6 +120,7 @@ export default function AdminLayout() {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.exact}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition ${

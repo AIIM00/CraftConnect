@@ -171,7 +171,7 @@ const LocationPicker = ({
       <button
         type="button"
         onClick={handleUseCurrentLocation}
-        className="mt-3 w-full py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition"
+        className=" mt-3 w-full py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition"
       >
         Use My Current Location
       </button>
@@ -202,7 +202,7 @@ const LocationPicker = ({
         </div>
       )}
 
-      <p className="text-sm text-text-muted mt-2">
+      <p className=" p-2 text-sm text-text-muted mt-2">
         Click on the map to choose your location, or use your current location.
       </p>
     </div>

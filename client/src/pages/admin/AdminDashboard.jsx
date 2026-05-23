@@ -1,8 +1,13 @@
 import * as React from "react";
 import axios from "axios";
+
+// Components
 import { toast } from "react-toastify";
+
+// Context
 import { AppContext } from "../../context/AppContext";
 
+// Material UI icons
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
@@ -10,6 +15,8 @@ import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 export default function AdminDashboard() {
   const { backendUrl } = React.useContext(AppContext);
@@ -23,6 +30,8 @@ export default function AdminDashboard() {
     inProgressTasks: 0,
     flaggedCraftsmen: 0,
     lowestReviewAverage: "N/A",
+    unassignableTasks: 0,
+    reassignmentRequests: 0,
   });
 
   const [recentApplications, setRecentApplications] = React.useState([]);
@@ -40,13 +49,33 @@ export default function AdminDashboard() {
         inProgressTasksRes,
         flaggedCraftsmenRes,
         reviewsRes,
+        unassignableTasksRes,
+        reassignmentRequestsRes,
       ] = await Promise.all([
-        axios.get(`${backendUrl}/api/admin/customers`),
-        axios.get(`${backendUrl}/api/admin/craftsmen`),
-        axios.get(`${backendUrl}/api/admin/craftsmen/applications`),
-        axios.get(`${backendUrl}/api/admin/tasks/in-progress`),
-        axios.get(`${backendUrl}/api/admin/warnings/flagged-craftsmen`),
-        axios.get(`${backendUrl}/api/admin/reviews`),
+        axios.get(`${backendUrl}/api/admin/customers`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/craftsmen`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/craftsmen/applications`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/tasks/in-progress`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/warnings/flagged-craftsmen`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/reviews`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/tasks/unassignable`, {
+          withCredentials: true,
+        }),
+        axios.get(`${backendUrl}/api/admin/reassignment-requests`, {
+          withCredentials: true,
+        }),
       ]);
 
       const customers = Array.isArray(customersRes.data)
@@ -70,7 +99,8 @@ export default function AdminDashboard() {
         : [];
 
       const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
-
+      const unassignableTasks = unassignableTasksRes.data?.tasks || [];
+      const reassignmentRequests = reassignmentRequestsRes.data?.requests || [];
       const sortedReviews = [...reviews].sort((a, b) => {
         const aAverage = Number(a.detailedAverage ?? a.rating ?? 5);
         const bAverage = Number(b.detailedAverage ?? b.rating ?? 5);
@@ -91,6 +121,8 @@ export default function AdminDashboard() {
               1,
             )
           : "N/A",
+        unassignableTasks: unassignableTasks.length,
+        reassignmentRequests: reassignmentRequests.length,
       });
 
       setRecentApplications(applications.slice(0, 5));
@@ -193,6 +225,21 @@ export default function AdminDashboard() {
           value={stats.lowestReviewAverage}
           note="Lowest detailed review score"
           color="bg-yellow-50 text-yellow-700"
+        />
+        <StatCard
+          icon={<AssignmentLateIcon />}
+          label="Unassignable Tasks"
+          value={stats.unassignableTasks}
+          note="Need admin review"
+          color="bg-orange-50 text-orange-700"
+        />
+
+        <StatCard
+          icon={<SwapHorizIcon />}
+          label="Reassignment Requests"
+          value={stats.reassignmentRequests}
+          note="Craftsmen withdrawal requests"
+          color="bg-purple-50 text-purple-700"
         />
       </section>
 

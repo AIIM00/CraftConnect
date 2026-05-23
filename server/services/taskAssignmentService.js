@@ -14,6 +14,11 @@ export const assignNextCraftsman = async (taskId) => {
     if (task.status === "IN_PROGRESS" && task.craftsmanId) {
       return { message: "Task already assigned" };
     }
+    if (["CANCELLED", "COMPLETED", "IN_PROGRESS"].includes(task.status)) {
+      throw new Error(
+        `Task cannot be assigned because status is ${task.status}`,
+      );
+    }
 
     const craftsmen = await tx.craftsman.findMany({
       where: {
@@ -21,6 +26,9 @@ export const assignNextCraftsman = async (taskId) => {
         serviceId: task.serviceId,
         status: "APPROVED",
         isAvailable: true,
+        queueOrder: {
+          not: null,
+        },
       },
       orderBy: {
         queueOrder: "asc",
@@ -30,6 +38,7 @@ export const assignNextCraftsman = async (taskId) => {
       },
     });
 
+    console.log(craftsmen);
     if (!craftsmen.length) {
       throw new Error("No available craftsmen for this category");
     }
@@ -37,9 +46,17 @@ export const assignNextCraftsman = async (taskId) => {
     const alreadyTried = new Set(task.assignments.map((a) => a.craftsmanId));
 
     const queue = await tx.categoryAssignmentQueue.upsert({
-      where: { categoryId: task.categoryId },
+      where: {
+        categoryId_serviceId: {
+          categoryId: task.categoryId,
+          serviceId: task.serviceId,
+        },
+      },
       update: {},
-      create: { categoryId: task.categoryId },
+      create: {
+        categoryId: task.categoryId,
+        serviceId: task.serviceId,
+      },
     });
 
     let startIndex = 0;
@@ -70,6 +87,12 @@ export const assignNextCraftsman = async (taskId) => {
         "All craftsmen in this category already declined or timed out",
       );
     }
+    await tx.task.update({
+      where: { id: task.id },
+      data: {
+        lastAssignmentAttemptAt: new Date(),
+      },
+    });
 
     await tx.taskAssignment.create({
       data: {
@@ -85,7 +108,12 @@ export const assignNextCraftsman = async (taskId) => {
     });
 
     await tx.categoryAssignmentQueue.update({
-      where: { categoryId: task.categoryId },
+      where: {
+        categoryId_serviceId: {
+          categoryId: task.categoryId,
+          serviceId: task.serviceId,
+        },
+      },
       data: { lastAssignedTo: selectedCraftsman.userId },
     });
 

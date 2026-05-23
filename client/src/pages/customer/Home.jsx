@@ -27,23 +27,22 @@ const Home = () => {
       <Header id="header" />
       <HowItWorksSteps id="process" />
       <HowItWorks id="howItWorks" />
-      <section
-        id="services"
-        className="w-full bg-white px-4 sm:px-8 lg:px-16 py-14 "
-      >
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-16 sm:px-8 lg:px-16">
+        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
+
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-primary-light mb-2">
-                Popular Services
+              <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
+                POPULAR SERVICES
               </p>
 
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
+              <h2 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
                 Browse Popular Services
               </h2>
 
-              <p className="text-sm sm:text-base text-text-muted mt-3 max-w-2xl">
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
                 Explore trusted craftsmen by category and quickly find the right
                 professional for your next job.
               </p>
@@ -51,14 +50,15 @@ const Home = () => {
 
             <Btn
               type="button"
-              onClick={() => navigate("/customer/services")}
+              onClick={() => navigate("/services")}
               variant="ghost"
-              className="self-start sm:self-auto px-0 py-0 font-semibold"
+              className="self-start rounded-full border border-primary/10 bg-white/50 px-5 py-3 font-bold text-primary shadow-soft backdrop-blur-md transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-white/70 hover:text-accent-hover sm:self-auto"
             >
               View all
               <ArrowForwardIcon fontSize="small" />
             </Btn>
           </div>
+
           <Services id="services" limit={4} />
         </div>
       </section>

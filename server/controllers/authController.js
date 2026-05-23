@@ -110,6 +110,7 @@ export const login = async (req, res) => {
           sameSite: "strict",
           maxAge: 3 * 3600 * 1000, // 3 hours
         });
+        
         res.json({
           success: true,
           message: "Login successful",

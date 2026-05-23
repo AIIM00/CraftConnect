@@ -16,6 +16,9 @@ import {
   toggleAvailability,
   showAvailability,
   completeTask,
+  getReviews,
+  getCategoriesAndServices,
+  requestTaskWithdrawal,
 } from "../controllers/craftsmanController.js";
 
 export const craftsmanRouter = express.Router();
@@ -24,6 +27,12 @@ craftsmanRouter.get(
   userAuth,
   isCraftsman,
   getMyApplication,
+);
+craftsmanRouter.get(
+  "/categories-services",
+  userAuth,
+  isCraftsman,
+  getCategoriesAndServices,
 );
 craftsmanRouter.post(
   "/applications/save",
@@ -88,5 +97,20 @@ craftsmanRouter.patch(
   isCraftsman,
   checkCraftsmanStatus,
   toggleAvailability,
+);
+craftsmanRouter.get(
+  "/reviews",
+  userAuth,
+  isCraftsman,
+  checkCraftsmanStatus,
+  getReviews,
+);
+
+craftsmanRouter.post(
+  "/tasks/:taskId/withdraw-request",
+  userAuth,
+  isCraftsman,
+  checkCraftsmanStatus,
+  requestTaskWithdrawal,
 );
 export default craftsmanRouter;

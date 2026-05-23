@@ -15,6 +15,7 @@ import {
   updateApplicationStatus,
   getCraftsmenCountByCategory,
   restoreCraftsman,
+  addCustomCategoryServiceForApplication,
 } from "../controllers/adminCraftsmanController.js";
 
 import {
@@ -28,6 +29,16 @@ import {
   addAdmin,
   acceptAdminInvite,
 } from "../controllers/adminInviteController.js";
+import {
+  getAdminTasks,
+  getUnassignableTasks,
+  retryTaskAssignment,
+  cancelAdminTask,
+  getCraftsmenForTask,
+  manuallyAssignTask,
+  assignReplacementCraftsman,
+  getPendingReassignmentRequests,
+} from "../controllers/adminTaskController.js";
 
 const adminRouter = express.Router();
 
@@ -73,6 +84,12 @@ adminRouter.patch(
   isAdmin,
   restoreCraftsman,
 );
+adminRouter.patch(
+  "/craftsmen/applications/:applicationId/custom-category-service",
+  userAuth,
+  isAdmin,
+  addCustomCategoryServiceForApplication,
+);
 
 //Admin Moderation Controller
 adminRouter.get("/tasks/in-progress", userAuth, isAdmin, inProgressTasks);
@@ -84,6 +101,45 @@ adminRouter.get(
   userAuth,
   isAdmin,
   getFlaggedCraftsmen,
+);
+//Admin Task Controller
+adminRouter.get("/tasks", userAuth, isAdmin, getAdminTasks);
+
+adminRouter.get("/tasks/unassignable", userAuth, isAdmin, getUnassignableTasks);
+
+adminRouter.patch(
+  "/tasks/:taskId/retry",
+  userAuth,
+  isAdmin,
+  retryTaskAssignment,
+);
+
+adminRouter.patch("/tasks/:taskId/cancel", userAuth, isAdmin, cancelAdminTask);
+
+adminRouter.get(
+  "/tasks/:taskId/craftsmen",
+  userAuth,
+  isAdmin,
+  getCraftsmenForTask,
+);
+
+adminRouter.patch(
+  "/tasks/:taskId/manual-assign",
+  userAuth,
+  isAdmin,
+  manuallyAssignTask,
+);
+adminRouter.patch(
+  "/reassignment-requests/:requestId/assign-replacement",
+  userAuth,
+  isAdmin,
+  assignReplacementCraftsman,
+);
+adminRouter.get(
+  "/reassignment-requests",
+  userAuth,
+  isAdmin,
+  getPendingReassignmentRequests,
 );
 
 export default adminRouter;

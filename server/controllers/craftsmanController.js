@@ -96,6 +96,24 @@ export const getMyApplication = async (req, res) => {
     });
   }
 };
+export const getCategoriesAndServices = async (req, res) => {
+  try {
+    const categories = await prisma.category.findMany({
+      include: {
+        services: true,
+      },
+    });
+    res.json({
+      success: true,
+      categories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export const dashboard = async (req, res) => {
   try {
@@ -247,11 +265,13 @@ export const assignRejectTask = async (req, res) => {
     const { taskId } = req.params;
     const craftsmanId = req.user.id;
     const { action, scheduledDate } = req.body;
+
     if (!["ACCEPT", "REJECT"].includes(action)) {
       return res.status(400).json({ message: "Invalid action" });
     }
 
     let parsedScheduledDate = null;
+
     if (action === "ACCEPT") {
       if (!scheduledDate) {
         return res.status(400).json({
@@ -285,6 +305,97 @@ export const assignRejectTask = async (req, res) => {
       return res.status(400).json({ message: "Already responded" });
     }
 
+    const reassignmentRequest = await prisma.taskReassignmentRequest.findFirst({
+      where: {
+        taskId,
+        newCraftsmanId: craftsmanId,
+        status: "PENDING_CRAFTSMAN",
+      },
+    });
+
+    // CASE 1: Replacement craftsman accepts
+    if (action === "ACCEPT" && reassignmentRequest) {
+      await prisma.$transaction(async (tx) => {
+        await tx.task.update({
+          where: { id: taskId },
+          data: {
+            craftsmanId,
+            scheduledDate: parsedScheduledDate,
+            status: "IN_PROGRESS",
+          },
+        });
+
+        await tx.taskAssignment.update({
+          where: {
+            taskId_craftsmanId: {
+              taskId,
+              craftsmanId,
+            },
+          },
+          data: {
+            status: "ACCEPTED",
+            respondedAt: new Date(),
+          },
+        });
+
+        await tx.taskAssignment.updateMany({
+          where: {
+            taskId,
+            craftsmanId: reassignmentRequest.oldCraftsmanId,
+          },
+          data: {
+            status: "TRANSFERRED",
+            respondedAt: new Date(),
+          },
+        });
+
+        await tx.taskReassignmentRequest.update({
+          where: { id: reassignmentRequest.id },
+          data: {
+            status: "ACCEPTED",
+            adminMessage: "Replacement craftsman accepted. Task transferred.",
+          },
+        });
+      });
+
+      return res.json({
+        message: "Replacement accepted. Task transferred successfully.",
+      });
+    }
+
+    // CASE 2: Replacement craftsman rejects
+    if (action === "REJECT" && reassignmentRequest) {
+      await prisma.$transaction(async (tx) => {
+        await tx.taskAssignment.update({
+          where: {
+            taskId_craftsmanId: {
+              taskId,
+              craftsmanId,
+            },
+          },
+          data: {
+            status: "DECLINED",
+            respondedAt: new Date(),
+          },
+        });
+
+        await tx.taskReassignmentRequest.update({
+          where: { id: reassignmentRequest.id },
+          data: {
+            status: "REJECTED",
+            adminMessage:
+              "No replacement craftsman is available right now. The original craftsman is still responsible for this task.",
+          },
+        });
+      });
+
+      return res.json({
+        message:
+          "Replacement rejected. Original craftsman remains assigned to the task.",
+      });
+    }
+
+    // CASE 3: Normal accept
     if (action === "ACCEPT") {
       await prisma.$transaction(async (tx) => {
         const task = await tx.task.findUnique({
@@ -326,9 +437,12 @@ export const assignRejectTask = async (req, res) => {
         });
       });
 
-      return res.json({ message: "Task accepted and scheduled successfully" });
+      return res.json({
+        message: "Task accepted and scheduled successfully",
+      });
     }
 
+    // CASE 4: Normal reject
     if (action === "REJECT") {
       await prisma.taskAssignment.update({
         where: {
@@ -351,15 +465,24 @@ export const assignRejectTask = async (req, res) => {
           nextAssignment,
         });
       } catch (err) {
+        await prisma.task.update({
+          where: { id: taskId },
+          data: {
+            status: "UNASSIGNABLE",
+            becameUnassignableAt: new Date(),
+          },
+        });
+
         return res.json({
-          message: "Task rejected, but no more available craftsmen to assign",
+          message:
+            "Task rejected, no more craftsmen available. Task marked as unassignable.",
         });
       }
     }
 
-    res.status(400).json({ message: "Invalid action" });
+    return res.status(400).json({ message: "Invalid action" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -412,13 +535,18 @@ export const showAvailability = async (req, res) => {
 };
 
 export const toggleAvailability = async (req, res) => {
+  console.log("TOGGLE ROUTE HIT");
   try {
     const craftsmanId = req.user.id;
-
+    let assignedPendingTask = false;
     const craftsman = await prisma.craftsman.findUnique({
       where: { userId: craftsmanId },
       select: {
         isAvailable: true,
+        categoryId: true,
+        serviceId: true,
+        status: true,
+        queueOrder: true,
       },
     });
 
@@ -432,10 +560,63 @@ export const toggleAvailability = async (req, res) => {
         isAvailable: !craftsman.isAvailable,
       },
     });
+    console.log("Craftsman availability updated:", updated);
+    if (
+      updated.isAvailable &&
+      updated.categoryId &&
+      updated.serviceId &&
+      updated.status === "APPROVED" &&
+      updated.queueOrder !== null
+    ) {
+      const pendingTasks = await prisma.task.findMany({
+        where: {
+          status: "PENDING",
+          categoryId: updated.categoryId,
+          serviceId: updated.serviceId,
+          craftsmanId: null,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+
+      console.log("Pending tasks found:", pendingTasks.length);
+
+      for (const pendingTask of pendingTasks) {
+        try {
+          await assignNextCraftsman(pendingTask.id);
+          assignedPendingTask = true;
+          break;
+        } catch (assignError) {
+          console.error(
+            `Pending task ${pendingTask.id} assignment failed:`,
+            assignError.message,
+          );
+
+          if (
+            assignError.message.includes(
+              "All craftsmen in this category already declined or timed out",
+            )
+          ) {
+            await prisma.task.update({
+              where: { id: pendingTask.id },
+              data: {
+                status: "UNASSIGNABLE",
+              },
+            });
+
+            console.log(`Task ${pendingTask.id} marked as UNASSIGNABLE`);
+          }
+
+          continue;
+        }
+      }
+    }
 
     res.json({
       message: "Availability updated",
       isAvailable: updated.isAvailable,
+      assignedPendingTask,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -447,22 +628,77 @@ export const getReviews = async (req, res) => {
     const craftsmanId = req.user.id;
 
     const reviews = await prisma.review.findMany({
-      where: { craftsmanId },
+      where: {
+        craftsmanId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
       select: {
         id: true,
         rating: true,
         comment: true,
+        createdAt: true,
+
+        qualityRating: true,
+        punctualityRating: true,
+        communicationRating: true,
+        professionalismRating: true,
+        cleanlinessRating: true,
+        priceFairnessRating: true,
+        detailedAverage: true,
+
+        wouldRecommend: true,
+        wouldHireAgain: true,
+        issueTags: true,
+
         user: {
           select: {
             name: true,
           },
         },
+
+        task: {
+          select: {
+            id: true,
+            title: true,
+            location: true,
+            completedAt: true,
+            service: {
+              select: {
+                name: true,
+              },
+            },
+            category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    res.json({ reviews });
+    const totalReviews = reviews.length;
+
+    const averageRating =
+      totalReviews > 0
+        ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+        : 0;
+
+    res.json({
+      success: true,
+      reviews,
+      stats: {
+        totalReviews,
+        averageRating: Number(averageRating.toFixed(1)),
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -586,5 +822,80 @@ export const completeTask = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const requestTaskWithdrawal = async (req, res) => {
+  try {
+    const craftsmanId = req.user.id;
+    const { taskId } = req.params;
+    const { reason } = req.body;
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    if (task.craftsmanId !== craftsmanId) {
+      return res
+        .status(403)
+        .json({ message: "You are not assigned to this task" });
+    }
+
+    if (task.status !== "IN_PROGRESS") {
+      return res
+        .status(400)
+        .json({ message: "Only scheduled tasks can be withdrawn" });
+    }
+
+    if (!task.scheduledDate) {
+      return res.status(400).json({ message: "Task has no scheduled date" });
+    }
+
+    const threeDaysBefore = new Date(task.scheduledDate);
+    threeDaysBefore.setDate(threeDaysBefore.getDate() - 3);
+
+    if (new Date() > threeDaysBefore) {
+      return res.status(400).json({
+        message:
+          "You can only withdraw at least 3 days before the scheduled date",
+      });
+    }
+
+    const existingRequest = await prisma.taskReassignmentRequest.findFirst({
+      where: {
+        taskId,
+        oldCraftsmanId: craftsmanId,
+        status: {
+          in: ["PENDING_ADMIN", "PENDING_CRAFTSMAN"],
+        },
+      },
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({
+        message: "You already have a pending withdrawal request for this task",
+      });
+    }
+
+    const request = await prisma.taskReassignmentRequest.create({
+      data: {
+        taskId,
+        oldCraftsmanId: craftsmanId,
+        reason: reason || null,
+        status: "PENDING_ADMIN",
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Withdrawal request sent to admin",
+      request,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

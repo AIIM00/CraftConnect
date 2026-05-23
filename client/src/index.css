@@ -17,3 +17,26 @@
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+html {
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #f7f4ed;
+  color: #1f2933;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Playfair Display", serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: "Inter", sans-serif;
+}

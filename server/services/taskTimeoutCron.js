@@ -5,7 +5,7 @@ export const startTimeoutCron = () => {
   console.log("Starting timeout cron job...");
 
   // runs every minute
-  cron.schedule("* * * * *", async () => {
+  cron.schedule("*/10 * * * * *", async () => {
     console.log("Running timeout job...");
     await processTimedOutAssignments();
   });
