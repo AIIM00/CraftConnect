@@ -1,15 +1,20 @@
 import * as React from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 import { AppContext } from "../../context/AppContext";
 
-//Components
+// Components
 import TaskDetails from "../../components/TasksDetails";
 import Btn from "../../components/Btn";
-// Material UI Icons
+
+// MUI Icons
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import HandymanIcon from "@mui/icons-material/Handyman";
 
 const tabs = ["All", "Pending", "In Progress", "Completed"];
 
@@ -75,8 +80,10 @@ export default function Tasks() {
       );
 
       toast.success(data.message || "Task updated successfully");
+
       setSelectedTask(null);
       setScheduledDate("");
+
       await fetchTasks();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update task");
@@ -84,17 +91,6 @@ export default function Tasks() {
       setActionLoading(false);
     }
   };
-
-  const filteredTasks =
-    filter === "All"
-      ? tasks
-      : tasks.filter(
-          (task) => task.status === filter.toUpperCase().replace(" ", "_"),
-        );
-
-  if (loading) {
-    return <p className="text-text-muted">Loading tasks...</p>;
-  }
 
   const handleCompleteTask = async (taskId) => {
     try {
@@ -117,155 +113,236 @@ export default function Tasks() {
     }
   };
 
+  const filteredTasks =
+    filter === "All"
+      ? tasks
+      : tasks.filter(
+          (task) => task.status === filter.toUpperCase().replace(" ", "_"),
+        );
+
+  if (loading) {
+    return (
+      <section className="min-h-screen bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+        <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center">
+          <div className="w-full rounded-3xl border border-border-soft bg-card-gradient p-8 text-center shadow-card">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+              <AssignmentIcon />
+            </div>
+
+            <h1 className="font-heading text-2xl font-bold text-primary">
+              Loading Tasks
+            </h1>
+
+            <p className="mt-2 text-sm text-text-muted">
+              Please wait while your tasks are being loaded.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <div>
-          <p className="text-sm font-semibold text-primary-light mb-2">
+    <section className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+
+      <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+
+      <div className="relative z-10 mx-auto max-w-container">
+        {/* HERO */}
+        <div className="mb-8 overflow-hidden rounded-3xl border border-border-soft bg-primary-gradient p-6 text-white shadow-card sm:p-8">
+          <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
             Craftsman Workspace
           </p>
 
-          <h1 className="text-3xl font-extrabold text-primary">My Tasks</h1>
+          <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+            My Tasks
+          </h1>
 
-          <p className="text-text-muted mt-2">
-            View assigned tasks, accept new jobs, and track completed work.
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+            View assigned tasks, accept new jobs, schedule visits, and track
+            completed work.
           </p>
         </div>
-      </div>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <MiniStat label="All" value={counts.all || 0} />
-        <MiniStat label="Pending" value={counts.pending || 0} />
-        <MiniStat label="In Progress" value={counts.inProgress || 0} />
-        <MiniStat label="Completed" value={counts.completed || 0} />
-      </section>
+        {/* STATS */}
+        <section className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <MiniStat
+            icon={<AssignmentIcon />}
+            label="All Tasks"
+            value={counts.all || 0}
+            color="bg-primary/10 text-primary"
+          />
 
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex gap-6 border-b border-gray-100 mb-4 overflow-x-auto">
-            {tabs.map((tab) => {
-              const isActive = filter === tab;
+          <MiniStat
+            icon={<AccessTimeIcon />}
+            label="Pending"
+            value={counts.pending || 0}
+            color="bg-secondary/10 text-secondary"
+          />
 
-              return (
-                <Btn
-                  key={tab}
-                  type="button"
-                  onClick={() => setFilter(tab)}
-                  variant="ghost"
-                  className={`rounded-none border-b-2 px-0 pb-3 pt-0 text-sm font-semibold whitespace-nowrap hover:bg-transparent ${
-                    isActive
-                      ? "border-primary text-primary"
-                      : "border-transparent text-text-muted hover:text-primary"
-                  }`}
-                >
-                  {tab}
-                </Btn>
-              );
-            })}
+          <MiniStat
+            icon={<HandymanIcon />}
+            label="In Progress"
+            value={counts.inProgress || 0}
+            color="bg-info/10 text-info"
+          />
+
+          <MiniStat
+            icon={<CheckCircleIcon />}
+            label="Completed"
+            value={counts.completed || 0}
+            color="bg-success/10 text-success"
+          />
+        </section>
+
+        {/* CONTENT */}
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          {/* TASKS */}
+          <div className="xl:col-span-2 rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+            {/* FILTERS */}
+            <div className="mb-5 flex gap-3 overflow-x-auto border-b border-border-soft pb-3">
+              {tabs.map((tab) => {
+                const isActive = filter === tab;
+
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setFilter(tab)}
+                    className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                      isActive
+                        ? "bg-primary-gradient text-white shadow-card"
+                        : "text-text-muted hover:bg-background hover:text-primary"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* EMPTY */}
+            {filteredTasks.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-border-soft bg-background p-10 text-center">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+                  <AssignmentIcon />
+                </div>
+
+                <h3 className="font-heading text-2xl font-bold text-primary">
+                  No tasks found
+                </h3>
+
+                <p className="mt-2 text-sm leading-7 text-text-muted">
+                  There are no {filter.toLowerCase()} tasks right now.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTasks.map((task) => (
+                  <button
+                    key={task.taskId}
+                    type="button"
+                    onClick={() => setSelectedTask(task)}
+                    className="group w-full rounded-3xl border border-border-soft bg-background p-4 text-left shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:bg-background-light hover:shadow-card"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex min-w-0 items-start gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+                          <AssignmentIcon />
+                        </div>
+
+                        <div className="min-w-0">
+                          <h4 className="truncate font-bold text-text">
+                            {task.title}
+                          </h4>
+
+                          <p className="mt-1 text-sm text-text-muted">
+                            {task.service?.name || task.category?.name}
+                          </p>
+
+                          <p className="mt-2 flex items-center gap-1 truncate text-sm text-text-muted">
+                            <LocationOnIcon fontSize="small" />
+                            {task.location}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3 sm:justify-end">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-bold ${
+                            statusStyles[task.status] ||
+                            "bg-background-light text-text-muted"
+                          }`}
+                        >
+                          {task.status}
+                        </span>
+
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-text-muted transition group-hover:bg-primary/10 group-hover:text-primary">
+                          <ArrowForwardIosIcon fontSize="small" />
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {filteredTasks.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-bg text-primary flex items-center justify-center mb-4">
-                <AssignmentIcon />
+          {/* DETAILS */}
+          <aside className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+            {!selectedTask ? (
+              <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+                  <AssignmentIcon />
+                </div>
+
+                <h3 className="font-heading text-2xl font-bold text-primary">
+                  Select a task
+                </h3>
+
+                <p className="mt-3 max-w-sm text-sm leading-7 text-text-muted">
+                  Click on a task to view full details, schedule appointments,
+                  and manage actions.
+                </p>
               </div>
-
-              <h3 className="font-bold text-primary">No tasks found</h3>
-
-              <p className="text-sm text-text-muted mt-1">
-                There are no {filter.toLowerCase()} tasks right now.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {filteredTasks.map((task) => (
-                <button
-                  key={task.taskId}
-                  type="button"
-                  onClick={() => setSelectedTask(task)}
-                  className="w-full rounded-3xl border border-gray-100 bg-white/70 px-4 py-4 text-left shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:bg-primary/5 hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex min-w-0 items-center gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-primary/10 bg-primary/5 text-primary">
-                        <AssignmentIcon />
-                      </div>
-
-                      <div className="min-w-0">
-                        <h4 className="truncate font-bold text-text">
-                          {task.title}
-                        </h4>
-
-                        <p className="mt-1 text-sm text-text-muted">
-                          {task.service?.name || task.category?.name}
-                        </p>
-
-                        <p className="mt-1 flex items-center gap-1 truncate text-sm text-text-muted">
-                          <LocationOnIcon fontSize="small" />
-                          {task.location}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold ${
-                          statusStyles[task.status] ||
-                          "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {task.status}
-                      </span>
-
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bg text-text-muted transition group-hover:bg-primary/10 group-hover:text-primary">
-                        <ArrowForwardIosIcon fontSize="small" />
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          {!selectedTask ? (
-            <div className="h-full min-h-80 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-2xl bg-bg text-primary flex items-center justify-center mb-4">
-                <AssignmentIcon />
-              </div>
-
-              <h3 className="font-bold text-primary">Select a task</h3>
-
-              <p className="text-sm text-text-muted mt-2">
-                Click on a task to view full details and available actions.
-              </p>
-            </div>
-          ) : (
-            <TaskDetails
-              task={selectedTask}
-              actionLoading={actionLoading}
-              scheduledDate={scheduledDate}
-              onScheduledDateChange={setScheduledDate}
-              onClose={() => {
-                setSelectedTask(null);
-                setScheduledDate("");
-              }}
-              onAction={handleTaskAction}
-              onComplete={handleCompleteTask}
-            />
-          )}
-        </aside>
-      </section>
-    </div>
+            ) : (
+              <TaskDetails
+                task={selectedTask}
+                actionLoading={actionLoading}
+                scheduledDate={scheduledDate}
+                onScheduledDateChange={setScheduledDate}
+                onClose={() => {
+                  setSelectedTask(null);
+                  setScheduledDate("");
+                }}
+                onAction={handleTaskAction}
+                onComplete={handleCompleteTask}
+              />
+            )}
+          </aside>
+        </section>
+      </div>
+    </section>
   );
 }
 
-function MiniStat({ label, value }) {
+function MiniStat({ icon, label, value, color }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
-      <p className="text-sm font-semibold text-text-muted">{label}</p>
-      <p className="text-3xl font-extrabold text-primary mt-1">{value}</p>
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-card">
+      <div className="flex items-center gap-4">
+        <div
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${color}`}
+        >
+          {icon}
+        </div>
+
+        <div>
+          <p className="text-sm font-bold text-text-muted">{label}</p>
+
+          <p className="mt-1 text-3xl font-bold text-primary">{value}</p>
+        </div>
+      </div>
     </div>
   );
 }

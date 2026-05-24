@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
 import Btn from "../../components/Btn";
 
-// MUI Icons
+// Icons
 import GroupsIcon from "@mui/icons-material/Groups";
 import HandymanIcon from "@mui/icons-material/Handyman";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
@@ -15,100 +16,98 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const actors = [
   {
-    icon: <GroupsIcon fontSize="large" />,
+    icon: GroupsIcon,
     title: "Customers",
     description:
-      "Customers can browse services, book tasks, choose their location, track requests, and leave reviews after completion.",
+      "Browse services, book tasks, track requests, and review completed work.",
   },
   {
-    icon: <HandymanIcon fontSize="large" />,
+    icon: HandymanIcon,
     title: "Craftsmen",
     description:
-      "Craftsmen receive assigned tasks, accept or decline requests, complete jobs, upload proof of work, and manage their profiles.",
+      "Receive tasks, manage work, complete services, and grow reputation.",
   },
   {
-    icon: <AdminPanelSettingsIcon fontSize="large" />,
+    icon: AdminPanelSettingsIcon,
     title: "Admins",
     description:
-      "Admins monitor the platform, approve craftsmen, manage users, review performance, and keep the system reliable.",
+      "Monitor operations, approve craftsmen, and maintain service quality.",
   },
 ];
 
 const features = [
   {
-    icon: <VerifiedUserIcon />,
+    icon: VerifiedUserIcon,
     title: "Secure Registration",
     description:
-      "Users register with email verification, while craftsmen applications are reviewed before approval.",
+      "Verified accounts and reviewed craftsmen applications ensure platform trust.",
   },
   {
-    icon: <LocationOnIcon />,
+    icon: LocationOnIcon,
     title: "Location-Based Booking",
     description:
-      "Customers choose their service location so tasks can be handled by suitable craftsmen.",
+      "Customers choose their service location for accurate task assignment.",
   },
   {
-    icon: <AssignmentTurnedInIcon />,
-    title: "Smart Task Assignment",
+    icon: AssignmentTurnedInIcon,
+    title: "Smart Assignment",
     description:
-      "The system assigns service requests to available craftsmen using category matching and round robin assignment.",
+      "Tasks are distributed fairly using category matching and round robin logic.",
   },
   {
-    icon: <StarIcon />,
-    title: "Reviews & Quality Control",
-    description:
-      "Customers can review completed services, and admins can monitor craftsman performance.",
+    icon: StarIcon,
+    title: "Reviews & Ratings",
+    description: "Track service quality through reviews and customer feedback.",
   },
 ];
 
 const process = [
-  "Customer browses available services",
-  "Customer books a task and selects a location",
-  "System assigns the task to a suitable craftsman",
-  "Craftsman accepts and completes the task",
-  "Customer tracks progress and leaves a review",
-  "Admin monitors quality and manages the platform",
+  "Customer posts a service request",
+  "The system assigns the task",
+  "Craftsman accepts the request",
+  "Work gets completed professionally",
+  "Customer reviews the service",
 ];
 
 const goals = [
-  "Make service booking simple for customers",
-  "Help craftsmen find and manage work",
-  "Assign tasks fairly using round robin logic",
-  "Allow admins to monitor quality and performance",
-  "Support reviews, warnings, and account management",
+  "Simplify service booking",
+  "Support craftsmen opportunities",
+  "Ensure fair task assignment",
+  "Improve service reliability",
+  "Maintain platform quality",
 ];
 
 const AboutUs = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="w-full bg-bg">
-      {/* Hero */}
-      <section className="relative overflow-hidden px-4 pb-20 pt-32 text-text-light sm:px-8 lg:px-16 bg-[radial-gradient(circle_at_72%_18%,rgba(218,165,32,0.28),transparent_28%),radial-gradient(circle_at_18%_84%,rgba(0,128,128,0.26),transparent_30%),linear-gradient(135deg,#133A63_0%,#0B2540_48%,#008080_100%)]">
-        <div className="pointer-events-none absolute -right-32 -top-36 h-[540px] w-[540px] rotate-[26deg] rounded-[42%] bg-[linear-gradient(135deg,rgba(169,209,232,0.55),rgba(218,165,32,0.24),rgba(255,255,255,0.12))] opacity-65" />
-        <div className="pointer-events-none absolute -bottom-44 -left-36 h-[540px] w-[540px] rotate-[-24deg] rounded-[42%] bg-[linear-gradient(135deg,rgba(0,128,128,0.5),rgba(169,209,232,0.25),rgba(255,255,255,0.12))] opacity-65" />
+    <main className="overflow-hidden bg-background-dark bg-hero-gradient">
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-primary-gradient px-4 pb-24 pt-32 text-white sm:px-8 lg:px-16">
+        <div className="absolute -right-32 -top-32 h-[420px] w-[420px] rounded-full bg-secondary/20 blur-3xl" />
 
-        <div className="relative z-10 mx-auto max-w-7xl text-center">
-          <p className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 font-body text-xs font-semibold tracking-[0.18em] text-accent-soft backdrop-blur-md">
-            ABOUT CRAFTCONNECT
+        <div className="absolute -bottom-40 -left-40 h-[420px] w-[420px] rounded-full bg-white/10 blur-3xl" />
+
+        <div className="relative z-10 mx-auto max-w-container text-center">
+          <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary backdrop-blur-sm">
+            About CraftConnect
           </p>
 
-          <h1 className="mx-auto max-w-4xl font-heading text-[clamp(2.4rem,6vw,5rem)] font-extrabold leading-tight tracking-[1px] text-text-light [text-shadow:0_0_18px_rgba(218,165,32,0.28)]">
+          <h1 className="mx-auto max-w-5xl font-heading text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
             Connecting customers with trusted craftsmen
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[rgba(247,244,237,0.76)] sm:text-base">
-            CraftConnect is a service marketplace platform that helps customers
-            request home and professional services while allowing craftsmen to
-            receive, manage, and complete tasks efficiently.
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+            CraftConnect is a modern marketplace platform that helps customers
+            easily book services while enabling craftsmen to manage and complete
+            tasks efficiently.
           </p>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Btn
               type="button"
               onClick={() => navigate("/services")}
-              variant="ghost"
-              className="rounded-full border border-[rgba(247,244,237,0.55)] bg-gold-gradient px-7 py-3 font-extrabold text-primary-dark shadow-[0_12px_26px_rgba(218,165,32,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(218,165,32,0.36)]"
+              className="px-7"
             >
               Browse Services
               <ArrowForwardIcon fontSize="small" />
@@ -116,9 +115,9 @@ const AboutUs = () => {
 
             <Btn
               type="button"
+              variant="outline"
               onClick={() => navigate("/how-it-works")}
-              variant="ghost"
-              className="rounded-full border border-white/20 bg-white/10 px-7 py-3 font-extrabold text-text-light shadow-none backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/20 hover:text-accent-soft"
+              className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
             >
               How It Works
             </Btn>
@@ -126,49 +125,48 @@ const AboutUs = () => {
         </div>
       </section>
 
-      {/* Overview */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-16 sm:px-8 lg:px-16">
-        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
+      {/* OVERVIEW */}
+      <section className="relative px-4 py-16 sm:px-8 lg:px-16">
+        <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <div className="absolute -right-24 bottom-20 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+
+        <div className="relative z-10 mx-auto grid max-w-container gap-8 lg:grid-cols-2">
           <div>
-            <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
-              SYSTEM OVERVIEW
+            <p className="mb-4 inline-flex rounded-full border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+              Platform Overview
             </p>
 
-            <h2 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-tight tracking-[1px] text-primary">
-              A complete platform for service booking and management
+            <h2 className="font-heading text-3xl font-bold text-primary sm:text-4xl lg:text-5xl">
+              A complete service management platform
             </h2>
 
-            <p className="mt-4 text-sm leading-7 text-text-muted sm:text-base">
-              The platform manages the full service journey, from registration
-              and authentication to task booking, assignment, tracking,
-              completion, and evaluation.
+            <p className="mt-5 text-sm leading-7 text-text-muted sm:text-base">
+              CraftConnect handles the entire service lifecycle from
+              registration and booking to assignment, completion, and customer
+              reviews.
             </p>
 
             <p className="mt-4 text-sm leading-7 text-text-muted sm:text-base">
-              Customers can request services, craftsmen can handle assigned
-              tasks, and admins can monitor the whole process to maintain trust,
-              quality, and performance.
+              Customers can request services, craftsmen manage assigned work,
+              and admins monitor the platform to ensure trust and quality.
             </p>
           </div>
 
-          <div className="rounded-[32px] border border-white/60 bg-white/55 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.14),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl sm:p-8">
-            <h3 className="mb-5 font-heading text-2xl font-extrabold text-primary">
+          <div className="rounded-2xl border border-border-soft bg-card-gradient p-6 shadow-card sm:p-8">
+            <h3 className="font-heading text-2xl font-bold text-primary">
               Platform Goals
             </h3>
 
-            <div className="space-y-4">
+            <div className="mt-6 space-y-4">
               {goals.map((goal) => (
                 <div
                   key={goal}
-                  className="flex items-start gap-3 rounded-[20px] border border-white/60 bg-white/50 px-4 py-3 shadow-sm backdrop-blur-md"
+                  className="flex items-start gap-3 rounded-2xl border border-border-soft bg-background p-4 shadow-soft"
                 >
-                  <CheckCircleIcon className="mt-0.5 text-accent" />
-                  <p className="font-semibold leading-6 text-text-muted">
-                    {goal}
-                  </p>
+                  <CheckCircleIcon className="mt-0.5 text-secondary" />
+
+                  <p className="font-medium leading-6 text-text">{goal}</p>
                 </div>
               ))}
             </div>
@@ -176,188 +174,180 @@ const AboutUs = () => {
         </div>
       </section>
 
-      {/* Actors */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_52%,rgba(169,209,232,0.5)_100%)] px-4 py-16 sm:px-8 lg:px-16">
-        <div className="pointer-events-none absolute -right-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -left-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
-
-        <div className="relative z-10 mx-auto max-w-7xl">
+      {/* USERS */}
+      <section className="relative px-4 py-16 sm:px-8 lg:px-16">
+        <div className="relative z-10 mx-auto max-w-container">
           <div className="mb-12 text-center">
-            <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
-              MAIN USERS
+            <p className="mb-4 inline-flex rounded-full border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+              Main Users
             </p>
 
-            <h2 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
-              Built for customers, craftsmen, and admins
+            <h2 className="font-heading text-3xl font-bold text-primary sm:text-4xl lg:text-5xl">
+              Built for every role
             </h2>
 
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-              Each user type has a clear role in keeping the service process
-              smooth, organized, and reliable.
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
+              Customers, craftsmen, and admins each play an important role in
+              creating a trusted service ecosystem.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {actors.map((actor) => (
-              <div
-                key={actor.title}
-                className="group relative overflow-hidden rounded-[28px] border border-white/60 bg-white/55 p-6 shadow-[0_18px_45px_rgba(19,58,99,0.12),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 hover:border-accent/40 hover:bg-white/75 hover:shadow-[0_25px_60px_rgba(19,58,99,0.18)]"
-              >
-                <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-accent/20 blur-2xl transition group-hover:bg-accent/30" />
-                <div className="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-teal/15 blur-2xl" />
+            {actors.map((actor) => {
+              const Icon = actor.icon;
 
-                <div className="relative z-10">
-                  <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[rgba(247,244,237,0.65)] bg-[linear-gradient(135deg,#A9D1E8_0%,#DAA520_100%)] text-primary-dark shadow-[0_0_28px_rgba(218,165,32,0.28)] transition-all duration-300 group-hover:scale-110">
-                    {actor.icon}
+              return (
+                <div
+                  key={actor.title}
+                  className="group rounded-2xl border border-border-soft bg-card-gradient p-6 shadow-soft transition-all duration-300 hover:-translate-y-2 hover:shadow-card"
+                >
+                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card transition duration-300 group-hover:scale-105">
+                    <Icon fontSize="medium" />
                   </div>
 
-                  <h3 className="mb-3 font-display text-xl font-extrabold text-primary">
+                  <h3 className="font-heading text-2xl font-bold text-primary">
                     {actor.title}
                   </h3>
 
-                  <p className="text-sm leading-7 text-text-muted">
+                  <p className="mt-4 text-sm leading-7 text-text-muted">
                     {actor.description}
                   </p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-16 sm:px-8 lg:px-16">
-        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
-
-        <div className="relative z-10 mx-auto max-w-7xl">
-          <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      {/* FEATURES */}
+      <section className="relative px-4 py-16 sm:px-8 lg:px-16">
+        <div className="relative z-10 mx-auto max-w-container">
+          <div className="mb-12 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
-                CORE FEATURES
+              <p className="mb-4 inline-flex rounded-full border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                Core Features
               </p>
 
-              <h2 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
-                Designed to manage the full service lifecycle
+              <h2 className="font-heading text-3xl font-bold text-primary sm:text-4xl lg:text-5xl">
+                Everything needed to manage services
               </h2>
 
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-                CraftConnect supports registration, booking, assignment,
-                tracking, completion, reviews, and admin monitoring.
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
+                Built with booking, assignment, tracking, completion, and
+                quality management features.
               </p>
             </div>
 
             <Btn
               type="button"
+              variant="outline"
               onClick={() => navigate("/services")}
-              variant="ghost"
-              className="self-start rounded-full border border-primary/10 bg-white/50 px-5 py-3 font-bold text-primary shadow-soft backdrop-blur-md transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-white/70 hover:text-accent-hover lg:self-auto"
             >
-              Explore services
+              Explore Services
               <ArrowForwardIcon fontSize="small" />
             </Btn>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group flex gap-5 rounded-[28px] border border-white/60 bg-white/55 p-6 shadow-[0_18px_45px_rgba(19,58,99,0.12),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:bg-white/75"
-              >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[rgba(247,244,237,0.65)] bg-[linear-gradient(135deg,#A9D1E8_0%,#DAA520_100%)] text-primary-dark shadow-[0_0_24px_rgba(218,165,32,0.25)] transition-all duration-300 group-hover:scale-105">
-                  {feature.icon}
-                </div>
+            {features.map((feature) => {
+              const Icon = feature.icon;
 
-                <div>
-                  <h3 className="mb-2 font-display text-lg font-extrabold text-primary">
-                    {feature.title}
-                  </h3>
+              return (
+                <div
+                  key={feature.title}
+                  className="group flex gap-5 rounded-2xl border border-border-soft bg-card-gradient p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
+                >
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card transition duration-300 group-hover:scale-105">
+                    <Icon fontSize="small" />
+                  </div>
 
-                  <p className="text-sm leading-7 text-text-muted">
-                    {feature.description}
-                  </p>
+                  <div>
+                    <h3 className="font-heading text-xl font-bold text-primary">
+                      {feature.title}
+                    </h3>
+
+                    <p className="mt-3 text-sm leading-7 text-text-muted">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Process */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_52%,rgba(169,209,232,0.5)_100%)] px-4 py-16 sm:px-8 lg:px-16">
-        <div className="pointer-events-none absolute -right-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -left-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
+      {/* PROCESS */}
+      <section className="relative overflow-hidden bg-primary-gradient px-4 py-20 text-white sm:px-8 lg:px-16">
+        <div className="absolute -right-28 top-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
-          <div className="relative overflow-hidden rounded-[36px] border border-white/40 bg-[radial-gradient(circle_at_80%_10%,rgba(218,165,32,0.26),transparent_28%),radial-gradient(circle_at_10%_90%,rgba(0,128,128,0.25),transparent_32%),linear-gradient(135deg,#133A63_0%,#0B2540_58%,#008080_100%)] p-6 text-text-light shadow-[0_25px_70px_rgba(19,58,99,0.22),inset_0_0_45px_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-8">
-            <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-accent/25 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-teal/25 blur-3xl" />
+        <div className="absolute -left-28 bottom-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-            <div className="relative z-10">
-              <p className="mb-3 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold tracking-[0.18em] text-accent-soft backdrop-blur-md">
-                SYSTEM BEHAVIOR
-              </p>
+        <div className="relative z-10 mx-auto grid max-w-container gap-10 lg:grid-cols-2">
+          <div>
+            <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+              System Process
+            </p>
 
-              <h2 className="font-heading text-[clamp(2rem,5vw,3.4rem)] font-extrabold leading-tight tracking-[1px] text-text-light [text-shadow:0_0_18px_rgba(218,165,32,0.28)]">
-                From request to completed service
-              </h2>
+            <h2 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+              From booking to completion
+            </h2>
 
-              <p className="mt-4 text-sm leading-7 text-[rgba(247,244,237,0.76)] sm:text-base">
-                Customers create service requests, the system assigns tasks to
-                craftsmen, craftsmen complete the work, and admins monitor the
-                platform to ensure quality.
-              </p>
-            </div>
+            <p className="mt-5 text-sm leading-7 text-white/80 sm:text-base">
+              The platform handles service requests from start to finish while
+              ensuring fairness, organization, and quality monitoring.
+            </p>
           </div>
 
           <div className="space-y-4">
             {process.map((item, index) => (
               <div
                 key={item}
-                className="flex items-start gap-4 rounded-[24px] border border-white/60 bg-white/55 px-5 py-4 shadow-sm backdrop-blur-md transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-white/75"
+                className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/10 px-5 py-4 backdrop-blur-sm transition hover:bg-white/15"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(247,244,237,0.65)] bg-gold-gradient font-extrabold text-primary-dark shadow-[0_0_22px_rgba(218,165,32,0.22)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-gradient font-bold text-white shadow-card">
                   {index + 1}
                 </div>
 
-                <p className="pt-1 font-semibold leading-6 text-primary">
-                  {item}
-                </p>
+                <p className="pt-1 font-medium leading-6 text-white">{item}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Admin & Trust */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-16 sm:px-8 lg:px-16">
-        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
+      {/* FINAL CTA */}
+      <section className="relative px-4 py-20 sm:px-8 lg:px-16">
+        <div className="mx-auto max-w-container">
+          <div className="relative overflow-hidden rounded-3xl border border-border-soft bg-primary-gradient px-6 py-14 text-center text-white shadow-glass sm:px-10">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-        <div className="relative z-10 mx-auto max-w-5xl text-center">
-          <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
-            TRUST & CONTROL
-          </p>
+            <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-          <h2 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
-            Quality is managed at every stage
-          </h2>
+            <div className="relative z-10">
+              <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                Trust & Quality
+              </p>
 
-          <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-text-muted sm:text-base">
-            Admins can approve or reject craftsman applications, monitor
-            in-progress and completed tasks, review customer feedback, manage
-            users, and take action against low performance or fake accounts.
-          </p>
+              <h2 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+                Start booking trusted services today
+              </h2>
 
-          <Btn
-            type="button"
-            onClick={() => navigate("/services")}
-            variant="ghost"
-            className="mt-8 rounded-full border border-[rgba(247,244,237,0.65)] bg-gold-gradient px-7 py-3 font-extrabold text-primary-dark shadow-[0_12px_26px_rgba(218,165,32,0.24)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(218,165,32,0.36)]"
-          >
-            Start Booking
-            <ArrowForwardIcon fontSize="small" />
-          </Btn>
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+                Find reliable craftsmen, manage tasks efficiently, and enjoy a
+                modern service booking experience with CraftConnect.
+              </p>
+
+              <Btn
+                type="button"
+                onClick={() => navigate("/services")}
+                className="mt-8 bg-secondary-gradient px-7 py-4 font-bold text-white shadow-card transition hover:scale-[1.02]"
+              >
+                Start Booking
+                <ArrowForwardIcon fontSize="small" />
+              </Btn>
+            </div>
+          </div>
         </div>
       </section>
     </main>

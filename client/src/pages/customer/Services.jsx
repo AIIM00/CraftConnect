@@ -3,68 +3,77 @@ import Btn from "../../components/Btn";
 
 // MUI Icons
 import SearchIcon from "@mui/icons-material/Search";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 export default function ServicesPage({ id }) {
   return (
-    <main id={id} className="w-full bg-bg">
+    <main
+      id={id}
+      className="w-full overflow-hidden bg-background-dark bg-hero-gradient"
+    >
       {/* Hero */}
-      <section className="relative overflow-hidden px-4 pb-16 pt-32 text-text-light sm:px-8 lg:px-16 bg-[radial-gradient(circle_at_72%_18%,rgba(218,165,32,0.28),transparent_28%),radial-gradient(circle_at_18%_84%,rgba(0,128,128,0.26),transparent_30%),linear-gradient(135deg,#133A63_0%,#0B2540_48%,#008080_100%)]">
-        <div className="pointer-events-none absolute -right-32 -top-36 h-[540px] w-[540px] rotate-[26deg] rounded-[42%] bg-[linear-gradient(135deg,rgba(169,209,232,0.55),rgba(218,165,32,0.24),rgba(255,255,255,0.12))] opacity-65" />
-        <div className="pointer-events-none absolute -bottom-44 -left-36 h-[540px] w-[540px] rotate-[-24deg] rounded-[42%] bg-[linear-gradient(135deg,rgba(0,128,128,0.5),rgba(169,209,232,0.25),rgba(255,255,255,0.12))] opacity-65" />
+      <section className="relative overflow-hidden bg-primary-gradient px-4 pb-20 pt-32 text-white sm:px-8 lg:px-16">
+        <div className="pointer-events-none absolute -right-32 -top-32 h-[420px] w-[420px] rounded-full bg-secondary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[420px] w-[420px] rounded-full bg-white/10 blur-3xl" />
 
-        <div className="relative z-10 mx-auto max-w-7xl text-center">
-          <p className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 font-body text-xs font-semibold tracking-[0.18em] text-accent-soft backdrop-blur-md">
-            CRAFTCONNECT SERVICES
+        <div className="relative z-10 mx-auto max-w-container text-center">
+          <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary backdrop-blur-sm">
+            CraftConnect Services
           </p>
 
-          <h1 className="mx-auto max-w-4xl font-heading text-[clamp(2.4rem,6vw,5rem)] font-extrabold leading-tight tracking-[1px] text-text-light [text-shadow:0_0_18px_rgba(218,165,32,0.28)]">
+          <h1 className="mx-auto max-w-5xl font-heading text-4xl font-extrabold leading-tight sm:text-5xl lg:text-7xl">
             Find the right professional for every job
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[rgba(247,244,237,0.76)] sm:text-base">
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
             Browse trusted craftsmen and home service experts by category.
           </p>
 
-          <div className="mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-[24px] border border-white/30 bg-white/15 p-2 shadow-[0_25px_70px_rgba(19,58,99,0.26),inset_0_0_35px_rgba(255,255,255,0.06)] backdrop-blur-[22px]">
-            <SearchIcon className="mx-3 text-[rgba(247,244,237,0.75)]" />
+          <div className="mx-auto mt-10 flex max-w-2xl flex-col gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 shadow-card backdrop-blur-sm sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white/10 px-4 py-3">
+              <SearchIcon className="text-white/70" />
 
-            <input
-              type="text"
-              placeholder="Search for plumber, cleaner, carpenter..."
-              className="min-w-0 flex-1 bg-transparent px-1 text-sm text-text-light outline-none placeholder:text-[rgba(247,244,237,0.55)]"
-            />
+              <input
+                type="text"
+                placeholder="Search for plumber, cleaner, carpenter..."
+                className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
+              />
+            </div>
 
             <Btn
               type="button"
-              variant="ghost"
-              className="min-h-[46px] rounded-full border border-[rgba(247,244,237,0.55)] bg-gold-gradient px-6 font-extrabold text-primary-dark shadow-[0_12px_26px_rgba(218,165,32,0.24)] hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(218,165,32,0.36)]"
+              variant="secondary"
+              className="min-h-[48px] rounded-xl px-6"
             >
               Search
+              <ArrowForwardIcon fontSize="small" />
             </Btn>
           </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-16 sm:px-8 lg:px-16">
-        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
+      <section className="relative overflow-hidden px-4 py-16 sm:px-8 lg:px-16">
+        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-        <div className="relative z-10 mx-auto max-w-7xl">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
-                AVAILABLE SERVICES
-              </p>
+        <div className="relative z-10 mx-auto max-w-container">
+          <div className="mb-10 overflow-hidden rounded-3xl border border-border-soft bg-card-gradient p-6 shadow-card sm:p-8 lg:p-10">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="mb-4 inline-flex rounded-full border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                  Available Services
+                </p>
 
-              <h2 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
-                Browse by Category
-              </h2>
+                <h2 className="font-heading text-3xl font-bold text-primary sm:text-4xl lg:text-5xl">
+                  Browse by Category
+                </h2>
 
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-                Explore service categories and quickly find skilled workers near
-                you.
-              </p>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
+                  Explore service categories and quickly find skilled workers
+                  near you.
+                </p>
+              </div>
             </div>
           </div>
 

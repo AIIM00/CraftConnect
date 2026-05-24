@@ -31,6 +31,7 @@ export default function AdminCustomers() {
 
       const { data } = await axios.get(
         `${backendUrl}/api/admin/customers/insights`,
+        { withCredentials: true },
       );
 
       if (!data.success) {
@@ -43,7 +44,6 @@ export default function AdminCustomers() {
       setCustomersByCity(data.customersByCity || []);
       setCustomersWithInProgressTasks(data.customersWithInProgressTasks || []);
     } catch (error) {
-      console.error(error);
       toast.error(error.response?.data?.message || "Failed to load customers");
     } finally {
       setLoading(false);
@@ -55,137 +55,151 @@ export default function AdminCustomers() {
   }, [backendUrl]);
 
   if (loading) {
-    return <p className="text-text-muted">Loading customers...</p>;
+    return (
+      <section className="min-h-screen bg-background-dark bg-hero-gradient px-4 py-8 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-md rounded-3xl border border-border-soft bg-card-gradient p-8 text-center shadow-card">
+          <PeopleAltIcon className="text-primary" />
+          <p className="mt-4 text-sm font-bold text-primary">
+            Loading customers...
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-        <div>
-          <p className="text-sm font-semibold text-primary-light mb-2">
-            Customer Management
-          </p>
+    <section className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-8 sm:px-6 lg:px-10">
+      <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-          <h1 className="text-3xl font-extrabold text-primary">Customers</h1>
+      <div className="relative z-10 mx-auto max-w-container">
+        <div className="mb-6 rounded-3xl border border-border-soft bg-primary-gradient p-5 text-white shadow-card sm:p-7">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-secondary backdrop-blur-sm sm:text-xs">
+                Customer Management
+              </p>
 
-          <p className="text-text-muted mt-2">
-            Understand your customer base, active service experiences, and top
-            customers by task orders.
-          </p>
+              <h1 className="font-heading text-2xl font-bold sm:text-3xl lg:text-4xl">
+                Customers
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-xs leading-6 text-white/80 sm:text-sm">
+                Understand customer activity, active service experiences, and
+                top customers across the platform.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={fetchCustomerInsights}
+              className="inline-flex w-fit items-center gap-2 rounded-2xl bg-secondary-gradient px-4 py-3 text-xs font-bold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated sm:text-sm"
+            >
+              <RefreshIcon fontSize="small" />
+              Refresh
+            </button>
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={fetchCustomerInsights}
-          className="w-fit inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-white font-bold hover:bg-primary-light transition"
-        >
-          <RefreshIcon fontSize="small" />
-          Refresh
-        </button>
+        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <SummaryCard
+            icon={<PeopleAltIcon />}
+            label="Total Customers"
+            value={allCustomers.length}
+            note="Registered customer accounts"
+            color="bg-primary/10 text-primary"
+          />
+
+          <SummaryCard
+            icon={<LocationCityIcon />}
+            label="Cities"
+            value={customersByCity.length}
+            note="Cities with customers"
+            color="bg-info/10 text-info"
+          />
+
+          <SummaryCard
+            icon={<BuildCircleIcon />}
+            label="Active Customers"
+            value={customersWithInProgressTasks.length}
+            note="Customers with active tasks"
+            color="bg-secondary/10 text-secondary"
+          />
+        </section>
+
+        <SectionHeader
+          title="Top Customers"
+          description="Customers ranked by number of requested tasks."
+        />
+
+        {topCustomers.length === 0 ? (
+          <EmptyState message="No customers found." />
+        ) : (
+          <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {topCustomers.map((customer, index) => (
+              <CustomerCard
+                key={customer.id}
+                customer={customer}
+                badge={`#${index + 1}`}
+                highlight={`${customer.totalTasks} tasks`}
+              />
+            ))}
+          </section>
+        )}
+
+        <SectionHeader
+          title="Customers by City"
+          description="Cities where CraftConnect currently has customers."
+        />
+
+        {customersByCity.length === 0 ? (
+          <EmptyState message="No city data found." />
+        ) : (
+          <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {customersByCity.map((city) => (
+              <CityCard key={city.city} city={city} />
+            ))}
+          </section>
+        )}
+
+        <SectionHeader
+          title="Customers With Tasks In Progress"
+          description="Customers currently receiving active services."
+        />
+
+        {customersWithInProgressTasks.length === 0 ? (
+          <EmptyState message="No customers currently have in-progress tasks." />
+        ) : (
+          <section className="mb-8 grid grid-cols-1 gap-4 xl:grid-cols-2">
+            {customersWithInProgressTasks.map((item) => (
+              <ActiveCustomerCard
+                key={`${item.customer.id}-${item.task.id}`}
+                item={item}
+              />
+            ))}
+          </section>
+        )}
+
+        <SectionHeader
+          title="All Customers"
+          description="Complete customer list."
+        />
+
+        {allCustomers.length === 0 ? (
+          <EmptyState message="No customers found." />
+        ) : (
+          <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {allCustomers.map((customer) => (
+              <CustomerCard
+                key={customer.id}
+                customer={customer}
+                highlight={`${customer.totalTasks} tasks`}
+              />
+            ))}
+          </section>
+        )}
       </div>
-
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-        <SummaryCard
-          icon={<PeopleAltIcon />}
-          label="Total Customers"
-          value={allCustomers.length}
-          note="Registered customer accounts"
-          color="bg-blue-50 text-blue-600"
-        />
-
-        <SummaryCard
-          icon={<LocationCityIcon />}
-          label="Cities"
-          value={customersByCity.length}
-          note="Cities with customers"
-          color="bg-indigo-50 text-indigo-600"
-        />
-
-        <SummaryCard
-          icon={<BuildCircleIcon />}
-          label="Active Customers"
-          value={customersWithInProgressTasks.length}
-          note="Customers with in-progress tasks"
-          color="bg-orange-50 text-orange-600"
-        />
-      </section>
-
-      {/* Section 1 */}
-      <SectionHeader
-        title="Top Customers"
-        description="Customers ranked by the number of tasks they ordered."
-      />
-
-      {topCustomers.length === 0 ? (
-        <EmptyState message="No customers found." />
-      ) : (
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
-          {topCustomers.map((customer, index) => (
-            <CustomerCard
-              key={customer.id}
-              customer={customer}
-              badge={`#${index + 1}`}
-              highlight={`${customer.totalTasks} tasks`}
-            />
-          ))}
-        </section>
-      )}
-
-      {/* Section 2 */}
-      <SectionHeader
-        title="Customers by City"
-        description="Cities where CraftConnect currently has customers."
-      />
-
-      {customersByCity.length === 0 ? (
-        <EmptyState message="No city data found." />
-      ) : (
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-10">
-          {customersByCity.map((city) => (
-            <CityCard key={city.city} city={city} />
-          ))}
-        </section>
-      )}
-
-      {/* Section 3 */}
-      <SectionHeader
-        title="Customers With Tasks In Progress"
-        description="Contact these customers to check how their service experience is going."
-      />
-
-      {customersWithInProgressTasks.length === 0 ? (
-        <EmptyState message="No customers currently have in-progress tasks." />
-      ) : (
-        <section className="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-10">
-          {customersWithInProgressTasks.map((item) => (
-            <ActiveCustomerCard
-              key={`${item.customer.id}-${item.task.id}`}
-              item={item}
-            />
-          ))}
-        </section>
-      )}
-
-      {/* All Customers */}
-      <SectionHeader
-        title="All Customers"
-        description="Complete customer list."
-      />
-
-      {allCustomers.length === 0 ? (
-        <EmptyState message="No customers found." />
-      ) : (
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {allCustomers.map((customer) => (
-            <CustomerCard
-              key={customer.id}
-              customer={customer}
-              highlight={`${customer.totalTasks} tasks`}
-            />
-          ))}
-        </section>
-      )}
-    </div>
+    </section>
   );
 }
 
@@ -193,66 +207,70 @@ function CustomerCard({ customer, badge, highlight }) {
   return (
     <Link
       to={`/admin/customers/${customer.id}`}
-      className="block bg-white rounded-3xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:-translate-y-1 transition"
+      className="block rounded-3xl border border-border-soft bg-card-gradient p-4 shadow-soft transition hover:-translate-y-1 hover:shadow-card sm:p-5"
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-extrabold text-text">{customer.name}</h3>
+            <h3 className="truncate text-sm font-extrabold text-text sm:text-base">
+              {customer.name}
+            </h3>
 
             {customer.isAccountVerified ? (
-              <VerifiedIcon className="text-green-600" fontSize="small" />
+              <VerifiedIcon className="text-success" fontSize="small" />
             ) : (
               <ErrorOutlineOutlinedIcon
-                className="text-orange-500"
+                className="text-secondary"
                 fontSize="small"
               />
             )}
           </div>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-1 text-[11px] text-text-muted sm:text-xs">
             {customer.isAccountVerified ? "Verified" : "Not verified"}
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex shrink-0 flex-col items-end gap-2">
           {badge && (
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary text-white">
+            <span className="rounded-full bg-primary-gradient px-3 py-1 text-[10px] font-bold text-white">
               {badge}
             </span>
           )}
 
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-bg text-primary">
+          <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold text-primary">
             {highlight}
           </span>
         </div>
       </div>
 
-      <div className="space-y-2 text-sm text-text-muted">
+      <div className="space-y-2 text-[11px] text-text-muted sm:text-xs">
         <p className="flex items-center gap-2">
-          <EmailIcon fontSize="small" />
-          {customer.email}
+          <EmailIcon fontSize="small" className="text-secondary" />
+          <span className="truncate">{customer.email}</span>
         </p>
 
         <p className="flex items-center gap-2">
-          <PhoneIcon fontSize="small" />
-          {customer.phoneNumber || "No phone number"}
+          <PhoneIcon fontSize="small" className="text-secondary" />
+          <span>{customer.phoneNumber || "No phone number"}</span>
         </p>
 
         <p className="flex items-center gap-2">
-          <LocationOnIcon fontSize="small" />
-          {customer.location?.city || "Unknown city"}
+          <LocationOnIcon fontSize="small" className="text-secondary" />
+          <span>{customer.location?.city || "Unknown city"}</span>
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mt-5">
+      <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniCount label="Pending" value={customer.pendingTasksCount} />
         <MiniCount label="Active" value={customer.inProgressTasksCount} />
         <MiniCount label="Done" value={customer.completedTasksCount} />
       </div>
 
-      <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
-        <p className="text-sm font-bold text-primary">Open profile</p>
+      <div className="mt-4 flex items-center justify-between border-t border-border-soft pt-4">
+        <p className="text-xs font-bold text-primary sm:text-sm">
+          Open profile
+        </p>
         <ArrowForwardIosIcon fontSize="small" className="text-primary" />
       </div>
     </Link>
@@ -261,25 +279,27 @@ function CustomerCard({ customer, badge, highlight }) {
 
 function CityCard({ city }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
-      <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-4 shadow-soft transition hover:-translate-y-1 hover:shadow-card sm:p-5">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-info/10 text-info">
         <LocationCityIcon />
       </div>
 
-      <h3 className="font-extrabold text-text">{city.city}</h3>
+      <h3 className="truncate text-sm font-extrabold text-text sm:text-base">
+        {city.city}
+      </h3>
 
-      <p className="text-3xl font-extrabold text-primary mt-2">
+      <p className="mt-2 text-xl font-extrabold text-primary">
         {city.customersCount}
       </p>
 
-      <p className="text-sm text-text-muted mt-1">customers</p>
+      <p className="mt-1 text-xs text-text-muted">customers</p>
 
       <div className="mt-4 space-y-2">
         {city.customers.slice(0, 3).map((customer) => (
           <Link
             key={customer.id}
             to={`/admin/customers/${customer.id}`}
-            className="block text-sm font-semibold text-text-muted hover:text-primary truncate"
+            className="block truncate text-xs font-semibold text-text-muted hover:text-primary"
           >
             {customer.name}
           </Link>
@@ -293,33 +313,35 @@ function ActiveCustomerCard({ item }) {
   const { customer, task } = item;
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-4 shadow-soft transition hover:-translate-y-1 hover:shadow-card sm:p-5">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h3 className="font-extrabold text-text">{customer.name}</h3>
+          <h3 className="text-sm font-extrabold text-text sm:text-base">
+            {customer.name}
+          </h3>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-2 text-xs text-text-muted">
             Task:{" "}
             <span className="font-semibold text-text">
               {task.title || "Service task"}
             </span>
           </p>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-1 text-xs text-text-muted">
             Service:{" "}
             <span className="font-semibold text-text">
               {task.service?.name || task.category?.name || "N/A"}
             </span>
           </p>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-1 text-xs text-text-muted">
             Location:{" "}
             <span className="font-semibold text-text">
               {task.location || customer.location?.city || "N/A"}
             </span>
           </p>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-1 text-xs text-text-muted">
             Craftsman:{" "}
             <span className="font-semibold text-text">
               {task.craftsman?.user?.name || "Not available"}
@@ -327,29 +349,29 @@ function ActiveCustomerCard({ item }) {
           </p>
         </div>
 
-        <span className="w-fit text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-600">
+        <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold text-primary">
           {task.status}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <a
           href={`tel:${customer.phoneNumber || ""}`}
-          className="text-center py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition"
+          className="rounded-2xl border border-border-soft bg-background px-4 py-3 text-center text-xs font-bold text-primary transition hover:bg-background-light"
         >
           Call
         </a>
 
         <a
           href={`mailto:${customer.email || ""}`}
-          className="text-center py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition"
+          className="rounded-2xl border border-border-soft bg-background px-4 py-3 text-center text-xs font-bold text-primary transition hover:bg-background-light"
         >
           Email
         </a>
 
         <Link
           to={`/admin/customers/${customer.id}`}
-          className="text-center py-3 rounded-2xl bg-primary text-white font-bold hover:bg-primary-light transition"
+          className="rounded-2xl bg-primary-gradient px-4 py-3 text-center text-xs font-bold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated"
         >
           Profile
         </Link>
@@ -360,17 +382,25 @@ function ActiveCustomerCard({ item }) {
 
 function SummaryCard({ icon, label, value, note, color }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-      <div
-        className={`w-16 h-16 rounded-2xl flex items-center justify-center ${color}`}
-      >
-        {icon}
-      </div>
+    <div className="rounded-2xl border border-border-soft bg-card-gradient p-3 shadow-soft transition hover:-translate-y-1 hover:shadow-card sm:p-4">
+      <div className="flex items-center gap-3">
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm ${color} sm:h-12 sm:w-12`}
+        >
+          {icon}
+        </div>
 
-      <div>
-        <p className="text-sm font-semibold text-text-muted">{label}</p>
-        <p className="text-3xl font-extrabold text-text mt-1">{value}</p>
-        <p className="text-xs text-text-muted mt-1">{note}</p>
+        <div className="min-w-0">
+          <p className="truncate text-[10px] font-bold uppercase tracking-[0.08em] text-text-muted sm:text-[11px]">
+            {label}
+          </p>
+
+          <p className="mt-0.5 truncate text-lg font-extrabold text-primary sm:text-xl">
+            {value}
+          </p>
+
+          <p className="hidden text-[10px] text-text-muted sm:block">{note}</p>
+        </div>
       </div>
     </div>
   );
@@ -378,26 +408,32 @@ function SummaryCard({ icon, label, value, note, color }) {
 
 function MiniCount({ label, value }) {
   return (
-    <div className="p-3 rounded-2xl bg-bg text-center">
-      <p className="text-lg font-extrabold text-primary">{value || 0}</p>
-      <p className="text-xs font-semibold text-text-muted">{label}</p>
+    <div className="rounded-xl bg-background p-2 text-center">
+      <p className="text-sm font-extrabold text-primary sm:text-base">
+        {value || 0}
+      </p>
+
+      <p className="text-[10px] font-semibold text-text-muted">{label}</p>
     </div>
   );
 }
 
 function SectionHeader({ title, description }) {
   return (
-    <div className="mb-5">
-      <h2 className="text-2xl font-extrabold text-text">{title}</h2>
-      <p className="text-text-muted mt-1">{description}</p>
+    <div className="mb-4">
+      <h2 className="font-heading text-xl font-bold text-primary sm:text-2xl">
+        {title}
+      </h2>
+
+      <p className="mt-1 text-xs text-text-muted sm:text-sm">{description}</p>
     </div>
   );
 }
 
 function EmptyState({ message }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-10 text-center mb-10">
-      <p className="font-bold text-text">{message}</p>
+    <div className="mb-8 rounded-3xl border border-dashed border-border-soft bg-card-gradient p-8 text-center shadow-soft">
+      <p className="text-sm font-bold text-text">{message}</p>
     </div>
   );
 }

@@ -1,24 +1,25 @@
 import * as React from "react";
-
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-//Components
+import { AppContext } from "../../context/AppContext";
 import TaskDetails from "../../components/TasksDetails";
 import Btn from "../../components/Btn";
 
-//MUI Icons
+// MUI Icons
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import StarIcon from "@mui/icons-material/Star";
+import HandymanIcon from "@mui/icons-material/Handyman";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
   const {
     backendUrl,
     userData,
@@ -42,6 +43,7 @@ export default function Dashboard() {
   const [selectedTask, setSelectedTask] = React.useState(null);
   const [actionLoading, setActionLoading] = React.useState(false);
   const [scheduledDate, setScheduledDate] = React.useState("");
+
   const [reviews, setReviews] = React.useState([]);
   const [reviewStats, setReviewStats] = React.useState({
     totalReviews: 0,
@@ -72,7 +74,7 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-  //Fetch Reviews
+
   const fetchReviews = async () => {
     try {
       setReviewsLoading(true);
@@ -96,6 +98,7 @@ export default function Dashboard() {
       setReviewsLoading(false);
     }
   };
+
   React.useEffect(() => {
     fetchTasks();
     fetchReviews();
@@ -134,6 +137,7 @@ export default function Dashboard() {
       setActionLoading(false);
     }
   };
+
   const handleTaskAction = async (taskId, action, selectedScheduledDate) => {
     try {
       if (action === "ACCEPT" && !selectedScheduledDate) {
@@ -161,7 +165,6 @@ export default function Dashboard() {
       closeTaskDetails();
       await fetchTasks();
     } catch (error) {
-      console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setActionLoading(false);
@@ -176,305 +179,408 @@ export default function Dashboard() {
         );
 
   if (loading) {
-    return <p className="text-text-muted">Loading dashboard...</p>;
+    return (
+      <section className="min-h-screen bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+        <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center">
+          <div className="w-full rounded-3xl border border-border-soft bg-card-gradient p-8 text-center shadow-card">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+              <HandymanIcon />
+            </div>
+
+            <h1 className="font-heading text-2xl font-bold text-primary">
+              Loading Dashboard
+            </h1>
+
+            <p className="mt-2 text-sm text-text-muted">
+              Please wait while we load your tasks.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
-    <section className="min-h-screen bg-bg text-text">
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* LEFT SIDE */}
-        <div className="xl:col-span-2">
-          {/* Welcome + Availability */}
-          <div className="m-12 flex flex-row gap-6 lg:items-start lg:justify-between">
-            <div>
-              <h2 className="text-3xl font-extrabold text-text">
-                {`Welcome back, ${userData.name}!`}
-              </h2>
-              <p className="text-text-muted mt-2">
-                Here’s what’s happening with your work today.
-              </p>
-            </div>
+    <section className="relative min-h-screen overflow-hidden rounded-2xl bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-            <div className="w-full max-w-[280px] lg:ml-auto xl:translate-x-8">
-              <div className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-2xl shadow-slate-300/40 backdrop-blur-xl">
-                <div
-                  className={`mb-4 rounded-2xl p-4 ${
-                    isAvailable ? "bg-green-50" : "bg-red-50"
-                  }`}
-                >
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`h-3 w-3 rounded-full ${
-                          isAvailable ? "bg-green-500" : "bg-red-500"
-                        }`}
-                      />
+      <div className="relative z-10 mx-auto max-w-container">
+        <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
+          <div className="overflow-hidden rounded-3xl border border-border-soft bg-primary-gradient p-6 text-white shadow-card sm:p-8">
+            <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+              Craftsman Workspace
+            </p>
 
-                      <p
-                        className={`font-extrabold ${
-                          isAvailable ? "text-green-700" : "text-red-700"
-                        }`}
-                      >
-                        {isAvailable ? "Online" : "Offline"}
+            <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+              Welcome back, {userData?.name || "Craftsman"}!
+            </h1>
+
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+              Manage your assigned tasks, schedule visits, complete work, and
+              track customer feedback from one place.
+            </p>
+          </div>
+
+          <AvailabilityCard
+            isAvailable={isAvailable}
+            availabilityLoading={availabilityLoading}
+            onToggle={toggleCraftsmanAvailability}
+          />
+        </div>
+
+        <section className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            icon={<AssignmentIcon />}
+            label="All Tasks"
+            value={counts.all}
+            note="Total assigned work"
+            color="bg-primary/10 text-primary"
+          />
+
+          <StatCard
+            icon={<AccessTimeIcon />}
+            label="Pending"
+            value={counts.pending}
+            note="Waiting for response"
+            color="bg-secondary/10 text-secondary"
+          />
+
+          <StatCard
+            icon={<HandymanIcon />}
+            label="In Progress"
+            value={counts.inProgress}
+            note="Accepted tasks"
+            color="bg-info/10 text-info"
+          />
+
+          <StatCard
+            icon={<CheckCircleIcon />}
+            label="Completed"
+            value={counts.completed}
+            note="Finished services"
+            color="bg-success/10 text-success"
+          />
+        </section>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="xl:col-span-2">
+            <div className="perspective">
+              <div
+                className={`relative w-full transition-transform duration-700 transform-style-preserve-3d ${
+                  back ? "rotate-y-180" : ""
+                }`}
+              >
+                <div className="backface-hidden rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h2 className="font-heading text-2xl font-bold text-primary">
+                        My Tasks
+                      </h2>
+
+                      <p className="mt-1 text-sm text-text-muted">
+                        Review and manage your latest assigned tasks.
                       </p>
                     </div>
 
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        isAvailable
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {isAvailable ? "Available" : "Unavailable"}
+                    <span className="w-fit rounded-full border border-border-soft bg-background px-4 py-2 text-sm font-bold text-primary shadow-soft">
+                      {filteredTasks.length} shown
                     </span>
                   </div>
 
-                  <p className="text-sm font-medium text-text-muted">
-                    {isAvailable
-                      ? "You are available for new tasks."
-                      : "You are currently not receiving new tasks."}
-                  </p>
-                </div>
+                  <div className="mb-5 flex gap-3 overflow-x-auto border-b border-border-soft pb-3">
+                    {["All", "Pending", "In Progress", "Completed"].map(
+                      (tab) => {
+                        const isActive = filter === tab;
 
-                <Btn
-                  type="button"
-                  onClick={toggleCraftsmanAvailability}
-                  disabled={availabilityLoading}
-                  variant={isAvailable ? "danger" : "success"}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 font-bold disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <PowerSettingsNewIcon fontSize="small" />
-                  {availabilityLoading
-                    ? "Updating..."
-                    : isAvailable
-                      ? "Go Offline"
-                      : "Go Online"}
-                </Btn>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
-            <StatCard
-              icon={<AssignmentIcon />}
-              label="All Tasks"
-              value={counts.all}
-              note={`${counts.pending} pending · ${counts.inProgress} in progress`}
-              color="bg-blue-50 text-blue-600"
-            />
-
-            <StatCard
-              icon={<CheckCircleIcon />}
-              label="Completed Tasks"
-              value={`${counts.completed}`}
-              color="bg-green-50 text-green-600"
-            />
-          </section>
-
-          {/* My Tasks */}
-          <div className="perspective">
-            <div
-              className={`relative w-full transition-transform duration-700 transform-style-preserve-3d ${
-                back ? "rotate-y-180" : ""
-              }`}
-            >
-              {/* Front */}
-              <div className="backface-hidden bg-surface rounded-3xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-extrabold text-text">My Tasks</h3>
-                </div>
-
-                <div className="flex gap-6 border-b border-gray-100 mb-4 overflow-x-auto">
-                  {["All", "Pending", "In Progress", "Completed"].map((tab) => {
-                    const isActive = filter === tab;
-
-                    return (
-                      <Btn
-                        key={tab}
-                        type="button"
-                        onClick={() => setFilter(tab)}
-                        variant="ghost"
-                        className={`rounded-none border-b-2 px-0 pb-3 pt-0 text-sm font-semibold whitespace-nowrap hover:bg-transparent ${
-                          isActive
-                            ? "border-primary text-primary"
-                            : "border-transparent text-text-muted hover:text-primary"
-                        }`}
-                      >
-                        {tab}
-                      </Btn>
-                    );
-                  })}
-                </div>
-
-                <div className="divide-y divide-gray-100">
-                  {filteredTasks.map((task) => (
-                    <div
-                      key={task.taskId}
-                      className="py-4 flex items-center justify-between gap-4"
-                    >
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-14 h-14 rounded-2xl bg-bg text-primary flex items-center justify-center shrink-0">
-                          {task.icon}
-                        </div>
-
-                        <div className="min-w-0">
-                          <h4 className="font-bold text-text truncate">
-                            {task.title}
-                          </h4>
-
-                          <p className="text-sm text-text-muted flex items-center gap-1 mt-1">
-                            <LocationOnIcon fontSize="small" />
-                            {task.location}
-                          </p>
-
-                          <p className="text-sm text-text-muted flex items-center gap-1 mt-1">
-                            <AccessTimeIcon fontSize="small" />
-                            {task.time || task.createdAt}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <span
-                          className={`text-xs font-bold px-3 py-1 rounded-full ${
-                            statusStyles[task.status]
-                          }`}
-                        >
-                          {task.status}
-                        </span>
-
-                        <Btn
-                          type="button"
-                          onClick={() => openTaskDetails(task)}
-                          variant="ghost"
-                          className="h-10 w-10 rounded-full p-0 text-text-muted hover:bg-bg hover:text-primary"
-                        >
-                          <ArrowForwardIosIcon fontSize="small" />
-                        </Btn>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <Btn
-                  type="button"
-                  onClick={() => navigate("/craftsman/tasks")}
-                  variant="outline"
-                  className="mt-5 w-full rounded-2xl py-3 font-bold"
-                >
-                  View all tasks
-                </Btn>
-              </div>
-
-              {/* Back */}
-              <div className="absolute inset-0 rotate-y-180 backface-hidden bg-surface rounded-3xl shadow-sm border border-gray-100 p-6 overflow-y-auto">
-                {selectedTask && (
-                  <TaskDetails
-                    task={selectedTask}
-                    onClose={closeTaskDetails}
-                    onAction={handleTaskAction}
-                    actionLoading={actionLoading}
-                    scheduledDate={scheduledDate}
-                    onScheduledDateChange={setScheduledDate}
-                    onComplete={handleCompleteTask}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        <aside className="xl:col-span-1 xl:mt-12">
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 min-h-[620px]">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-extrabold text-text">Reviews</h3>
-                <p className="mt-1 text-sm text-text-muted">
-                  Recent feedback from customers
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-yellow-50 px-4 py-2 text-yellow-700">
-                <p className="text-lg font-extrabold">
-                  {reviewStats.averageRating || 0}
-                </p>
-                <p className="text-xs font-bold">Rating</p>
-              </div>
-            </div>
-
-            {reviewsLoading ? (
-              <p className="text-sm text-text-muted">Loading reviews...</p>
-            ) : reviews.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-bg p-6 text-center">
-                <p className="font-bold text-text">No reviews yet</p>
-                <p className="mt-2 text-sm text-text-muted">
-                  Customer reviews will appear here after they review your
-                  completed tasks.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {reviews.slice(0, 3).map((review) => (
-                  <div
-                    key={review.id}
-                    className="rounded-2xl border border-gray-100 bg-bg p-4"
-                  >
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <p className="font-bold text-text">
-                        {review.user?.name || "Customer"}
-                      </p>
-
-                      <p className="text-sm font-extrabold text-yellow-600">
-                        {"★".repeat(review.rating || 0)}
-                        <span className="text-gray-300">
-                          {"★".repeat(5 - (review.rating || 0))}
-                        </span>
-                      </p>
-                    </div>
-
-                    {review.task?.title && (
-                      <p className="mb-2 text-xs font-semibold text-primary">
-                        {review.task.title}
-                      </p>
+                        return (
+                          <button
+                            key={tab}
+                            type="button"
+                            onClick={() => setFilter(tab)}
+                            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                              isActive
+                                ? "bg-primary-gradient text-white shadow-card"
+                                : "text-text-muted hover:bg-background hover:text-primary"
+                            }`}
+                          >
+                            {tab}
+                          </button>
+                        );
+                      },
                     )}
-
-                    <p className="text-sm leading-6 text-text-muted">
-                      {review.comment || "No comment provided."}
-                    </p>
                   </div>
-                ))}
-              </div>
-            )}
 
-            <Btn
-              type="button"
-              onClick={() => navigate("/craftsman/reviews")}
-              variant="outline"
-              className="mt-5 w-full rounded-2xl py-3 font-bold"
-            >
-              View all reviews
-            </Btn>
+                  {filteredTasks.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-border-soft bg-background p-8 text-center">
+                      <p className="font-bold text-text">No tasks found</p>
+                      <p className="mt-2 text-sm text-text-muted">
+                        Tasks matching this filter will appear here.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredTasks.map((task) => (
+                        <TaskRow
+                          key={task.taskId}
+                          task={task}
+                          statusStyles={statusStyles}
+                          onOpen={() => openTaskDetails(task)}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <Btn
+                    type="button"
+                    onClick={() => navigate("/craftsman/tasks")}
+                    variant="outline"
+                    fullWidth
+                    className="mt-5 rounded-xl"
+                  >
+                    View all tasks
+                  </Btn>
+                </div>
+
+                <div className="absolute inset-0 rotate-y-180 backface-hidden overflow-y-auto rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+                  {selectedTask && (
+                    <TaskDetails
+                      task={selectedTask}
+                      onClose={closeTaskDetails}
+                      onAction={handleTaskAction}
+                      actionLoading={actionLoading}
+                      scheduledDate={scheduledDate}
+                      onScheduledDateChange={setScheduledDate}
+                      onComplete={handleCompleteTask}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </aside>
+
+          <ReviewsPanel
+            reviews={reviews}
+            reviewsLoading={reviewsLoading}
+            reviewStats={reviewStats}
+            onViewAll={() => navigate("/craftsman/reviews")}
+          />
+        </div>
       </div>
     </section>
   );
 }
 
-function StatCard({ icon, label, value, note, color }) {
+function AvailabilityCard({ isAvailable, availabilityLoading, onToggle }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card">
       <div
-        className={`w-16 h-16 rounded-2xl flex items-center justify-center ${color}`}
+        className={`rounded-2xl border p-4 ${
+          isAvailable
+            ? "border-success/20 bg-success/10"
+            : "border-danger/20 bg-danger/10"
+        }`}
       >
-        {icon}
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-3 w-3 rounded-full ${
+                isAvailable ? "bg-success" : "bg-danger"
+              }`}
+            />
+
+            <p
+              className={`font-bold ${
+                isAvailable ? "text-success" : "text-danger"
+              }`}
+            >
+              {isAvailable ? "Online" : "Offline"}
+            </p>
+          </div>
+
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-bold ${
+              isAvailable
+                ? "bg-success/10 text-success"
+                : "bg-danger/10 text-danger"
+            }`}
+          >
+            {isAvailable ? "Available" : "Unavailable"}
+          </span>
+        </div>
+
+        <p className="text-sm leading-6 text-text-muted">
+          {isAvailable
+            ? "You are available for new tasks."
+            : "You are currently not receiving new tasks."}
+        </p>
       </div>
 
-      <div>
-        <p className="text-sm font-semibold text-text-muted">{label}</p>
-        <p className="text-3xl font-extrabold text-text mt-1">{value}</p>
-        <p className="text-xs text-text-muted mt-1">{note}</p>
+      <Btn
+        type="button"
+        onClick={onToggle}
+        disabled={availabilityLoading}
+        variant={isAvailable ? "danger" : "success"}
+        fullWidth
+        className="mt-4 rounded-xl"
+      >
+        <PowerSettingsNewIcon fontSize="small" />
+        {availabilityLoading
+          ? "Updating..."
+          : isAvailable
+            ? "Go Offline"
+            : "Go Online"}
+      </Btn>
+    </div>
+  );
+}
+
+function TaskRow({ task, statusStyles, onOpen }) {
+  return (
+    <div className="rounded-2xl border border-border-soft bg-background p-4 shadow-soft transition hover:bg-background-light">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+            <AssignmentIcon />
+          </div>
+
+          <div className="min-w-0">
+            <h4 className="truncate font-bold text-text">{task.title}</h4>
+
+            <p className="mt-2 flex items-center gap-1 text-sm text-text-muted">
+              <LocationOnIcon fontSize="small" />
+              <span className="truncate">{task.location}</span>
+            </p>
+
+            <p className="mt-1 flex items-center gap-1 text-sm text-text-muted">
+              <AccessTimeIcon fontSize="small" />
+              {task.time || task.createdAt}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 sm:justify-end">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-bold ${
+              statusStyles[task.status] || "bg-background-light text-text-muted"
+            }`}
+          >
+            {task.status}
+          </span>
+
+          <Btn
+            type="button"
+            onClick={onOpen}
+            variant="soft"
+            iconOnly
+            aria-label="Open task details"
+          >
+            <ArrowForwardIosIcon fontSize="small" />
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewsPanel({ reviews, reviewsLoading, reviewStats, onViewAll }) {
+  return (
+    <aside className="h-fit rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <h2 className="font-heading text-2xl font-bold text-primary">
+            Reviews
+          </h2>
+
+          <p className="mt-1 text-sm text-text-muted">
+            Recent customer feedback
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-secondary/20 bg-secondary/10 px-4 py-2 text-center text-secondary">
+          <p className="text-lg font-bold">{reviewStats.averageRating || 0}</p>
+          <p className="text-xs font-bold">Rating</p>
+        </div>
+      </div>
+
+      {reviewsLoading ? (
+        <div className="rounded-2xl border border-border-soft bg-background p-5 text-center">
+          <p className="text-sm text-text-muted">Loading reviews...</p>
+        </div>
+      ) : reviews.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border-soft bg-background p-6 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+            <StarIcon />
+          </div>
+
+          <p className="font-bold text-text">No reviews yet</p>
+
+          <p className="mt-2 text-sm leading-6 text-text-muted">
+            Customer reviews will appear after completed tasks.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reviews.slice(0, 3).map((review) => (
+            <div
+              key={review.id}
+              className="rounded-2xl border border-border-soft bg-background p-4 shadow-soft"
+            >
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="font-bold text-text">
+                  {review.user?.name || "Customer"}
+                </p>
+
+                <p className="text-sm font-bold text-secondary">
+                  {"★".repeat(review.rating || 0)}
+                  <span className="text-text-muted">
+                    {"★".repeat(5 - (review.rating || 0))}
+                  </span>
+                </p>
+              </div>
+
+              {review.task?.title && (
+                <p className="mb-2 text-xs font-semibold text-primary">
+                  {review.task.title}
+                </p>
+              )}
+
+              <p className="text-sm leading-6 text-text-muted">
+                {review.comment || "No comment provided."}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Btn
+        type="button"
+        onClick={onViewAll}
+        variant="outline"
+        fullWidth
+        className="mt-5 rounded-xl"
+      >
+        View all reviews
+      </Btn>
+    </aside>
+  );
+}
+
+function StatCard({ icon, label, value, note, color }) {
+  return (
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-card">
+      <div className="flex items-center gap-4">
+        <div
+          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${color}`}
+        >
+          {icon}
+        </div>
+
+        <div>
+          <p className="text-sm font-bold text-text-muted">{label}</p>
+          <p className="mt-1 text-3xl font-bold text-primary">{value}</p>
+          <p className="mt-1 text-xs text-text-muted">{note}</p>
+        </div>
       </div>
     </div>
   );

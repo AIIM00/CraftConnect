@@ -2,28 +2,31 @@ import * as React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AppContext } from "../../context/AppContext";
 
+import { AppContext } from "../../context/AppContext";
 import Btn from "../../components/Btn";
-//MUI Icons
+
+// MUI Icons
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const ratingFields = [
   {
     name: "rating",
-    label: "Overall experience",
+    label: "Overall Experience",
     description: "How satisfied were you with the whole service?",
   },
   {
     name: "qualityRating",
-    label: "Work quality",
+    label: "Work Quality",
     description: "Was the work done correctly and professionally?",
   },
   {
     name: "punctualityRating",
-    label: "Time and punctuality",
+    label: "Time & Punctuality",
     description: "Did the craftsman arrive and finish on time?",
   },
   {
@@ -33,7 +36,7 @@ const ratingFields = [
   },
   {
     name: "professionalismRating",
-    label: "Personality and professionalism",
+    label: "Professionalism",
     description: "Was the craftsman respectful and easy to deal with?",
   },
   {
@@ -43,7 +46,7 @@ const ratingFields = [
   },
   {
     name: "priceFairnessRating",
-    label: "Price fairness",
+    label: "Price Fairness",
     description: "Did the service feel fair for the price?",
   },
 ];
@@ -122,122 +125,144 @@ export default function LeaveReview() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <Btn
-        type="button"
-        onClick={() => navigate(`/bookings/${taskId}`)}
-        variant="ghost"
-        className="mb-6 px-0 py-0 font-bold hover:underline"
-      >
-        <ArrowBackIcon fontSize="small" />
-        Back to booking
-      </Btn>
+    <main className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-      <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8">
-        <p className="text-sm font-semibold text-primary-light mb-2">
-          Customer Feedback
-        </p>
+      <div className="relative z-10 mx-auto max-w-4xl">
+        <Btn
+          type="button"
+          onClick={() => navigate(`/bookings/${taskId}`)}
+          variant="outline"
+          className="mb-6"
+        >
+          <ArrowBackIcon fontSize="small" />
+          Back to booking
+        </Btn>
 
-        <h1 className="text-3xl font-extrabold text-primary">
-          Review Your Service
-        </h1>
+        <section className="overflow-hidden rounded-3xl border border-border-soft bg-card-gradient shadow-card">
+          <div className="relative overflow-hidden bg-primary-gradient px-6 py-10 text-white sm:px-8">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-        <p className="text-text-muted mt-2">
-          Rate different parts of your experience so the admin team can review
-          service quality more precisely.
-        </p>
+            <div className="relative z-10">
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white shadow-soft">
+                <RateReviewIcon sx={{ fontSize: 34 }} />
+              </div>
 
-        <form onSubmit={submitReview} className="mt-8 space-y-8">
-          <div className="space-y-5">
-            {ratingFields.map((field) => (
-              <RatingRow
-                key={field.name}
-                label={field.label}
-                description={field.description}
-                value={ratings[field.name]}
-                onChange={(value) => updateRating(field.name, value)}
-              />
-            ))}
-          </div>
+              <p className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                Customer Feedback
+              </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <YesNoCard
-              label="Would you recommend this craftsman?"
-              value={wouldRecommend}
-              onChange={setWouldRecommend}
-            />
+              <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+                Review Your Service
+              </h1>
 
-            <YesNoCard
-              label="Would you hire this craftsman again?"
-              value={wouldHireAgain}
-              onChange={setWouldHireAgain}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-text mb-3">
-              What best describes your experience?
-            </label>
-
-            <div className="flex flex-wrap gap-2">
-              {issueOptions.map((tag) => {
-                const selected = issueTags.includes(tag);
-
-                return (
-                  <Btn
-                    key={tag}
-                    type="button"
-                    onClick={() => toggleIssueTag(tag)}
-                    variant={selected ? "primary" : "outline"}
-                    className="rounded-full px-4 py-2 text-sm font-bold"
-                  >
-                    {tag}
-                  </Btn>
-                );
-              })}
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+                Rate different parts of your experience so the admin team can
+                review service quality more precisely.
+              </p>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-text mb-3">
-              Additional comment
-            </label>
+          <form onSubmit={submitReview} className="space-y-8 p-5 sm:p-8">
+            <section className="space-y-4">
+              {ratingFields.map((field) => (
+                <RatingRow
+                  key={field.name}
+                  label={field.label}
+                  description={field.description}
+                  value={ratings[field.name]}
+                  onChange={(value) => updateRating(field.name, value)}
+                />
+              ))}
+            </section>
 
-            <textarea
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              rows={6}
-              maxLength={1000}
-              placeholder="Tell us what happened during the service..."
-              className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-text outline-none focus:border-primary resize-none"
-            />
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <YesNoCard
+                label="Would you recommend this craftsman?"
+                value={wouldRecommend}
+                onChange={setWouldRecommend}
+              />
 
-            <p className="text-xs text-text-muted mt-2">
-              {comment.length}/1000 characters
-            </p>
-          </div>
+              <YesNoCard
+                label="Would you hire this craftsman again?"
+                value={wouldHireAgain}
+                onChange={setWouldHireAgain}
+              />
+            </section>
 
-          <Btn
-            type="submit"
-            disabled={submitting}
-            variant="primary"
-            className="w-full rounded-2xl py-3 font-bold disabled:opacity-60"
-          >
-            {submitting ? "Submitting..." : "Submit Detailed Review"}
-          </Btn>
-        </form>
-      </section>
-    </div>
+            <section className="rounded-2xl border border-border-soft bg-background p-5 shadow-soft">
+              <label className="mb-4 block text-sm font-bold text-primary">
+                What best describes your experience?
+              </label>
+
+              <div className="flex flex-wrap gap-2">
+                {issueOptions.map((tag) => {
+                  const selected = issueTags.includes(tag);
+
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleIssueTag(tag)}
+                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        selected
+                          ? "border-transparent bg-primary-gradient text-white shadow-card"
+                          : "border-border-soft bg-card-gradient text-text-muted hover:bg-background-light hover:text-primary"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-border-soft bg-background p-5 shadow-soft">
+              <label className="mb-3 block text-sm font-bold text-primary">
+                Additional Comment
+              </label>
+
+              <textarea
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                rows={6}
+                maxLength={1000}
+                placeholder="Tell us what happened during the service..."
+                className="w-full resize-none rounded-2xl border border-border-soft bg-card-gradient px-4 py-3 text-sm text-text outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+              />
+
+              <p className="mt-2 text-xs text-text-muted">
+                {comment.length}/1000 characters
+              </p>
+            </section>
+
+            <Btn
+              type="submit"
+              disabled={submitting}
+              variant="primary"
+              fullWidth
+              className="min-h-[54px] rounded-xl"
+            >
+              <CheckCircleIcon fontSize="small" />
+              {submitting ? "Submitting..." : "Submit Detailed Review"}
+            </Btn>
+          </form>
+        </section>
+      </div>
+    </main>
   );
 }
 
 function RatingRow({ label, description, value, onChange }) {
   return (
-    <div className="p-4 rounded-2xl bg-bg">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div className="rounded-2xl border border-border-soft bg-background p-4 shadow-soft">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="font-bold text-text">{label}</p>
-          <p className="text-sm text-text-muted mt-1">{description}</p>
+          <p className="mt-1 text-sm leading-6 text-text-muted">
+            {description}
+          </p>
         </div>
 
         <div className="flex gap-1">
@@ -249,10 +274,10 @@ function RatingRow({ label, description, value, onChange }) {
                 key={star}
                 type="button"
                 onClick={() => onChange(star)}
-                className={`flex h-11 w-11 items-center justify-center rounded-full border text-3xl shadow-sm transition-all duration-300 hover:-translate-y-0.5 ${
+                className={`flex h-11 w-11 items-center justify-center rounded-xl border text-2xl shadow-soft transition-all duration-300 hover:-translate-y-0.5 ${
                   active
-                    ? "border-yellow-200 bg-yellow-50 text-yellow-500 hover:bg-yellow-100"
-                    : "border-gray-200 bg-white text-gray-300 hover:border-yellow-200 hover:bg-yellow-50 hover:text-yellow-400"
+                    ? "border-secondary/20 bg-secondary/10 text-secondary hover:bg-secondary/20"
+                    : "border-border-soft bg-card-gradient text-text-muted hover:border-secondary/30 hover:bg-secondary/10 hover:text-secondary"
                 }`}
                 aria-label={`${label}: ${star} stars`}
               >
@@ -268,15 +293,15 @@ function RatingRow({ label, description, value, onChange }) {
 
 function YesNoCard({ label, value, onChange }) {
   return (
-    <div className="p-4 rounded-2xl bg-bg">
-      <p className="font-bold text-text mb-3">{label}</p>
+    <div className="rounded-2xl border border-border-soft bg-background p-5 shadow-soft">
+      <p className="mb-4 font-bold text-text">{label}</p>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-3">
         <Btn
           type="button"
           onClick={() => onChange(true)}
-          variant={value ? "success" : "secondary"}
-          className="rounded-xl py-2 font-bold"
+          variant={value ? "success" : "outline"}
+          className="rounded-xl"
         >
           Yes
         </Btn>
@@ -284,8 +309,8 @@ function YesNoCard({ label, value, onChange }) {
         <Btn
           type="button"
           onClick={() => onChange(false)}
-          variant={!value ? "danger" : "secondary"}
-          className="rounded-xl py-2 font-bold"
+          variant={!value ? "danger" : "outline"}
+          className="rounded-xl"
         >
           No
         </Btn>

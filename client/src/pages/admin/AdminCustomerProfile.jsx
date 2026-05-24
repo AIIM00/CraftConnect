@@ -2,8 +2,10 @@ import * as React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 import { AppContext } from "../../context/AppContext";
 
+// MUI Icons
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import EmailIcon from "@mui/icons-material/Email";
@@ -17,17 +19,19 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+
 const statusStyles = {
-  PENDING: "bg-orange-100 text-orange-700",
-  WAITING: "bg-yellow-100 text-yellow-700",
-  IN_PROGRESS: "bg-blue-100 text-blue-700",
-  COMPLETED: "bg-green-100 text-green-700",
-  CANCELLED: "bg-red-100 text-red-700",
+  PENDING: "bg-warning/10 text-warning",
+  WAITING: "bg-secondary/10 text-secondary",
+  IN_PROGRESS: "bg-info/10 text-info",
+  COMPLETED: "bg-success/10 text-success",
+  CANCELLED: "bg-danger/10 text-danger",
 };
 
 export default function AdminCustomerProfile() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+
   const { backendUrl } = React.useContext(AppContext);
 
   const [loading, setLoading] = React.useState(true);
@@ -40,6 +44,9 @@ export default function AdminCustomerProfile() {
 
       const { data } = await axios.get(
         `${backendUrl}/api/admin/customers/insights`,
+        {
+          withCredentials: true,
+        },
       );
 
       if (!data.success) {
@@ -59,7 +66,6 @@ export default function AdminCustomerProfile() {
 
       setCustomer(foundCustomer);
     } catch (error) {
-      console.error(error);
       toast.error(
         error.response?.data?.message || "Failed to load customer profile",
       );
@@ -74,7 +80,7 @@ export default function AdminCustomerProfile() {
 
   const deleteCustomer = async () => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this customer? This action cannot be undone.",
+      "Are you sure you want to delete this customer?",
     );
 
     if (!confirmed) return;
@@ -84,9 +90,13 @@ export default function AdminCustomerProfile() {
 
       const { data } = await axios.delete(
         `${backendUrl}/api/admin/delete/${customerId}`,
+        {
+          withCredentials: true,
+        },
       );
 
       toast.success(data.message || "Customer deleted successfully");
+
       navigate("/admin/customers");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete customer");
@@ -96,236 +106,233 @@ export default function AdminCustomerProfile() {
   };
 
   if (loading) {
-    return <p className="text-text-muted">Loading customer profile...</p>;
+    return (
+      <section className="min-h-screen bg-background-dark bg-hero-gradient px-4 py-8 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-md rounded-3xl border border-border-soft bg-card-gradient p-8 text-center shadow-card">
+          <PeopleAltIcon className="text-primary" />
+
+          <p className="mt-4 text-sm font-bold text-primary">
+            Loading customer profile...
+          </p>
+        </div>
+      </section>
+    );
   }
 
-  if (!customer) {
-    return null;
-  }
+  if (!customer) return null;
 
   const latestTask = customer.latestTask;
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-        <div>
-          <Link
-            to="/admin/customers"
-            className="inline-flex items-center gap-2 text-primary font-bold hover:underline mb-4"
-          >
-            <ArrowBackIcon fontSize="small" />
-            Back to customers
-          </Link>
+    <section className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-8 sm:px-6 lg:px-10">
+      <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
-          <p className="text-sm font-semibold text-primary-light mb-2">
-            Customer Profile
-          </p>
+      <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-          <h1 className="text-3xl font-extrabold text-primary">
-            {customer.name}
-          </h1>
-
-          <p className="text-text-muted mt-2">
-            View customer contact details, location, order activity, and current
-            service status.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={fetchCustomerProfile}
-          className="w-fit inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary text-white font-bold hover:bg-primary-light transition"
-        >
-          <RefreshIcon fontSize="small" />
-          Refresh
-        </button>
-      </div>
-
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-        <StatCard
-          icon={<AssignmentIcon />}
-          label="Total Tasks"
-          value={customer.totalTasks}
-          note="All ordered tasks"
-          color="bg-blue-50 text-blue-600"
-        />
-
-        <StatCard
-          icon={<PendingActionsIcon />}
-          label="Pending"
-          value={customer.pendingTasksCount}
-          note="Pending or waiting tasks"
-          color="bg-orange-50 text-orange-600"
-        />
-
-        <StatCard
-          icon={<BuildCircleIcon />}
-          label="In Progress"
-          value={customer.inProgressTasksCount}
-          note="Active service tasks"
-          color="bg-cyan-50 text-cyan-600"
-        />
-
-        <StatCard
-          icon={<CheckCircleIcon />}
-          label="Completed"
-          value={customer.completedTasksCount}
-          note="Completed service tasks"
-          color="bg-green-50 text-green-600"
-        />
-      </section>
-
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 space-y-6">
-          <Panel title="Customer Details">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoBlock label="Name">
-                <span className="inline-flex items-center gap-2">
-                  <PeopleAltIcon fontSize="small" className="text-primary" />
-                  {customer.name}
-                </span>
-              </InfoBlock>
-
-              <InfoBlock label="Verification">
-                {customer.isAccountVerified ? (
-                  <span className="inline-flex items-center gap-2 text-green-700 font-bold">
-                    <VerifiedIcon fontSize="small" />
-                    Verified
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-2 text-orange-700 font-bold">
-                    <ErrorOutlineOutlinedIcon fontSize="small" />
-                    Not verified
-                  </span>
-                )}
-              </InfoBlock>
-
-              <InfoBlock label="Email">
-                <span className="inline-flex items-center gap-2">
-                  <EmailIcon fontSize="small" className="text-primary" />
-                  {customer.email}
-                </span>
-              </InfoBlock>
-
-              <InfoBlock label="Phone">
-                <span className="inline-flex items-center gap-2">
-                  <PhoneIcon fontSize="small" className="text-primary" />
-                  {customer.phoneNumber || "No phone number"}
-                </span>
-              </InfoBlock>
-
-              <InfoBlock label="City">
-                <span className="inline-flex items-center gap-2">
-                  <LocationOnIcon fontSize="small" className="text-primary" />
-                  {customer.location?.city || "Unknown city"}
-                </span>
-              </InfoBlock>
-
-              <InfoBlock label="Address">
-                {[customer.location?.address, customer.location?.apartment]
-                  .filter(Boolean)
-                  .join(", ") || "No address saved"}
-              </InfoBlock>
-            </div>
-          </Panel>
-
-          <Panel title="Latest Task">
-            {!latestTask ? (
-              <EmptyState message="This customer has not ordered any task yet." />
-            ) : (
-              <TaskCard task={latestTask} />
-            )}
-          </Panel>
-
-          <Panel title="Customer Timeline">
-            <div className="p-4 rounded-2xl bg-yellow-50 border border-yellow-100">
-              <p className="text-sm font-bold text-yellow-800">
-                Recommended backend improvement
-              </p>
-              <p className="text-sm text-yellow-700 mt-2">
-                The current insights endpoint returns only the latest task in
-                the customer list. Later, return full customer task history for
-                this page so the admin can see every ordered task.
-              </p>
-            </div>
-          </Panel>
-        </div>
-
-        <aside className="space-y-6">
-          <Panel title="Contact Customer">
-            <div className="space-y-3">
-              {customer.phoneNumber && (
-                <a
-                  href={`tel:${customer.phoneNumber}`}
-                  className="block text-center py-3 rounded-2xl bg-primary text-white font-bold hover:bg-primary-light transition"
-                >
-                  Call Customer
-                </a>
-              )}
-
-              <a
-                href={`mailto:${customer.email}`}
-                className="block text-center py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition"
+      <div className="relative z-10 mx-auto max-w-container">
+        {/* HERO */}
+        <div className="mb-6 rounded-3xl border border-border-soft bg-primary-gradient p-5 text-white shadow-card sm:p-7">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <Link
+                to="/admin/customers"
+                className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-secondary backdrop-blur-sm transition hover:bg-white/15 sm:text-xs"
               >
-                Email Customer
-              </a>
-            </div>
-          </Panel>
+                <ArrowBackIcon fontSize="small" />
+                Back to customers
+              </Link>
 
-          <Panel title="Admin Actions">
+              <h1 className="font-heading text-2xl font-bold sm:text-3xl lg:text-4xl">
+                {customer.name}
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-xs leading-6 text-white/80 sm:text-sm">
+                View customer contact details, activity, latest service task,
+                and account information.
+              </p>
+            </div>
+
             <button
               type="button"
-              disabled={actionLoading}
-              onClick={deleteCustomer}
-              className="w-full py-3 rounded-2xl bg-red-600 text-white font-bold hover:bg-red-700 transition disabled:opacity-60 flex items-center justify-center gap-2"
+              onClick={fetchCustomerProfile}
+              className="inline-flex w-fit items-center gap-2 rounded-2xl bg-secondary-gradient px-4 py-3 text-xs font-bold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated sm:text-sm"
             >
-              <DeleteOutlineOutlinedIcon fontSize="small" />
-              {actionLoading ? "Deleting..." : "Delete Customer"}
+              <RefreshIcon fontSize="small" />
+              Refresh
             </button>
+          </div>
+        </div>
 
-            <p className="text-xs text-text-muted mt-3 leading-5">
-              Delete only if this account was created by mistake or violates
-              platform rules.
-            </p>
-          </Panel>
+        {/* STATS */}
+        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard
+            icon={<AssignmentIcon />}
+            label="Total Tasks"
+            value={customer.totalTasks}
+            note="All ordered tasks"
+            color="bg-info/10 text-info"
+          />
 
-          <Panel title="Service Check">
-            {customer.inProgressTasksCount > 0 ? (
-              <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100">
-                <p className="text-sm font-bold text-blue-800">
-                  Customer has an active task
-                </p>
-                <p className="text-sm text-blue-700 mt-2">
-                  Contact the customer to check if the craftsman arrived on
-                  time, communicated well, and the service is going smoothly.
-                </p>
+          <StatCard
+            icon={<PendingActionsIcon />}
+            label="Pending"
+            value={customer.pendingTasksCount}
+            note="Waiting tasks"
+            color="bg-warning/10 text-warning"
+          />
+
+          <StatCard
+            icon={<BuildCircleIcon />}
+            label="In Progress"
+            value={customer.inProgressTasksCount}
+            note="Active services"
+            color="bg-primary/10 text-primary"
+          />
+
+          <StatCard
+            icon={<CheckCircleIcon />}
+            label="Completed"
+            value={customer.completedTasksCount}
+            note="Finished tasks"
+            color="bg-success/10 text-success"
+          />
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          {/* LEFT */}
+          <div className="space-y-6 xl:col-span-2">
+            <Panel title="Customer Details">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <InfoBlock label="Name">
+                  <span className="inline-flex items-center gap-2">
+                    <PeopleAltIcon fontSize="small" className="text-primary" />
+                    {customer.name}
+                  </span>
+                </InfoBlock>
+
+                <InfoBlock label="Verification">
+                  {customer.isAccountVerified ? (
+                    <span className="inline-flex items-center gap-2 font-bold text-success">
+                      <VerifiedIcon fontSize="small" />
+                      Verified
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 font-bold text-warning">
+                      <ErrorOutlineOutlinedIcon fontSize="small" />
+                      Not verified
+                    </span>
+                  )}
+                </InfoBlock>
+
+                <InfoBlock label="Email">
+                  <span className="inline-flex items-center gap-2">
+                    <EmailIcon fontSize="small" className="text-secondary" />
+                    {customer.email}
+                  </span>
+                </InfoBlock>
+
+                <InfoBlock label="Phone">
+                  <span className="inline-flex items-center gap-2">
+                    <PhoneIcon fontSize="small" className="text-secondary" />
+                    {customer.phoneNumber || "No phone number"}
+                  </span>
+                </InfoBlock>
+
+                <InfoBlock label="City">
+                  <span className="inline-flex items-center gap-2">
+                    <LocationOnIcon
+                      fontSize="small"
+                      className="text-secondary"
+                    />
+                    {customer.location?.city || "Unknown city"}
+                  </span>
+                </InfoBlock>
+
+                <InfoBlock label="Address">
+                  {[customer.location?.address, customer.location?.apartment]
+                    .filter(Boolean)
+                    .join(", ") || "No address saved"}
+                </InfoBlock>
               </div>
-            ) : (
-              <div className="p-4 rounded-2xl bg-bg">
-                <p className="text-sm font-bold text-text">
-                  No active task right now
-                </p>
-                <p className="text-sm text-text-muted mt-2">
-                  This customer currently has no in-progress service.
-                </p>
-              </div>
-            )}
-          </Panel>
+            </Panel>
 
-          <Panel title="Internal Notes">
-            <div className="p-4 rounded-2xl bg-bg">
-              <p className="text-sm font-bold text-text">
-                Future feature suggestion
+            <Panel title="Latest Task">
+              {!latestTask ? (
+                <EmptyState message="This customer has not ordered any task yet." />
+              ) : (
+                <TaskCard task={latestTask} />
+              )}
+            </Panel>
+          </div>
+
+          {/* RIGHT */}
+          <aside className="space-y-6">
+            <Panel title="Contact Customer">
+              <div className="space-y-3">
+                {customer.phoneNumber && (
+                  <a
+                    href={`tel:${customer.phoneNumber}`}
+                    className="block rounded-2xl bg-primary-gradient px-4 py-3 text-center text-xs font-bold text-white shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated sm:text-sm"
+                  >
+                    Call Customer
+                  </a>
+                )}
+
+                <a
+                  href={`mailto:${customer.email}`}
+                  className="block rounded-2xl border border-border-soft bg-background px-4 py-3 text-center text-xs font-bold text-primary transition hover:bg-background-light sm:text-sm"
+                >
+                  Email Customer
+                </a>
+              </div>
+            </Panel>
+
+            <Panel title="Admin Actions">
+              <button
+                type="button"
+                disabled={actionLoading}
+                onClick={deleteCustomer}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-danger px-4 py-3 text-xs font-bold text-white transition hover:brightness-95 disabled:opacity-60 sm:text-sm"
+              >
+                <DeleteOutlineOutlinedIcon fontSize="small" />
+
+                {actionLoading ? "Deleting..." : "Delete Customer"}
+              </button>
+
+              <p className="mt-3 text-[11px] leading-5 text-text-muted sm:text-xs">
+                Delete only if this account violates platform rules or was
+                created incorrectly.
               </p>
-              <p className="text-sm text-text-muted mt-2">
-                Add admin-only notes here so the team can record complaints,
-                follow-up calls, or special customer cases.
-              </p>
-            </div>
-          </Panel>
-        </aside>
-      </section>
-    </div>
+            </Panel>
+
+            <Panel title="Service Check">
+              {customer.inProgressTasksCount > 0 ? (
+                <div className="rounded-2xl border border-info/20 bg-info/10 p-5">
+                  <p className="text-sm font-bold text-info">
+                    Customer has active tasks
+                  </p>
+
+                  <p className="mt-3 text-xs leading-6 text-text-muted sm:text-sm">
+                    Follow up to ensure the craftsman arrived on time and the
+                    service is going smoothly.
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-border-soft bg-background p-5">
+                  <p className="text-sm font-bold text-text">
+                    No active task right now
+                  </p>
+
+                  <p className="mt-3 text-xs leading-6 text-text-muted sm:text-sm">
+                    This customer currently has no in-progress service.
+                  </p>
+                </div>
+              )}
+            </Panel>
+          </aside>
+        </section>
+      </div>
+    </section>
   );
 }
 
@@ -333,18 +340,18 @@ function TaskCard({ task }) {
   const status = task.status || "UNKNOWN";
 
   return (
-    <div className="p-5 rounded-2xl bg-bg border border-gray-100">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+    <div className="rounded-3xl border border-border-soft bg-background p-5 shadow-soft">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h3 className="font-extrabold text-text">
+          <h3 className="text-sm font-extrabold text-text sm:text-base">
             {task.title || "Service task"}
           </h3>
 
-          <p className="text-sm text-text-muted mt-2">
+          <p className="mt-2 text-xs leading-6 text-text-muted sm:text-sm">
             {task.description || "No description provided."}
           </p>
 
-          <div className="mt-4 space-y-2 text-sm text-text-muted">
+          <div className="mt-4 space-y-2 text-[11px] text-text-muted sm:text-xs">
             <p>
               Service:{" "}
               <span className="font-semibold text-text">
@@ -374,30 +381,12 @@ function TaskCard({ task }) {
                   : "N/A"}
               </span>
             </p>
-
-            <p>
-              Scheduled:{" "}
-              <span className="font-semibold text-text">
-                {task.scheduledDate
-                  ? new Date(task.scheduledDate).toLocaleString()
-                  : "Not scheduled"}
-              </span>
-            </p>
-
-            <p>
-              Completed:{" "}
-              <span className="font-semibold text-text">
-                {task.completedAt
-                  ? new Date(task.completedAt).toLocaleString()
-                  : "Not completed"}
-              </span>
-            </p>
           </div>
         </div>
 
         <span
-          className={`w-fit text-xs font-bold px-3 py-1 rounded-full ${
-            statusStyles[status] || "bg-gray-100 text-gray-600"
+          className={`w-fit rounded-full px-3 py-1 text-[10px] font-bold ${
+            statusStyles[status] || "bg-background-light text-text-muted"
           }`}
         >
           {status}
@@ -409,17 +398,25 @@ function TaskCard({ task }) {
 
 function StatCard({ icon, label, value, note, color }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-      <div
-        className={`w-16 h-16 rounded-2xl flex items-center justify-center ${color}`}
-      >
-        {icon}
-      </div>
+    <div className="rounded-2xl border border-border-soft bg-card-gradient p-3 shadow-soft transition hover:-translate-y-1 hover:shadow-card sm:p-4">
+      <div className="flex items-center gap-3">
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm ${color} sm:h-12 sm:w-12`}
+        >
+          {icon}
+        </div>
 
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-text-muted">{label}</p>
-        <p className="text-2xl font-extrabold text-text mt-1">{value || 0}</p>
-        <p className="text-xs text-text-muted mt-1">{note}</p>
+        <div className="min-w-0">
+          <p className="truncate text-[10px] font-bold uppercase tracking-[0.08em] text-text-muted sm:text-[11px]">
+            {label}
+          </p>
+
+          <p className="mt-0.5 truncate text-lg font-extrabold text-primary sm:text-xl">
+            {value || 0}
+          </p>
+
+          <p className="hidden text-[10px] text-text-muted sm:block">{note}</p>
+        </div>
       </div>
     </div>
   );
@@ -427,8 +424,11 @@ function StatCard({ icon, label, value, note, color }) {
 
 function Panel({ title, children }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-xl font-extrabold text-text mb-5">{title}</h2>
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+      <h2 className="mb-5 font-heading text-lg font-bold text-primary sm:text-xl">
+        {title}
+      </h2>
+
       {children}
     </div>
   );
@@ -436,19 +436,22 @@ function Panel({ title, children }) {
 
 function InfoBlock({ label, children }) {
   return (
-    <div className="p-4 rounded-2xl bg-bg">
-      <p className="text-xs font-bold text-text-muted uppercase mb-2">
+    <div className="rounded-2xl border border-border-soft bg-background p-4 shadow-soft">
+      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.08em] text-text-muted sm:text-[11px]">
         {label}
       </p>
-      <div className="text-sm font-semibold text-text">{children}</div>
+
+      <div className="text-xs font-semibold text-text sm:text-sm">
+        {children}
+      </div>
     </div>
   );
 }
 
 function EmptyState({ message }) {
   return (
-    <div className="py-12 text-center rounded-2xl bg-bg">
-      <p className="font-bold text-text">{message}</p>
+    <div className="rounded-2xl border border-dashed border-border-soft bg-background p-10 text-center">
+      <p className="text-sm font-bold text-text">{message}</p>
     </div>
   );
 }

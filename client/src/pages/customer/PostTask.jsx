@@ -2,6 +2,7 @@ import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 import { AppContext } from "../../context/AppContext";
 
 // Components
@@ -18,6 +19,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const PostTask = () => {
   const { backendUrl, isLoggedIn } = React.useContext(AppContext);
+
   const { state } = useLocation();
   const navigate = useNavigate();
 
@@ -28,8 +30,8 @@ const PostTask = () => {
   const categoryName = state?.categoryName;
   const serviceName = state?.serviceName;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     if (!description.trim()) {
       toast.error("Please describe your task");
@@ -37,7 +39,7 @@ const PostTask = () => {
     }
 
     if (!selectedLocation) {
-      toast.error("Please select your location on the map");
+      toast.error("Please select your location");
       return;
     }
 
@@ -71,120 +73,149 @@ const PostTask = () => {
 
       toast.success(data.message || "Task booked successfully");
       navigate("/bookings");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to book service");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to book service");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#F7F4ED_0%,#EAE3D4_55%,rgba(169,209,232,0.45)_100%)] px-4 py-24 sm:px-8 lg:px-12">
-      <div className="pointer-events-none absolute -left-28 top-16 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-teal/20 blur-3xl" />
+    <main className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+
+      <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         <Btn
           type="button"
-          variant="ghost"
+          variant="outline"
           onClick={() => navigate(-1)}
-          className="mb-6 rounded-full border border-primary/10 bg-white/45 px-5 py-3 font-extrabold text-primary shadow-soft backdrop-blur-md transition hover:-translate-y-0.5  hover:bg-white/70 hover:text-gold hover:shadow-[0_0_26px_rgba(19,58,99,0.18)]"
+          className="mb-6"
         >
           <ArrowBackIcon fontSize="small" />
           Back
         </Btn>
 
-        <section className="overflow-hidden rounded-[36px] border border-white/60 bg-white/55 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.14),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl sm:p-8 lg:p-10">
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[28px] border border-[rgba(247,244,237,0.65)] bg-[linear-gradient(135deg,#A9D1E8_0%,#DAA520_100%)] text-surface shadow-[0_0_28px_rgba(218,165,32,0.28)]">
-              <HomeRepairServiceIcon sx={{ fontSize: 38 }} />
+        <section className="overflow-hidden rounded-3xl border border-border-soft bg-card-gradient shadow-card">
+          {/* HERO */}
+          <div className="relative overflow-hidden bg-primary-gradient px-6 py-10 text-white sm:px-8 lg:px-10">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+
+            <div className="relative z-10 text-center">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/10 text-white shadow-card backdrop-blur-sm">
+                <HomeRepairServiceIcon sx={{ fontSize: 38 }} />
+              </div>
+
+              <p className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                Booking Details
+              </p>
+
+              <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+                Book {serviceName || "Service"}
+              </h1>
+
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+                Describe your task, choose your location, and we’ll connect you
+                with a trusted craftsman.
+              </p>
             </div>
-
-            <p className="mb-3 inline-flex rounded-full border border-primary/10 bg-white/45 px-4 py-2 font-body text-xs font-bold tracking-[0.18em] text-primary shadow-soft backdrop-blur-md">
-              BOOKING DETAILS
-            </p>
-
-            <h1 className="font-heading text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-[1px] text-primary">
-              Book {serviceName || "Service"}
-            </h1>
-
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-text-muted sm:text-base">
-              Tell us what you need, choose your location, and we’ll send your
-              request to a trusted craftsman.
-            </p>
           </div>
 
-          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <SummaryCard
-              icon={<CategoryIcon className="text-surface" />}
-              label="Category"
-              value={categoryName || "Not selected"}
-            />
+          {/* CONTENT */}
+          <div className="space-y-8 p-5 sm:p-8 lg:p-10">
+            {/* SUMMARY */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <SummaryCard
+                icon={<CategoryIcon />}
+                label="Category"
+                value={categoryName || "Not selected"}
+              />
 
-            <SummaryCard
-              icon={<HomeRepairServiceIcon className="text-surface" />}
-              label="Selected Service"
-              value={serviceName || "Not selected"}
-            />
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="mb-3 flex items-center gap-2 text-sm font-extrabold text-primary">
-                <DescriptionIcon fontSize="small" />
-                Describe the task
-              </label>
-
-              <textarea
-                rows="5"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Example: I need someone to fix a leaking kitchen sink..."
-                className="w-full resize-none rounded-[24px] border border-white/60 bg-white/55 px-5 py-4 text-text outline-none shadow-sm backdrop-blur-md transition placeholder:text-text-muted focus:border-accent/50 focus:bg-white/75 focus:shadow-[0_0_26px_rgba(218,165,32,0.18)]"
+              <SummaryCard
+                icon={<HomeRepairServiceIcon />}
+                label="Selected Service"
+                value={serviceName || "Not selected"}
               />
             </div>
 
-            <div>
-              <div className="overflow-hidden rounded-[28px] border border-white/60 bg-white/55 p-8 shadow-sm backdrop-blur-md">
-                <label className="mb-3 flex items-center gap-2 text-sm font-extrabold text-primary">
+            {/* FORM */}
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* DESCRIPTION */}
+              <section className="rounded-3xl border border-border-soft bg-background p-5 shadow-soft">
+                <label className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.08em] text-primary">
+                  <DescriptionIcon fontSize="small" />
+                  Describe the task
+                </label>
+
+                <textarea
+                  rows={6}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  placeholder="Example: I need someone to fix a leaking kitchen sink..."
+                  className="w-full resize-none rounded-2xl border border-border-soft bg-card-gradient px-5 py-4 text-sm text-text outline-none transition placeholder:text-text-muted focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                />
+
+                <p className="mt-3 text-xs text-text-muted">
+                  Provide as many details as possible for better assignment.
+                </p>
+              </section>
+
+              {/* LOCATION */}
+              <section className="rounded-3xl border border-border-soft bg-background p-5 shadow-soft">
+                <label className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.08em] text-primary">
                   <LocationOnIcon fontSize="small" />
                   Select your location
                 </label>
 
-                <div className="overflow-hidden rounded-[22px] border border-primary/10">
+                <div className="overflow-hidden rounded-2xl border border-border-soft shadow-soft">
                   <LocationPicker
                     value={selectedLocation}
                     onChange={setSelectedLocation}
                     defaultCenter={[34.436, 35.835]}
                     zoom={13}
-                    height="350px"
+                    height="380px"
                   />
                 </div>
 
                 {selectedLocation && (
-                  <div className="mt-4 rounded-[20px] border border-success/20 bg-success/10 p-4 text-sm text-success">
-                    <p className="font-extrabold">Location selected</p>
-                    <p className="mt-1 leading-6">
-                      {selectedLocation.location ||
-                        selectedLocation.locationName ||
-                        selectedLocation.address ||
-                        "Your selected map location is ready."}
-                    </p>
+                  <div className="mt-5 rounded-2xl border border-success/20 bg-success/10 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success text-white shadow-soft">
+                        <CheckCircleIcon fontSize="small" />
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-success">
+                          Location Selected
+                        </p>
+
+                        <p className="mt-1 text-sm leading-6 text-success">
+                          {selectedLocation.location ||
+                            selectedLocation.locationName ||
+                            selectedLocation.address ||
+                            "Your selected location is ready."}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
-              </div>
-            </div>
+              </section>
 
-            <Btn
-              type="submit"
-              disabled={loading}
-              variant="ghost"
-              className="min-h-[56px] w-full rounded-full border border-[rgba(247,244,237,0.65)] bg-gold-gradient px-6 py-3 font-extrabold text-surface shadow-[0_14px_30px_rgba(218,165,32,0.28)] transition hover:text-surface hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(218,165,32,0.38)] disabled:cursor-not-allowed disabled:opacity-60 disabled:translate-y-0"
-            >
-              <CheckCircleIcon fontSize="small" />
-              {loading ? "Booking..." : "Confirm Booking"}
-            </Btn>
-          </form>
+              {/* SUBMIT */}
+              <Btn
+                type="submit"
+                disabled={loading}
+                variant="primary"
+                fullWidth
+                className="min-h-[58px] rounded-2xl text-base font-bold"
+              >
+                <CheckCircleIcon fontSize="small" />
+
+                {loading ? "Booking Service..." : "Confirm Booking"}
+              </Btn>
+            </form>
+          </div>
         </section>
       </div>
     </main>
@@ -193,18 +224,18 @@ const PostTask = () => {
 
 function SummaryCard({ icon, label, value }) {
   return (
-    <div className="rounded-[24px] border border-white/60 bg-white/55 p-5 shadow-sm backdrop-blur-md">
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-[rgba(247,244,237,0.65)] bg-[linear-gradient(135deg,#A9D1E8_0%,#DAA520_100%)] text-primary-dark shadow-[0_0_24px_rgba(218,165,32,0.22)]">
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
         {icon}
       </div>
 
-      <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-text-muted">
+      <p className="text-xs font-bold uppercase tracking-[0.12em] text-text-muted">
         {label}
       </p>
 
-      <p className="mt-1 font-heading text-xl font-extrabold text-primary">
+      <h3 className="mt-2 font-heading text-xl font-bold text-primary">
         {value}
-      </p>
+      </h3>
     </div>
   );
 }

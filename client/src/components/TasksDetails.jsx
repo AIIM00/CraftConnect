@@ -5,7 +5,12 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PhoneIcon from "@mui/icons-material/Phone";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import PersonIcon from "@mui/icons-material/Person";
+import HandymanOutlinedIcon from "@mui/icons-material/HandymanOutlined";
+import NotesIcon from "@mui/icons-material/Notes";
+
 import { AppContext } from "../context/AppContext";
+import Btn from "./Btn";
 
 const TasksDetails = ({
   task,
@@ -17,150 +22,161 @@ const TasksDetails = ({
   onScheduledDateChange,
 }) => {
   const { statusStyles } = React.useContext(AppContext);
-  return (
-    <div>
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <p className="text-sm font-bold text-primary">Task Details</p>
-          <h3 className="text-xl font-extrabold text-text mt-1">
-            {task.title}
-          </h3>
-        </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-9 h-9 rounded-full bg-bg text-text-muted hover:bg-gray-200 transition flex items-center justify-center"
-        >
-          <CloseIcon fontSize="small" />
-        </button>
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border-soft bg-background shadow-card">
+      <div className="relative overflow-hidden bg-primary-gradient px-5 py-6 text-white sm:px-6">
+        <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-secondary/25 blur-3xl" />
+
+        <div className="relative z-10 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+              Task Details
+            </p>
+
+            <h3 className="mt-2 font-heading text-2xl font-bold leading-tight">
+              {task.title}
+            </h3>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/10 text-white transition hover:bg-white/20"
+          >
+            <CloseIcon fontSize="small" />
+          </button>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 p-4 sm:p-6">
         <InfoBlock label="Status">
           <span
-            className={`inline-block text-xs font-bold px-3 py-1 rounded-full ${
-              statusStyles[task.status] || "bg-gray-100 text-gray-600"
+            className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
+              statusStyles[task.status] || "bg-background-light text-text-muted"
             }`}
           >
             {task.status}
           </span>
         </InfoBlock>
 
-        <InfoBlock label="Service">
-          <p className="text-sm text-text">
+        <InfoBlock label="Service" icon={<HandymanOutlined fontSize="small" />}>
+          <p className="text-sm font-semibold text-text">
             {task.service?.name || "No service"}
           </p>
         </InfoBlock>
 
-        <InfoBlock label="Description">
-          <p className="text-sm text-text leading-6">
+        <InfoBlock label="Description" icon={<NotesIcon fontSize="small" />}>
+          <p className="text-sm leading-6 text-text-muted">
             {task.description || "No description provided."}
           </p>
         </InfoBlock>
 
-        <InfoBlock label="Location">
-          <p className="text-sm text-text flex items-center gap-2">
-            <LocationOnIcon fontSize="small" />
-            {task.location}
+        <InfoBlock label="Location" icon={<LocationOnIcon fontSize="small" />}>
+          <p className="text-sm font-medium text-text">
+            {task.location || "No location"}
           </p>
         </InfoBlock>
 
-        <InfoBlock label="Customer">
-          <p className="font-bold text-text">
+        <InfoBlock label="Customer" icon={<PersonIcon fontSize="small" />}>
+          <p className="font-semibold text-text">
             {task.customer?.name || "Unknown customer"}
           </p>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-1 text-sm text-text-muted">
             {task.customer?.email || "No email"}
           </p>
 
-          <p className="text-sm text-text-muted mt-1">
+          <p className="mt-1 text-sm text-text-muted">
             {task.customer?.phoneNumber || "No phone number"}
           </p>
         </InfoBlock>
 
-        <InfoBlock label="Time">
-          <p className="text-sm text-text flex items-center gap-2">
-            <AccessTimeIcon fontSize="small" />
+        <InfoBlock label="Time" icon={<AccessTimeIcon fontSize="small" />}>
+          <p className="text-sm font-medium text-text">
             {task.assignedAt || task.createdAt || "N/A"}
           </p>
         </InfoBlock>
 
         {task.status === "PENDING" && (
-          <div className="space-y-3 pt-2">
+          <div className="space-y-4 rounded-2xl border border-border-soft bg-card-gradient p-4 shadow-soft">
             <label className="block">
-              <span className="block text-xs font-bold text-text-muted uppercase mb-2">
-                Schedule visit
+              <span className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">
+                Schedule Visit
               </span>
+
               <input
                 type="datetime-local"
                 value={scheduledDate}
                 min={new Date().toISOString().slice(0, 16)}
                 onChange={(event) => onScheduledDateChange(event.target.value)}
-                className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-text outline-none focus:border-primary"
+                className="w-full rounded-xl border border-border-soft bg-background px-4 py-3 text-sm text-text outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
               />
             </label>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <a
                 href={`tel:${task.customer?.phoneNumber || ""}`}
-                className="text-center py-3 rounded-2xl bg-bg text-primary font-bold hover:bg-primary hover:text-white transition flex items-center justify-center gap-2"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-background px-4 py-3 text-sm font-semibold text-primary shadow-soft transition hover:bg-background-light"
               >
                 <PhoneIcon fontSize="small" />
                 Call
               </a>
 
-              <button
+              <Btn
                 type="button"
+                variant="success"
                 disabled={actionLoading || !scheduledDate}
                 onClick={() => onAction(task.taskId, "ACCEPT", scheduledDate)}
-                className="py-3 rounded-2xl bg-green-600 text-white font-bold hover:bg-green-700 transition disabled:opacity-60 flex items-center justify-center gap-2"
+                className="rounded-xl"
               >
                 <CheckCircleIcon fontSize="small" />
                 Accept
-              </button>
+              </Btn>
 
-              <button
+              <Btn
                 type="button"
+                variant="danger"
                 disabled={actionLoading}
                 onClick={() => onAction(task.taskId, "REJECT")}
-                className="py-3 rounded-2xl bg-red-600 text-white font-bold hover:bg-red-700 transition disabled:opacity-60 flex items-center justify-center gap-2"
+                className="rounded-xl"
               >
                 <CancelIcon fontSize="small" />
                 Decline
-              </button>
+              </Btn>
             </div>
           </div>
         )}
 
         {task.status === "IN_PROGRESS" && (
-          <div className="space-y-3 pt-2">
-            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100">
-              <p className="text-sm font-bold text-blue-700">
+          <div className="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <div>
+              <p className="text-sm font-bold text-primary">
                 This task is currently in progress.
               </p>
-              <p className="text-sm text-blue-700 mt-1">
+              <p className="mt-1 text-sm text-text-muted">
                 When the work is finished, mark this task as completed.
               </p>
             </div>
+
             {onComplete && (
-              <button
+              <Btn
                 type="button"
+                variant="success"
                 disabled={actionLoading}
+                fullWidth
                 onClick={() => onComplete(task.taskId)}
-                className="w-full py-3 rounded-2xl bg-green-600 text-white font-bold hover:bg-green-700 transition disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 <CheckCircleIcon fontSize="small" />
                 {actionLoading ? "Completing..." : "Mark as Completed"}
-              </button>
+              </Btn>
             )}
           </div>
         )}
 
         {task.status === "COMPLETED" && (
-          <div className="p-4 rounded-2xl bg-green-50 border border-green-100">
-            <p className="text-sm font-bold text-green-700">
+          <div className="rounded-2xl border border-green-200 bg-green-50 p-4">
+            <p className="text-sm font-bold text-success">
               This task has been completed.
             </p>
           </div>
@@ -169,12 +185,15 @@ const TasksDetails = ({
     </div>
   );
 };
-function InfoBlock({ label, children }) {
+
+function InfoBlock({ label, icon, children }) {
   return (
-    <div className="p-4 rounded-2xl bg-bg">
-      <p className="text-xs font-bold text-text-muted uppercase mb-2">
-        {label}
-      </p>
+    <div className="rounded-2xl border border-border-soft bg-card-gradient p-4 shadow-soft">
+      <div className="mb-2 flex items-center gap-2 text-secondary">
+        {icon}
+        <p className="text-xs font-bold uppercase tracking-[0.16em]">{label}</p>
+      </div>
+
       {children}
     </div>
   );

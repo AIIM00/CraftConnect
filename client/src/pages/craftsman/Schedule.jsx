@@ -1,15 +1,17 @@
 import * as React from "react";
-//Components
+import axios from "axios";
+
+// Components
 import Btn from "../../components/Btn";
 
-//Mui Icons
+// MUI Icons
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import axios from "axios";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -45,6 +47,7 @@ function getMonthDays(date) {
 
 function getMonthRange(date) {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
+
   const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
   return {
@@ -55,11 +58,15 @@ function getMonthRange(date) {
 
 export default function Schedule() {
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
+
   const [selectedDate, setSelectedDate] = React.useState(new Date());
+
   const [tasks, setTasks] = React.useState([]);
+
   const [loading, setLoading] = React.useState(false);
 
   const days = getMonthDays(currentMonth);
+
   const today = new Date();
 
   React.useEffect(() => {
@@ -103,6 +110,7 @@ export default function Schedule() {
   });
 
   const completedTasks = tasks.filter((task) => task.status === "COMPLETED");
+
   const activeTasks = tasks.filter((task) => task.status === "IN_PROGRESS");
 
   const goToPreviousMonth = () => {
@@ -123,249 +131,260 @@ export default function Schedule() {
   });
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-        <div>
-          <p className="text-sm font-semibold text-primary-light mb-2">
-            Craftsman Workspace
-          </p>
+    <section className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
-          <h1 className="text-3xl font-extrabold text-primary">Schedule</h1>
+      <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-          <p className="text-text-muted mt-2">
-            View your tasks by calendar day and track completed work.
-          </p>
-        </div>
+      <div className="relative z-10 mx-auto max-w-container">
+        {/* HERO */}
+        <div className="mb-8 overflow-hidden rounded-3xl border border-border-soft bg-primary-gradient p-6 text-white shadow-card sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                Craftsman Workspace
+              </p>
 
-        <Btn
-          type="button"
-          onClick={() => setSelectedDate(new Date())}
-          variant="primary"
-          className="rounded-2xl px-6 py-3 font-bold"
-        >
-          Today
-        </Btn>
-      </div>
+              <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+                Schedule Calendar
+              </h1>
 
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
-        <StatCard
-          icon={<CalendarMonthIcon />}
-          label="This Month"
-          value={tasks.length}
-          note="Total scheduled tasks"
-          color="bg-blue-50 text-blue-600"
-        />
-
-        <StatCard
-          icon={<AccessTimeIcon />}
-          label="Active"
-          value={activeTasks.length}
-          note="Upcoming or in progress"
-          color="bg-orange-50 text-orange-600"
-        />
-
-        <StatCard
-          icon={<CheckCircleIcon />}
-          label="Completed"
-          value={completedTasks.length}
-          note="Finished tasks"
-          color="bg-green-50 text-green-600"
-        />
-      </section>
-
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <Btn
-              type="button"
-              onClick={goToPreviousMonth}
-              variant="ghost"
-              className="h-11 w-11 rounded-2xl bg-bg p-0 hover:bg-gray-100"
-            >
-              <ArrowBackIosNewIcon fontSize="small" />
-            </Btn>
-
-            <div className="text-center">
-              <h2 className="text-xl font-extrabold text-text">{monthTitle}</h2>
-              <p className="text-sm text-text-muted mt-1">
-                Click a day to view tasks.
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+                View your tasks by calendar day and track completed work.
               </p>
             </div>
 
             <Btn
               type="button"
-              onClick={goToNextMonth}
-              variant="ghost"
-              className="h-11 w-11 rounded-2xl bg-bg p-0 hover:bg-gray-100"
+              onClick={() => setSelectedDate(new Date())}
+              variant="secondary"
+              className="rounded-2xl px-6"
             >
-              <ArrowForwardIosIcon fontSize="small" />
+              Today
             </Btn>
           </div>
+        </div>
 
-          <div className="grid grid-cols-7 gap-3 mb-3">
-            {weekDays.map((day) => (
-              <div
-                key={day}
-                className="text-center text-sm font-extrabold text-text-muted"
+        {/* STATS */}
+        <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <StatCard
+            icon={<CalendarMonthIcon />}
+            label="This Month"
+            value={tasks.length}
+            note="Total scheduled tasks"
+            color="bg-primary/10 text-primary"
+          />
+
+          <StatCard
+            icon={<AccessTimeIcon />}
+            label="Active"
+            value={activeTasks.length}
+            note="Upcoming or in progress"
+            color="bg-secondary/10 text-secondary"
+          />
+
+          <StatCard
+            icon={<CheckCircleIcon />}
+            label="Completed"
+            value={completedTasks.length}
+            note="Finished tasks"
+            color="bg-success/10 text-success"
+          />
+        </section>
+
+        {/* CONTENT */}
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          {/* CALENDAR */}
+          <div className="xl:col-span-2 rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+            {/* HEADER */}
+            <div className="mb-6 flex items-center justify-between">
+              <Btn
+                type="button"
+                onClick={goToPreviousMonth}
+                variant="soft"
+                iconOnly
+                className="rounded-2xl"
               >
-                {day}
+                <ArrowBackIosNewIcon fontSize="small" />
+              </Btn>
+
+              <div className="text-center">
+                <h2 className="font-heading text-2xl font-bold text-primary">
+                  {monthTitle}
+                </h2>
+
+                <p className="mt-1 text-sm text-text-muted">
+                  Click a day to view tasks
+                </p>
               </div>
-            ))}
-          </div>
 
-          <div className="grid grid-cols-7 gap-3">
-            {days.map((day, index) => {
-              if (!day) {
-                return <div key={`empty-${index}`} />;
-              }
+              <Btn
+                type="button"
+                onClick={goToNextMonth}
+                variant="soft"
+                iconOnly
+                className="rounded-2xl"
+              >
+                <ArrowForwardIosIcon fontSize="small" />
+              </Btn>
+            </div>
 
-              const dateKey = toDateKey(day);
-
-              const dayTasks = tasks.filter((task) => {
-                const dateToUse =
-                  task.status === "COMPLETED" && task.completedAt
-                    ? task.completedAt
-                    : task.scheduledDate;
-
-                if (!dateToUse) return false;
-
-                return toDateKey(new Date(dateToUse)) === dateKey;
-              });
-
-              const hasCompleted = dayTasks.some(
-                (task) => task.status === "COMPLETED",
-              );
-
-              const hasActive = dayTasks.some(
-                (task) => task.status === "IN_PROGRESS",
-              );
-
-              const selected = isSameDay(day, selectedDate);
-              const isToday = isSameDay(day, today);
-              const isPast = day < new Date(today.toDateString());
-
-              return (
-                <button
-                  key={dateKey}
-                  type="button"
-                  onClick={() => setSelectedDate(day)}
-                  className={`min-h-[105px] rounded-3xl border p-3 text-left shadow-sm transition-all duration-300 hover:-translate-y-0.5 ${
-                    selected
-                      ? "border-primary/30 bg-primary/10 text-primary shadow-primary/10"
-                      : "border-gray-100 bg-white/70 text-text hover:border-primary/20 hover:bg-primary/5"
-                  }`}
+            {/* WEEK DAYS */}
+            <div className="mb-3 grid grid-cols-7 gap-1 sm:gap-2 lg:gap-3">
+              {weekDays.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-[10px] font-bold uppercase tracking-[0.04em] text-text-muted sm:text-xs lg:text-sm"
                 >
-                  <div className="flex items-center justify-between">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* DAYS */}
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 lg:gap-3">
+              {days.map((day, index) => {
+                if (!day) {
+                  return <div key={`empty-${index}`} />;
+                }
+
+                const dateKey = toDateKey(day);
+
+                const dayTasks = tasks.filter((task) => {
+                  const dateToUse =
+                    task.status === "COMPLETED" && task.completedAt
+                      ? task.completedAt
+                      : task.scheduledDate;
+
+                  if (!dateToUse) return false;
+
+                  return toDateKey(new Date(dateToUse)) === dateKey;
+                });
+
+                const hasCompleted = dayTasks.some(
+                  (task) => task.status === "COMPLETED",
+                );
+
+                const hasActive = dayTasks.some(
+                  (task) => task.status === "IN_PROGRESS",
+                );
+
+                const selected = isSameDay(day, selectedDate);
+
+                const isToday = isSameDay(day, today);
+
+                const isPast = day < new Date(today.toDateString());
+
+                return (
+                  <button
+                    key={dateKey}
+                    type="button"
+                    onClick={() => setSelectedDate(day)}
+                    className={`min-h-[70px] rounded-xl flex flex-col border p-2 text-center shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card sm:min-h-[95px] sm:rounded-2xl sm:p-3 lg:min-h-[115px] lg:rounded-3xl ${
+                      selected
+                        ? "border-primary/20 bg-primary/10"
+                        : "border-border-soft bg-background hover:border-primary/20 hover:bg-background-light"
+                    }`}
+                  >
+                    {isToday && (
+                      <span className="relative bottom-2 rounded-full bg-secondary/10 px-2 py-1 text-[8px] font-bold text-secondary">
+                        Today
+                      </span>
+                    )}
+
                     <span
-                      className={`font-extrabold ${
-                        selected ? "text-primary" : "text-primary"
+                      className={`text-[10px] font-bold sm:text-xs ${
+                        selected ? "text-primary" : "text-text"
                       }`}
                     >
                       {day.getDate()}
                     </span>
 
-                    {isToday && (
-                      <span
-                        className={`rounded-full px-2 py-1 text-[10px] font-bold ${
-                          selected
-                            ? "bg-primary/10 text-primary"
-                            : "bg-primary/10 text-primary"
-                        }`}
-                      >
-                        Today
-                      </span>
-                    )}
-                  </div>
+                    <div className="mt-4">
+                      {dayTasks.length > 0 ? (
+                        <>
+                          <p
+                            className={`text-xs font-bold ${
+                              selected ? "text-primary" : "text-text"
+                            }`}
+                          >
+                            {dayTasks.length} task
+                            {dayTasks.length > 1 ? "s" : ""}
+                          </p>
 
-                  <div className="mt-4 space-y-1">
-                    {dayTasks.length > 0 ? (
-                      <>
-                        <p
-                          className={`text-xs font-bold ${
-                            selected ? "text-primary" : "text-text"
-                          }`}
-                        >
-                          {dayTasks.length} task{dayTasks.length > 1 ? "s" : ""}
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {hasActive && (
+                              <span className="rounded-full bg-secondary/10 px-2 py-1 text-[10px] font-bold text-secondary">
+                                Active
+                              </span>
+                            )}
+
+                            {hasCompleted && (
+                              <span className="rounded-full bg-success/10 px-2 py-1 text-[10px] font-bold text-success">
+                                Done
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="hidden text-xs text-text-muted sm:block">
+                          {isPast ? "No completed tasks" : "No tasks"}
                         </p>
-
-                        {hasActive && (
-                          <span
-                            className={`inline-block rounded-full px-2 py-1 text-[10px] font-bold ${
-                              selected
-                                ? "bg-orange-50 text-orange-700"
-                                : "bg-orange-100 text-orange-700"
-                            }`}
-                          >
-                            Active
-                          </span>
-                        )}
-
-                        {hasCompleted && (
-                          <span
-                            className={`ml-1 inline-block rounded-full px-2 py-1 text-[10px] font-bold ${
-                              selected
-                                ? "bg-green-50 text-green-700"
-                                : "bg-green-100 text-green-700"
-                            }`}
-                          >
-                            Done
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <p
-                        className={`text-xs ${
-                          selected ? "text-primary/70" : "text-text-muted"
-                        }`}
-                      >
-                        {isPast ? "No completed tasks" : "No tasks"}
-                      </p>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-xl font-extrabold text-text mb-1">
-            {selectedDate.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            })}
-          </h2>
-
-          <p className="text-sm text-text-muted mb-5">
-            {selectedDateTasks.length > 0
-              ? `${selectedDateTasks.length} task${
-                  selectedDateTasks.length > 1 ? "s" : ""
-                } for this day`
-              : "No tasks for this day"}
-          </p>
-
-          {loading ? (
-            <div className="rounded-3xl bg-bg p-5 text-sm text-text-muted">
-              Loading tasks...
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          ) : selectedDateTasks.length === 0 ? (
-            <div className="rounded-3xl bg-bg p-5">
-              <p className="font-bold text-primary">No tasks</p>
-              <p className="text-sm text-text-muted mt-2">
-                Tasks scheduled or completed on this day will appear here.
+          </div>
+
+          {/* SIDEBAR */}
+          <aside className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+            <div className="mb-5">
+              <h2 className="font-heading text-2xl font-bold text-primary">
+                {selectedDate.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h2>
+
+              <p className="mt-1 text-sm text-text-muted">
+                {selectedDateTasks.length > 0
+                  ? `${selectedDateTasks.length} task${
+                      selectedDateTasks.length > 1 ? "s" : ""
+                    } for this day`
+                  : "No tasks for this day"}
               </p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {selectedDateTasks.map((task) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
-            </div>
-          )}
-        </aside>
-      </section>
-    </div>
+
+            {loading ? (
+              <div className="rounded-3xl border border-border-soft bg-background p-5 text-sm text-text-muted">
+                Loading tasks...
+              </div>
+            ) : selectedDateTasks.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-border-soft bg-background p-8 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+                  <EventAvailableIcon />
+                </div>
+
+                <h3 className="font-bold text-primary">No tasks</h3>
+
+                <p className="mt-2 text-sm leading-7 text-text-muted">
+                  Tasks scheduled or completed on this day will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {selectedDateTasks.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
+            )}
+          </aside>
+        </section>
+      </div>
+    </section>
   );
 }
 
@@ -374,31 +393,29 @@ function TaskCard({ task }) {
 
   return (
     <div
-      className={`rounded-3xl border p-5 transition ${
+      className={`rounded-3xl border p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-card ${
         isCompleted
-          ? "border-green-100 bg-green-50/40"
-          : "border-orange-100 bg-orange-50/40"
+          ? "border-success/20 bg-success/10"
+          : "border-secondary/20 bg-secondary/10"
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <div
-          className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-            isCompleted
-              ? "bg-green-100 text-green-700"
-              : "bg-orange-100 text-orange-700"
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
+            isCompleted ? "bg-success text-white" : "bg-secondary text-white"
           }`}
         >
           <AssignmentIcon />
         </div>
 
         <div className="flex-1">
-          <h3 className="font-extrabold text-primary">{task.title}</h3>
+          <h3 className="font-bold text-primary">{task.title}</h3>
 
-          <p className="text-sm text-text-muted mt-1 line-clamp-2">
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-text-muted">
             {task.description}
           </p>
 
-          <div className="mt-3 space-y-1 text-sm text-text-muted">
+          <div className="mt-4 space-y-2 text-sm text-text-muted">
             <p>
               <span className="font-bold text-text">Customer:</span>{" "}
               {task.customer?.name || "Unknown"}
@@ -426,10 +443,10 @@ function TaskCard({ task }) {
           </div>
 
           <span
-            className={`inline-block mt-4 text-xs font-bold px-3 py-1 rounded-full ${
+            className={`mt-5 inline-block rounded-full px-3 py-1 text-xs font-bold ${
               isCompleted
-                ? "bg-green-100 text-green-700"
-                : "bg-orange-100 text-orange-700"
+                ? "bg-success/10 text-success"
+                : "bg-secondary/10 text-secondary"
             }`}
           >
             {isCompleted ? "Completed" : "In Progress"}
@@ -442,17 +459,21 @@ function TaskCard({ task }) {
 
 function StatCard({ icon, label, value, note, color }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-      <div
-        className={`w-16 h-16 rounded-2xl flex items-center justify-center ${color}`}
-      >
-        {icon}
-      </div>
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-card">
+      <div className="flex items-center gap-4">
+        <div
+          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${color}`}
+        >
+          {icon}
+        </div>
 
-      <div>
-        <p className="text-sm font-semibold text-text-muted">{label}</p>
-        <p className="text-3xl font-extrabold text-text mt-1">{value}</p>
-        <p className="text-xs text-text-muted mt-1">{note}</p>
+        <div>
+          <p className="text-sm font-bold text-text-muted">{label}</p>
+
+          <p className="mt-1 text-3xl font-bold text-primary">{value}</p>
+
+          <p className="mt-1 text-xs text-text-muted">{note}</p>
+        </div>
       </div>
     </div>
   );

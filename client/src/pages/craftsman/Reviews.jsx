@@ -2,6 +2,7 @@
 import * as React from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+
 import { AppContext } from "../../context/AppContext";
 import Btn from "../../components/Btn";
 
@@ -12,6 +13,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ReplayIcon from "@mui/icons-material/Replay";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 export default function Reviews() {
   const { backendUrl } = React.useContext(AppContext);
@@ -52,106 +54,139 @@ export default function Reviews() {
   }, [backendUrl]);
 
   if (loading) {
-    return <p className="text-text-muted">Loading reviews...</p>;
+    return (
+      <section className="min-h-screen bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+        <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center">
+          <div className="w-full rounded-3xl border border-border-soft bg-card-gradient p-8 text-center shadow-card">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+              <ReviewsIcon />
+            </div>
+
+            <h1 className="font-heading text-2xl font-bold text-primary">
+              Loading Reviews
+            </h1>
+
+            <p className="mt-2 text-sm text-text-muted">
+              Please wait while customer feedback is loading.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
-    <section className="min-h-screen bg-bg text-text">
-      <div className="mb-8">
-        <h2 className="text-3xl font-extrabold text-text">Reviews</h2>
-        <p className="mt-2 text-text-muted">
-          See customer feedback from your completed tasks.
-        </p>
-      </div>
+    <section className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
 
-      {/* Summary */}
-      <section className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        <SummaryCard
-          icon={<ReviewsIcon />}
-          label="Total Reviews"
-          value={stats.totalReviews}
-          note="Customer reviews received"
-          color="bg-blue-50 text-blue-600"
-        />
+      <div className="relative z-10 mx-auto max-w-container">
+        <div className="mb-8 overflow-hidden rounded-3xl border border-border-soft bg-primary-gradient p-6 text-white shadow-card sm:p-8">
+          <p className="mb-4 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+            Craftsman Workspace
+          </p>
 
-        <SummaryCard
-          icon={<StarIcon />}
-          label="Average Rating"
-          value={`${stats.averageRating || 0}/5`}
-          note="Overall customer rating"
-          color="bg-yellow-50 text-yellow-600"
-        />
+          <h1 className="font-heading text-3xl font-bold sm:text-4xl lg:text-5xl">
+            Customer Reviews
+          </h1>
 
-        <SummaryCard
-          icon={<ThumbUpAltIcon />}
-          label="Recommendation"
-          value={`${getRecommendationPercentage(reviews)}%`}
-          note="Customers would recommend you"
-          color="bg-green-50 text-green-600"
-        />
-      </section>
-
-      {/* Reviews List */}
-      <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <h3 className="text-xl font-extrabold text-text">
-              Customer Reviews
-            </h3>
-            <p className="mt-1 text-sm text-text-muted">
-              Reviews are based on tasks completed by you.
-            </p>
-          </div>
-
-          <Btn
-            type="button"
-            onClick={fetchReviews}
-            variant="outline"
-            className="rounded-2xl px-5 py-3 font-bold"
-          >
-            Refresh
-          </Btn>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
+            Track customer satisfaction and view feedback from completed
+            services.
+          </p>
         </div>
 
-        {reviews.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-bg p-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-primary">
-              <ReviewsIcon fontSize="large" />
+        <section className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <SummaryCard
+            icon={<ReviewsIcon />}
+            label="Total Reviews"
+            value={stats.totalReviews}
+            note="Customer reviews received"
+            color="bg-primary/10 text-primary"
+          />
+
+          <SummaryCard
+            icon={<StarIcon />}
+            label="Average Rating"
+            value={`${stats.averageRating || 0}/5`}
+            note="Overall customer rating"
+            color="bg-secondary/10 text-secondary"
+          />
+
+          <SummaryCard
+            icon={<ThumbUpAltIcon />}
+            label="Recommendation"
+            value={`${getRecommendationPercentage(reviews)}%`}
+            note="Customers would recommend you"
+            color="bg-success/10 text-success"
+          />
+        </section>
+
+        <section className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card sm:p-6">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-heading text-2xl font-bold text-primary">
+                Customer Reviews
+              </h2>
+
+              <p className="mt-1 text-sm text-text-muted">
+                Reviews are based on tasks completed by you.
+              </p>
             </div>
 
-            <h4 className="text-lg font-extrabold text-text">No reviews yet</h4>
+            <Btn
+              type="button"
+              onClick={fetchReviews}
+              variant="outline"
+              className="rounded-xl"
+            >
+              <RefreshIcon fontSize="small" />
+              Refresh
+            </Btn>
+          </div>
 
-            <p className="mt-2 text-sm text-text-muted">
-              Customer reviews will appear here after completed tasks are
-              reviewed.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div>
-        )}
-      </section>
+          {reviews.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-border-soft bg-background p-10 text-center">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+                <ReviewsIcon fontSize="large" />
+              </div>
+
+              <h3 className="font-heading text-2xl font-bold text-primary">
+                No reviews yet
+              </h3>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-7 text-text-muted">
+                Customer reviews will appear here after completed tasks are
+                reviewed.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </section>
   );
 }
 
 function ReviewCard({ review }) {
   return (
-    <article className="rounded-3xl border border-gray-100 bg-bg p-5">
-      <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <article className="rounded-3xl border border-border-soft bg-background p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-card">
+      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-primary">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
               <ReviewsIcon />
             </div>
 
             <div>
-              <h4 className="font-extrabold text-text">
+              <h3 className="font-bold text-text">
                 {review.user?.name || "Customer"}
-              </h4>
+              </h3>
 
               <p className="text-sm text-text-muted">
                 {formatDate(review.createdAt)}
@@ -174,17 +209,19 @@ function ReviewCard({ review }) {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-white px-4 py-3 text-right">
-          <div className="flex items-center justify-end gap-1 text-yellow-500">
+        <div className="rounded-2xl border border-border-soft bg-card-gradient px-4 py-3 text-right shadow-soft">
+          <div className="flex items-center justify-end gap-1 text-secondary">
             {renderStars(review.rating)}
           </div>
 
-          <p className="mt-1 text-sm font-bold text-text">{review.rating}/5</p>
+          <p className="mt-1 text-sm font-bold text-text">
+            {review.rating || 0}/5
+          </p>
         </div>
       </div>
 
       {review.comment && (
-        <p className="mb-5 rounded-2xl bg-white p-4 text-sm leading-6 text-text-muted">
+        <p className="mb-5 rounded-2xl border border-border-soft bg-card-gradient p-4 text-sm leading-6 text-text-muted shadow-soft">
           “{review.comment}”
         </p>
       )}
@@ -219,7 +256,7 @@ function ReviewCard({ review }) {
         />
 
         {review.task?.service?.name && (
-          <span className="rounded-full bg-white px-4 py-2 text-xs font-bold text-text-muted">
+          <span className="rounded-full border border-border-soft bg-card-gradient px-4 py-2 text-xs font-bold text-text-muted">
             {review.task.service.name}
           </span>
         )}
@@ -230,7 +267,7 @@ function ReviewCard({ review }) {
           {review.issueTags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600"
+              className="rounded-full bg-danger/10 px-3 py-1 text-xs font-bold text-danger"
             >
               {tag}
             </span>
@@ -243,17 +280,19 @@ function ReviewCard({ review }) {
 
 function SummaryCard({ icon, label, value, note, color }) {
   return (
-    <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-card">
       <div className="flex items-center gap-4">
         <div
-          className={`flex h-16 w-16 items-center justify-center rounded-2xl ${color}`}
+          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${color}`}
         >
           {icon}
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-text-muted">{label}</p>
-          <p className="mt-1 text-3xl font-extrabold text-text">{value}</p>
+          <p className="text-sm font-bold text-text-muted">{label}</p>
+
+          <p className="mt-1 text-3xl font-bold text-primary">{value}</p>
+
           <p className="mt-1 text-xs text-text-muted">{note}</p>
         </div>
       </div>
@@ -262,17 +301,20 @@ function SummaryCard({ icon, label, value, note, color }) {
 }
 
 function RatingRow({ label, value }) {
+  const safeValue = value || 0;
+
   return (
-    <div className="rounded-2xl bg-white px-4 py-3">
-      <div className="mb-1 flex items-center justify-between gap-3">
+    <div className="rounded-2xl border border-border-soft bg-card-gradient px-4 py-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <p className="text-sm font-bold text-text">{label}</p>
-        <p className="text-sm font-extrabold text-text">{value}/5</p>
+
+        <p className="text-sm font-bold text-primary">{safeValue}/5</p>
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+      <div className="h-2 overflow-hidden rounded-full bg-background-light">
         <div
-          className="h-full rounded-full bg-yellow-400"
-          style={{ width: `${((value || 0) / 5) * 100}%` }}
+          className="h-full rounded-full bg-secondary-gradient"
+          style={{ width: `${(safeValue / 5) * 100}%` }}
         />
       </div>
     </div>
@@ -283,7 +325,7 @@ function Badge({ active, icon, text }) {
   return (
     <span
       className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold ${
-        active ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+        active ? "bg-success/10 text-success" : "bg-danger/10 text-danger"
       }`}
     >
       {icon}
@@ -298,7 +340,7 @@ function renderStars(rating) {
   return (
     <>
       {"★".repeat(safeRating)}
-      <span className="text-gray-300">{"★".repeat(5 - safeRating)}</span>
+      <span className="text-text-muted">{"★".repeat(5 - safeRating)}</span>
     </>
   );
 }

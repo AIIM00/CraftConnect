@@ -1,60 +1,116 @@
 import * as React from "react";
 
 import { AppContext } from "../../context/AppContext";
-//Components
 import Btn from "../../components/Btn";
-//MUI Icons
+
+// MUI Icons
 import BlockIcon from "@mui/icons-material/Block";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 
 const CraftsmanSuspended = () => {
   const { logout } = React.useContext(AppContext);
 
   return (
-    <div className="min-h-screen bg-bg text-text">
-      <div className="min-h-[calc(100vh-88px)] flex items-center justify-center px-4">
-        <div className="max-w-xl w-full bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sm:p-10 text-center">
-          <div className="w-full flex justify-end">
-            <Btn
-              type="button"
-              onClick={() => logout("/")}
-              variant="danger"
-              className="m-2 h-11 w-11 rounded-full p-0"
-            >
-              <LogoutIcon />
-            </Btn>
-          </div>
-          <div className="w-20 h-20 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-6">
-            <BlockIcon sx={{ fontSize: 44 }} />
-          </div>
+    <main className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 py-10 sm:px-8 lg:px-12">
+      <div className="pointer-events-none absolute -left-28 top-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-danger/20 blur-3xl" />
 
-          <h1 className="text-3xl font-extrabold text-primary mb-3">
-            Account Suspended
-          </h1>
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] max-w-xl items-center justify-center">
+        <section className="w-full overflow-hidden rounded-3xl border border-border-soft bg-card-gradient shadow-card">
+          <div className="relative overflow-hidden bg-primary-gradient px-6 py-8 text-white sm:px-8">
+            <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-danger/25 blur-3xl" />
 
-          <p className="text-text-muted leading-relaxed mb-6">
-            Your craftsman account has been suspended. You cannot access the
-            craftsman dashboard, accept tasks, update your availability, or
-            manage your craftsman profile at this time.
-          </p>
+            <div className="relative z-10 flex justify-end">
+              <Btn
+                type="button"
+                onClick={() => logout("/")}
+                variant="danger"
+                iconOnly
+                aria-label="Logout"
+                className="border-white/15 bg-white/10 text-white hover:bg-danger"
+              >
+                <LogoutIcon fontSize="small" />
+              </Btn>
+            </div>
 
-          <div className="bg-bg rounded-2xl p-5 text-left mb-8">
-            <div className="flex items-start gap-3">
-              <SupportAgentIcon className="text-primary mt-1" />
-              <div>
-                <p className="font-bold text-text mb-2">What should you do?</p>
-                <p className="text-sm text-text-muted leading-relaxed">
-                  Please contact support or wait for the admin team to review
-                  your account. If this was a mistake, the admin can restore
-                  your access.
-                </p>
+            <div className="relative z-10 text-center">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-white/15 bg-white/10 text-white shadow-card">
+                <BlockIcon sx={{ fontSize: 44 }} />
               </div>
+
+              <p className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-danger">
+                Account Status
+              </p>
+
+              <h1 className="font-heading text-3xl font-bold sm:text-4xl">
+                Account Suspended
+              </h1>
+
+              <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-white/80">
+                Your craftsman account has been suspended. You cannot access the
+                dashboard, accept tasks, update availability, or manage your
+                craftsman profile right now.
+              </p>
             </div>
           </div>
-        </div>
+
+          <div className="space-y-5 p-5 sm:p-8">
+            <div className="rounded-3xl border border-danger/20 bg-danger/10 p-5">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-danger text-white shadow-soft">
+                  <ShieldOutlinedIcon />
+                </div>
+
+                <div>
+                  <h2 className="font-heading text-xl font-bold text-danger">
+                    Access Temporarily Restricted
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-7 text-text-muted">
+                    This restriction was applied by the admin team. Your account
+                    may be restored after review if the suspension was a mistake
+                    or the issue is resolved.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border-soft bg-background p-5 shadow-soft">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
+                  <SupportAgentIcon />
+                </div>
+
+                <div>
+                  <h2 className="font-heading text-xl font-bold text-primary">
+                    What should you do?
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-7 text-text-muted">
+                    Please contact support or wait for the admin team to review
+                    your account. If this was a mistake, an admin can restore
+                    your access.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Btn
+              type="button"
+              onClick={async () => logout("/")}
+              variant="outline"
+              fullWidth
+              className="rounded-xl"
+            >
+              <LogoutIcon fontSize="small" />
+              Logout
+            </Btn>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 

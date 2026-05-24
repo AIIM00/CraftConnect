@@ -10,7 +10,6 @@ import AdminCraftsmen from "./pages/admin/AdminCraftsmen";
 import AdminCraftsmanProfile from "./pages/admin/AdminCraftsmanProfile";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminReviews from "./pages/admin/AdminReviews";
-import AdminWarnings from "./pages/admin/AdminWarnings";
 import AdminTasks from "./pages/admin/AdminTasks";
 
 // Customer imports
@@ -32,7 +31,6 @@ import LeaveReview from "./pages/customer/LeaveReview";
 // Craftsman imports
 import CraftsmanLayout from "./pages/craftsman/CraftsmanLayout";
 import Dashboard from "./pages/craftsman/Dashboard";
-import Notifications from "./pages/craftsman/Notifications";
 import Reviews from "./pages/craftsman/Reviews";
 import Schedule from "./pages/craftsman/Schedule";
 import Tasks from "./pages/craftsman/Tasks";
@@ -97,7 +95,6 @@ const App = () => {
           <Route path="reviews" element={<Reviews />} />
           <Route path="schedule" element={<Schedule />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="notifications" element={<Notifications />} />
         </Route>
 
         <Route
@@ -165,7 +162,6 @@ const App = () => {
             element={<AdminApplications />}
           />
           <Route path="reviews" element={<AdminReviews />} />
-          <Route path="warnings" element={<AdminWarnings />} />
           <Route path="tasks" element={<AdminTasks />} />
         </Route>
       </Routes>

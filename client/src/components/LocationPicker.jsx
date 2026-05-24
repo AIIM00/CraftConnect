@@ -147,7 +147,18 @@ const LocationPicker = ({
 
   return (
     <div>
-      <div className="rounded-2xl overflow-hidden border border-gray-200">
+      <div className="pt-6 pl-6 mb-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-secondary">
+            Location Picker
+          </p>
+
+          <h3 className="mt-1 font-heading text-xl font-bold text-primary">
+            Select Your Service Location
+          </h3>
+        </div>
+      </div>
+      <div className="overflow-hidden rounded-3xl border border-border-soft bg-card-gradient shadow-soft">
         <MapContainer
           center={value ? [value.latitude, value.longitude] : defaultCenter}
           zoom={zoom}
@@ -168,41 +179,47 @@ const LocationPicker = ({
         </MapContainer>
       </div>
 
-      <button
-        type="button"
-        onClick={handleUseCurrentLocation}
-        className=" mt-3 w-full py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition"
-      >
-        Use My Current Location
-      </button>
+      <div className="flex items-center justify-center">
+        <button
+          type="button"
+          onClick={handleUseCurrentLocation}
+          className="mt-4 w-fit px-24 rounded-2xl bg-primary-gradient px-5 py-4 text-sm font-bold text-white shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-elevated"
+        >
+          Use My Current Location
+        </button>
+      </div>
 
       {value && (
-        <div className="mt-3 rounded-2xl bg-bg border border-gray-200 px-4 py-3">
-          <p className="text-sm text-text-muted">Selected location</p>
-
-          <p className="font-semibold text-primary">
+        <div className="mt-4 rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-soft">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-secondary">
+            Selected Location
+          </p>
+          <p className="mt-2 text-sm font-bold leading-6 text-primary">
+            {" "}
             {gettingAddress ? "Getting address..." : value.locationName}
           </p>
-
           {showCoordinates && (
             <>
-              <p className="text-sm text-text-muted mt-2">
+              <p className="text-sm text-text-muted">
+                {" "}
                 Latitude: {value.latitude}
               </p>
 
               <p className="text-sm text-text-muted">
+                {" "}
                 Longitude: {value.longitude}
               </p>
-              <p className="text-sm text-text font-bold">{value.location}</p>
-              <p className="text-sm text-text font-bold">
-                + City: {value.city || "Unknown"}+{" "}
+              <p className="text-sm text-text-muted">{value.location}</p>
+              <p className="mt-3 text-sm font-semibold text-text">
+                City: {value.city || "Unknown"}
               </p>
             </>
           )}
         </div>
       )}
 
-      <p className=" p-2 text-sm text-text-muted mt-2">
+      <p className="mt-4 text-center text-sm leading-6 text-text-muted">
+        {" "}
         Click on the map to choose your location, or use your current location.
       </p>
     </div>

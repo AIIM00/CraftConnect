@@ -6,110 +6,179 @@ import { Link } from "react-router-dom";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-[radial-gradient(circle_at_12%_20%,rgba(218,165,32,0.18),transparent_28%),radial-gradient(circle_at_88%_80%,rgba(0,128,128,0.22),transparent_30%),linear-gradient(135deg,#0B2540_0%,#133A63_52%,#0B2540_100%)] text-text-light">
-      <div className="pointer-events-none absolute -left-32 -top-32 h-[360px] w-[360px] rounded-full bg-accent/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-32 -bottom-32 h-[360px] w-[360px] rounded-full bg-teal/20 blur-3xl" />
+    <footer className="relative overflow-hidden bg-primary-gradient text-white">
+      {/* Background glow */}
+      <div className="pointer-events-none absolute -left-32 -top-32 h-[320px] w-[320px] rounded-full bg-secondary/20 blur-3xl" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-12">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_2fr]">
-          {/* Brand + Social */}
-          <div className="rounded-[28px] border border-white/15 bg-white/10 p-6 shadow-[0_25px_70px_rgba(19,58,99,0.22),inset_0_0_35px_rgba(255,255,255,0.05)] backdrop-blur-xl">
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-[320px] w-[320px] rounded-full bg-white/10 blur-3xl" />
+
+      <div className="relative z-10 mx-auto max-w-container px-4 py-14 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
+          {/* Brand */}
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
             <Link to="/#header" className="inline-block">
-              <div className="mb-4 flex cursor-pointer items-center gap-3">
-                <img
-                  src={assets.logo}
-                  alt="CraftConnect logo"
-                  className="w-12 rounded-2xl"
-                />
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-card">
+                  <img
+                    src={assets.logo}
+                    alt="CraftConnect logo"
+                    className="h-9 w-9 object-contain"
+                  />
+                </div>
 
-                <h2 className="font-heading text-2xl font-extrabold tracking-[0.5px] text-text-light">
-                  CraftConnect
-                </h2>
+                <div>
+                  <h2 className="font-heading text-2xl font-bold">
+                    CraftConnect
+                  </h2>
+
+                  <p className="mt-1 text-sm text-white/70">
+                    Trusted craftsmen marketplace
+                  </p>
+                </div>
               </div>
             </Link>
 
-            <p className="mb-6 max-w-sm text-sm leading-6 text-[rgba(247,244,237,0.7)]">
-              Your trusted marketplace for reliable craftsmen and everyday
-              services.
+            <p className="mt-6 max-w-md text-sm leading-7 text-white/75">
+              Connect with reliable craftsmen, book trusted services, and get
+              everyday tasks done with confidence.
             </p>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <p className="mb-0 text-sm font-semibold text-[rgba(247,244,237,0.82)]">
-                Follow us! We&apos;re friendly:
+            {/* Social */}
+            <div className="mt-8">
+              <p className="mb-4 text-sm font-semibold text-white/80">
+                Follow us
               </p>
 
-              <div className="flex gap-3">
-                <FacebookIcon className="cursor-pointer rounded-full border border-white/15 bg-white/10 p-1 text-[34px] transition hover:border-accent/50 hover:bg-accent/20 hover:text-accent-soft" />
-                <InstagramIcon className="cursor-pointer rounded-full border border-white/15 bg-white/10 p-1 text-[34px] transition hover:border-accent/50 hover:bg-accent/20 hover:text-accent-soft" />
-                <MusicNoteIcon className="cursor-pointer rounded-full border border-white/15 bg-white/10 p-1 text-[34px] transition hover:border-accent/50 hover:bg-accent/20 hover:text-accent-soft" />
+              <div className="flex items-center gap-3">
+                {[
+                  {
+                    icon: FacebookIcon,
+                  },
+                  {
+                    icon: InstagramIcon,
+                  },
+                  {
+                    icon: MusicNoteIcon,
+                  },
+                ].map((item, index) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <button
+                      key={index}
+                      className="
+                        flex h-11 w-11 items-center justify-center
+                        rounded-xl
+                        border border-white/10
+                        bg-white/10
+                        text-white
+                        backdrop-blur-md
+                        transition duration-300
+                        hover:-translate-y-1
+                        hover:border-secondary/30
+                        hover:bg-secondary/20
+                        hover:text-secondary-soft
+                      "
+                    >
+                      <Icon fontSize="small" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Discover */}
-            <div className="rounded-[24px] border border-white/15 bg-white/10 p-6 backdrop-blur-xl">
-              <h3 className="mb-4 font-display text-base font-bold text-accent-soft">
-                Discover
-              </h3>
+          {/* Discover */}
+          <FooterCard
+            title="Discover"
+            links={[
+              {
+                label: "Become a Craftsman",
+                path: "/login",
+              },
+              {
+                label: "Browse Services",
+                path: "/services",
+              },
+              {
+                label: "How It Works",
+                path: "/#howItWorks",
+              },
+            ]}
+          />
 
-              <ul className="space-y-3 text-sm text-[rgba(247,244,237,0.7)]">
-                <li>
-                  <Link
-                    to="/login"
-                    className="block cursor-pointer transition hover:translate-x-1 hover:text-text-light"
-                  >
-                    Become a Tasker
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    to="/services"
-                    className="block cursor-pointer transition hover:translate-x-1 hover:text-text-light"
-                  >
-                    All Services
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Company + Help */}
-            <div className="rounded-[24px] border border-white/15 bg-white/10 p-6 backdrop-blur-xl">
-              <h3 className="mb-4 font-display text-base font-bold text-accent-soft">
-                Company
-              </h3>
-
-              <ul className="space-y-3 text-sm text-[rgba(247,244,237,0.7)]">
-                <li>
-                  <Link
-                    to="/about"
-                    className="cursor-pointer transition hover:translate-x-1 hover:text-text-light"
-                  >
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/terms-privacy"
-                    className="cursor-pointer transition hover:translate-x-1 hover:text-text-light"
-                  >
-                    Terms & Privacy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
+          {/* Company */}
+          <FooterCard
+            title="Company"
+            links={[
+              {
+                label: "About Us",
+                path: "/about",
+              },
+              {
+                label: "Terms & Privacy",
+                path: "/terms-privacy",
+              },
+              {
+                label: "Contact Support",
+                path: "/contact",
+              },
+            ]}
+          />
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-[rgba(247,244,237,0.58)]">
-          © {new Date().getFullYear()} CraftConnect. All rights reserved.
+        {/* Bottom */}
+        <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-white/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} CraftConnect. All rights reserved.</p>
+          <p className="text-sm text-text-muted">
+            Designed and developed by
+            <span className="font-semibold text-primary"> ali & mohamad</span>
+          </p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterCard({ title, links }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+      <h3 className="mb-5 font-heading text-lg font-bold text-secondary">
+        {title}
+      </h3>
+
+      <ul className="space-y-3">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link
+              to={link.path}
+              className="
+                group
+                flex items-center justify-between
+                rounded-xl
+                border border-transparent
+                px-3 py-3
+                text-sm font-medium text-white/75
+                transition duration-300
+                hover:border-white/10
+                hover:bg-white/10
+                hover:text-white
+              "
+            >
+              <span>{link.label}</span>
+
+              <ArrowOutwardIcon
+                fontSize="small"
+                className="translate-x-0 opacity-0 transition duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+              />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

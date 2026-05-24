@@ -1,26 +1,27 @@
 import * as React from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+
 import { assets } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
 
-// MUI Components
+// MUI
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 
 // Icons
+import MenuIcon from "@mui/icons-material/Menu";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import PersonIcon from "@mui/icons-material/Person";
+import HomeRepairServiceIcon from "@mui/icons-material/HomeRepairService";
 
 // Components
 import SideMenu from "../components/SideMenu";
+import Btn from "../components/Btn";
 
 const pages = [
   { name: "Home", path: "/" },
@@ -51,87 +52,129 @@ const NavBar = () => {
 
   return (
     <AppBar
-      position="sticky"
+      position="fixed"
       elevation={0}
-      className="!fixed !top-0 !left-0 !z-50 w-full !bg-[rgba(11,37,64,0.38)] !text-text-light !backdrop-blur-xl border-b border-white/10 shadow-none"
+      className="
+        !left-0 !top-0 !z-50
+        border-b border-border-soft/60
+        !bg-background/80
+        !backdrop-blur-xl
+        shadow-soft
+      "
     >
       <Container
         maxWidth={false}
         disableGutters
-        className="!w-full !max-w-none px-4 sm:px-8 lg:px-12"
+        className="!w-full !max-w-none px-4 sm:px-6 lg:px-10"
       >
         <Toolbar
           disableGutters
-          className="min-h-[74px] flex justify-between  gap-4"
+          className="flex min-h-[76px] items-center justify-between gap-4"
         >
-          {/* Mobile menu button */}
-          <Box className="flex md:hidden">
-            <IconButton
-              onClick={handleOpenNavMenu}
-              aria-label="Open menu"
-              className="!text-white hover:!bg-white/10"
+          {/* Left */}
+          <Box className="flex items-center gap-3">
+            {/* Mobile menu */}
+            <Box className="flex md:hidden">
+              <IconButton
+                onClick={handleOpenNavMenu}
+                aria-label="Open menu"
+                className="
+                  !h-11 !w-11
+                  !rounded-xl
+                  !border !border-border-soft
+                  !bg-background
+                  !text-primary
+                  shadow-soft
+                  transition
+                  hover:!bg-background-light
+                "
+              >
+                <MenuIcon />
+              </IconButton>
+
+              <SideMenu open={openDrawer} onClose={handleCloseNavMenu} />
+            </Box>
+
+            {/* Logo */}
+            <Box
+              onClick={() => navigate("/")}
+              className="group flex cursor-pointer items-center gap-3"
             >
-              <MenuIcon />
-            </IconButton>
-
-            <SideMenu open={openDrawer} onClose={handleCloseNavMenu} />
-          </Box>
-
-          {/* Logo */}
-          <Box
-            onClick={() => navigate("/")}
-            className="group flex items-center gap-3 cursor-pointer shrink-0"
-          >
-            <Box className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 border border-white/15 shadow-sm transition group-hover:border-accent/70 group-hover:bg-white/15">
               <Box
-                component="img"
-                src={assets.logo}
-                alt="CraftConnect logo"
-                className="h-9 w-9 object-contain"
-              />
-            </Box>
+                className="
+                  flex h-12 w-12 items-center justify-center
+                  rounded-2xl
+                  bg-bg
+                  shadow-card
+                  transition duration-300
+                  group-hover:scale-105
+                "
+              >
+                <Box
+                  component="img"
+                  src={assets.logo}
+                  alt="CraftConnect logo"
+                  className="h-8 w-8 object-contain"
+                />
+              </Box>
 
-            <Box className="leading-tight">
-              <h1 className="font-display text-lg sm:text-2xl font-extrabold tracking-wide text-text-light">
-                Craft<span className="text-accent">Connect</span>
-              </h1>
+              <Box className="leading-tight">
+                <h1 className="font-heading text-xl font-extrabold tracking-wide text-primary sm:text-2xl">
+                  Craft<span className="text-secondary">Connect</span>
+                </h1>
 
-              <p className="hidden sm:block text-[11px] font-medium tracking-wide text-text-light/65">
-                Service Marketplace Platform
-              </p>
+                <p className="hidden text-[11px] font-medium tracking-wide text-text-muted sm:block">
+                  Service Marketplace Platform
+                </p>
+              </Box>
             </Box>
           </Box>
 
-          {/* Desktop nav links */}
-          <Box className="hidden md:flex flex-1 justify-center items-center gap-1  lg:gap-6">
+          {/* Desktop Navigation */}
+          <Box className="hidden flex-1 items-center justify-center gap-2 lg:flex">
             {pages.map((page) => {
               const active = isActivePath(page.path);
 
               return (
                 <Link key={page.name} to={page.path}>
-                  <Button
-                    className={`!rounded-full !px-4 !py-2 !font-display !text-sm md:!text-lg md:!font-bold !font-bold !capitalize !transition ${
-                      active
-                        ? "!bg-accent !text-primary-dark shadow-glow"
-                        : "!text-white hover:!bg-white/10 hover:!text-accent"
-                    }`}
+                  <button
+                    className={`
+                      relative overflow-hidden rounded-xl
+                      px-5 py-3
+                      text-sm font-semibold
+                      transition duration-300
+                      ${
+                        active
+                          ? "bg-primary-gradient text-white shadow-card"
+                          : "text-text hover:bg-background-light hover:text-primary"
+                      }
+                    `}
                   >
                     {page.name}
-                  </Button>
+                  </button>
                 </Link>
               );
             })}
           </Box>
 
-          {/* Right side */}
-          <Box className="flex items-center justify-end gap-2 shrink-0">
+          {/* Right Side */}
+          <Box className="flex shrink-0 items-center gap-2 sm:gap-3">
             {userData ? (
               <>
                 <Tooltip title="My Bookings">
                   <IconButton
                     onClick={() => navigate("/bookings")}
                     aria-label="My bookings"
-                    className="!h-11 !w-11 !rounded-full !border !border-white/15 !bg-white/10 !text-surface transition hover:!bg-accent/60"
+                    className="
+                      !h-11 !w-11
+                      !rounded-xl
+                      !border !border-border-soft
+                      !bg-background
+                      !text-primary
+                      shadow-soft
+                      transition
+                      hover:!bg-background-light
+                    "
                   >
                     <EventAvailableIcon fontSize="small" />
                   </IconButton>
@@ -143,21 +186,41 @@ const NavBar = () => {
                     aria-label="Profile"
                     className="!p-0"
                   >
-                    <Avatar className="!h-11 !w-11 !bg-accent !text-primary-dark !font-display !font-extrabold !border !border-white/20 shadow-glow">
+                    <Avatar
+                      className="
+                        !h-11 !w-11
+                        !bg-primary-gradient
+                        !text-white
+                        !font-heading !font-bold
+                        shadow-card
+                      "
+                    >
                       {getInitial()}
                     </Avatar>
                   </IconButton>
                 </Tooltip>
               </>
             ) : (
-              <button
+              <Btn
                 type="button"
                 onClick={() => navigate("/login")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-accent px-5 font-display font-extrabold text-primary-dark shadow-glow transition hover:-translate-y-0.5 hover:bg-accent-hover"
+                variant="ghost"
+                className="
+                  inline-flex h-11 items-center justify-center gap-2
+                  rounded-xl
+                  bg-primary-gradient
+                  px-5
+                  text-sm font-semibold text-white
+                  shadow-card
+                  transition duration-300
+                  hover:scale-[1.02]
+                  hover:shadow-elevated
+                "
               >
                 <span className="hidden sm:inline">Login</span>
+
                 <ArrowForwardIcon fontSize="small" />
-              </button>
+              </Btn>
             )}
           </Box>
         </Toolbar>

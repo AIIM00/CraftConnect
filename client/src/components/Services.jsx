@@ -6,8 +6,18 @@ import axios from "axios";
 import Btn from "./Btn";
 import { toast } from "react-toastify";
 
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import CloseIcon from "@mui/icons-material/Close";
+// MUI Icons
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
+import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
+import HandymanIcon from "@mui/icons-material/Handyman";
+import ArchitectureIcon from "@mui/icons-material/Architecture";
+import HomeRepairServiceIcon from "@mui/icons-material/HomeRepairService";
+import SettingsSuggestIcon from "@mui/icons-material/SettingsSuggest";
+import HardwareIcon from "@mui/icons-material/Hardware";
+import YardIcon from "@mui/icons-material/Yard";
+import MemoryIcon from "@mui/icons-material/Memory";
+import BuildIcon from "@mui/icons-material/Build";
 
 export default function Services({ limit }) {
   const { backendUrl } = React.useContext(AppContext);
@@ -59,7 +69,7 @@ export default function Services({ limit }) {
 
   if (loading) {
     return (
-      <div className="rounded-[24px] border border-white/50 bg-white/45 p-6 text-center text-text-muted shadow-soft backdrop-blur-xl">
+      <div className="rounded-2xl border border-border-soft bg-card-gradient p-8 text-center text-text-muted shadow-soft">
         Loading services...
       </div>
     );
@@ -67,114 +77,192 @@ export default function Services({ limit }) {
 
   if (categories.length === 0) {
     return (
-      <div className="rounded-[24px] border border-dashed border-primary/20 bg-white/45 p-8 text-center text-text-muted shadow-soft backdrop-blur-xl">
+      <div className="rounded-2xl border border-dashed border-border-soft bg-card-gradient p-10 text-center text-text-muted shadow-soft">
         No services available yet.
       </div>
     );
   }
 
   const displayedCategories = limit ? categories.slice(0, limit) : categories;
+  const categoryIcons = {
+    "Cleaning Services": CleaningServicesIcon,
 
+    "Craft Services": ArchitectureIcon,
+
+    "Finishing Services": HandymanIcon,
+
+    "Home Repair Services": HomeRepairServiceIcon,
+
+    "Installation Services": SettingsSuggestIcon,
+
+    "Metal Services": HardwareIcon,
+
+    "Outdoor Services": YardIcon,
+
+    "Technology Services": MemoryIcon,
+  };
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
       {displayedCategories.map((category) => {
         const isFlipped = flippedCategoryId === category.id;
-
+        const Icon = categoryIcons[category.name] || BuildIcon;
         return (
-          <div key={category.id} className="h-[330px] [perspective:1200px]">
+          <div key={category.id} className="h-[340px] [perspective:1400px]">
             <div
-              className={`relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] ${
+              className={`relative h-full w-full transition-transform duration-500 [transform-style:preserve-3d] ${
                 isFlipped ? "[transform:rotateY(180deg)]" : ""
               }`}
             >
               {/* Front */}
-              <div className="absolute inset-0 overflow-hidden rounded-[30px] border border-white/60 bg-[linear-gradient(145deg,rgba(255,255,255,0.72),rgba(247,244,237,0.55))] p-6 shadow-[0_18px_45px_rgba(19,58,99,0.12),inset_0_0_35px_rgba(255,255,255,0.45)] backdrop-blur-xl transition-all duration-300 [backface-visibility:hidden] hover:-translate-y-1 hover:border-accent/40 hover:bg-white/75 hover:shadow-[0_25px_60px_rgba(19,58,99,0.18)]">
-                <div className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-accent/20 blur-2xl" />
-                <div className="pointer-events-none absolute -bottom-14 -left-14 h-36 w-36 rounded-full bg-teal/15 blur-2xl" />
+              <div
+                className={`absolute inset-0 overflow-hidden rounded-2xl border border-border-soft bg-card-gradient p-6 shadow-soft [backface-visibility:hidden] ${
+                  isFlipped ? "pointer-events-none" : "pointer-events-auto"
+                }`}
+              >
+                <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-secondary/10 blur-2xl" />
+
+                <div className="absolute -bottom-10 -left-10 h-28 w-28 rounded-full bg-primary/10 blur-2xl" />
 
                 <div className="relative z-10 flex h-full flex-col">
-                  <div className="mb-4 flex items-start justify-between gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[rgba(247,244,237,0.55)] bg-[linear-gradient(135deg,#A9D1E8_0%,#DAA520_100%)] shadow-[0_0_24px_rgba(218,165,32,0.25)]">
-                      <span className="h-5 w-5 rounded-full bg-primary-dark shadow-inner" />
+                  <div className="mb-5 flex items-start justify-between">
+                    <div
+                      className="
+                        flex h-14 w-14 items-center justify-center
+                        rounded-2xl
+                        bg-primary-gradient
+                        text-white
+                        shadow-card
+                      "
+                    >
+                      {(() => {
+                        const Icon = categoryIcons[category.name] || BuildIcon;
+                        return <Icon />;
+                      })()}
                     </div>
 
                     <Btn
                       type="button"
-                      variant="ghost"
+                      variant="surface"
+                      iconOnly
                       onClick={() => {
                         setFlippedCategoryId(category.id);
                         setSelectedService(null);
                       }}
-                      className="h-10 w-10 rounded-full border border-white/50 bg-primary/90 p-0 text-text-light shadow-[0_10px_24px_rgba(19,58,99,0.22)] transition hover:translate-x-1 hover:bg-accent hover:text-primary-dark"
+                      className="
+                        border-border-soft
+                        hover:border-secondary/30
+                      "
                       aria-label={`View ${category.name} services`}
                     >
-                      <ArrowForwardIcon fontSize="small" />
+                      <ArrowForwardIosOutlinedIcon fontSize="small" />{" "}
                     </Btn>
                   </div>
 
-                  <h3 className="mb-2 font-heading text-2xl font-extrabold leading-tight text-primary">
-                    {category.name}
-                  </h3>
+                  <div>
+                    <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+                      Category
+                    </p>
 
-                  <p className="mb-4 text-sm leading-6 text-text-muted">
-                    Click to view available services.
-                  </p>
+                    <h3 className="font-heading text-2xl font-bold leading-tight text-primary">
+                      {category.name}
+                    </h3>
 
-                  <div className="mt-auto flex flex-wrap gap-2">
-                    {category.services.slice(0, 4).map((service) => (
+                    <p className=" text-sm leading-7 text-text-muted">
+                      Browse available services and choose the right one for
+                      your task.
+                    </p>
+                  </div>
+
+                  <div className="mt-auto flex max-h-[76px] flex-wrap gap-2 overflow-hidden py-2">
+                    {category.services.slice(0, 3).map((service) => (
                       <span
                         key={service.id}
-                        className="rounded-full border border-primary/10 bg-white/55 px-3 py-1 text-xs font-semibold text-text-muted backdrop-blur-md"
+                        className="max-w-full truncate rounded-full border border-border-soft bg-background px-2 py-1 text-xs font-semibold text-text-muted"
                       >
                         {service.name}
                       </span>
                     ))}
+
+                    {category.services.length > 3 && (
+                      <span className="rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1.5 text-xs font-semibold text-secondary">
+                        +{category.services.length - 3} more
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Back */}
-              <div className="absolute inset-0 overflow-hidden rounded-[30px] border border-white/60 bg-[linear-gradient(145deg,rgba(19,58,99,0.94),rgba(11,37,64,0.9))] p-6 text-text-light shadow-[0_25px_60px_rgba(19,58,99,0.22),inset_0_0_35px_rgba(255,255,255,0.06)] backdrop-blur-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                <div className="pointer-events-none absolute -right-14 -top-14 h-36 w-36 rounded-full bg-accent/25 blur-2xl" />
-                <div className="pointer-events-none absolute -bottom-14 -left-14 h-36 w-36 rounded-full bg-teal/25 blur-2xl" />
+              <div
+                className={`absolute inset-0 overflow-hidden rounded-2xl border border-border-soft bg-primary-gradient p-6 text-white shadow-card [backface-visibility:hidden] [transform:rotateY(180deg)] ${
+                  isFlipped ? "pointer-events-auto" : "pointer-events-none"
+                }`}
+              >
+                <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-secondary/20 blur-2xl" />
+
+                <div className="absolute -bottom-10 -left-10 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
 
                 <div className="relative z-10 flex h-full flex-col">
-                  <div className="mb-3 flex items-start justify-between gap-4">
+                  <div className="mb-3 flex items-start justify-between mx-1">
                     <div>
-                      <h3 className="font-heading text-2xl font-extrabold leading-tight text-text-light">
+                      <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary-soft">
+                        Select Service
+                      </p>
+
+                      <h3 className="font-heading text-xl font-bold">
                         {category.name}
                       </h3>
-
-                      <p className="mt-1 text-sm text-[rgba(247,244,237,0.68)]">
-                        Choose a service:
-                      </p>
                     </div>
 
                     <Btn
                       type="button"
                       variant="ghost"
+                      iconOnly
                       onClick={() => {
                         setFlippedCategoryId(null);
                         setSelectedService(null);
                       }}
-                      className="h-9 w-9 rounded-full border border-white/15 bg-white/10 p-0 text-text-light shadow-none transition hover:bg-error/35 hover:text-white"
+                      className="
+                      px-5
+                        bg-white/10
+                        text-white
+                        hover:bg-white/20
+                        hover:cursor-pointer
+                      "
                       aria-label="Close services list"
                     >
-                      <CloseIcon fontSize="small" />
+                      <CloseOutlinedIcon fontSize="small" />
                     </Btn>
                   </div>
 
-                  <div className="mb-4 mt-2 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(218,165,32,0.55)_transparent]">
+                  <div className="flex-1 space-y-2 overflow-y-auto pr-1">
                     {category.services.map((service) => (
                       <button
                         key={service.id}
                         type="button"
                         onClick={() => setSelectedService(service)}
-                        className={`w-full rounded-2xl border px-4 py-2.5 text-left text-sm font-bold transition-all duration-300 ${
-                          selectedService?.id === service.id
-                            ? "border-[rgba(247,244,237,0.65)] bg-gold-gradient text-surface shadow-[0_10px_22px_rgba(218,165,32,0.25)]"
-                            : "border-white/15 bg-white/10 text-[rgba(247,244,237,0.78)] hover:border-accent/50 hover:bg-white/15 hover:text-text-light"
-                        }`}
+                        className={`
+                          w-full rounded-xl border px-4 py-3
+                          text-left text-sm font-semibold
+                          transition-all duration-300
+                          ${
+                            selectedService?.id === service.id
+                              ? `
+                                border-white/40
+                                bg-secondary-gradient
+                                text-white
+                                shadow-card
+                              `
+                              : `
+                                border-white/10
+                                bg-white/10
+                                text-white/80
+                                hover:border-white/20
+                                hover:bg-white/15
+                                hover:text-white
+                              `
+                          }
+                        `}
                       >
                         {service.name}
                       </button>
@@ -183,9 +271,9 @@ export default function Services({ limit }) {
 
                   <Btn
                     type="button"
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => handleBook(category)}
-                    className="min-h-[50px] w-full rounded-full border border-[rgba(247,244,237,0.55)] bg-gold-gradient px-5 font-extrabold text-primary-dark shadow-[0_14px_30px_rgba(218,165,32,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(218,165,32,0.38)]"
+                    className="mt-5 min-h-[52px] w-full"
                   >
                     Book Service
                   </Btn>

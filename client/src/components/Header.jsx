@@ -2,92 +2,137 @@ import Box from "@mui/material/Box";
 import CraftsmenPie from "./CraftsmenPie";
 import Btn from "./Btn";
 
-// Icons
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import TimerOutlinedIcon from "@mui/icons-material/TimerOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SentimentVerySatisfiedSharpIcon from "@mui/icons-material/SentimentVerySatisfiedSharp";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const Header = ({ id }) => {
   return (
     <header
       id={id}
-      className="relative min-h-screen overflow-hidden px-4 pt-32 pb-20 sm:px-8 lg:px-12 bg-[radial-gradient(circle_at_72%_18%,rgba(218,165,32,0.28),transparent_28%),radial-gradient(circle_at_18%_84%,rgba(0,128,128,0.26),transparent_30%),linear-gradient(135deg,#133A63_0%,#0B2540_48%,#008080_100%)]"
+      className="relative min-h-screen overflow-hidden bg-background-dark bg-hero-gradient px-4 pb-16 pt-28 sm:px-8 sm:pt-32 lg:px-12"
     >
-      <div className="pointer-events-none absolute -right-32 -top-36 z-0 h-[540px] w-[540px] rotate-[26deg] rounded-[42%] bg-[linear-gradient(135deg,rgba(169,209,232,0.55),rgba(218,165,32,0.24),rgba(255,255,255,0.12))] opacity-65" />
+      <div className="pointer-events-none absolute -right-32 -top-36 h-[540px] w-[540px] rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-44 -left-36 h-[540px] w-[540px] rounded-full bg-secondary/20 blur-3xl" />
 
-      <div className="pointer-events-none absolute -bottom-44 -left-36 z-0 h-[540px] w-[540px] rotate-[-24deg] rounded-[42%] bg-[linear-gradient(135deg,rgba(0,128,128,0.5),rgba(169,209,232,0.25),rgba(255,255,255,0.12))] opacity-65" />
-
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-12 lg:flex-row lg:gap-8">
+      <div className="relative z-10 mx-auto flex max-w-container flex-col-reverse items-center justify-between gap-12 lg:flex-row lg:gap-10">
         <div className="w-full text-center lg:w-1/2 lg:text-left">
-          <p className="mb-4 inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 font-body text-xs font-semibold tracking-[0.18em] text-accent-soft backdrop-blur-md">
-            CRAFTCONNECT
+          <p className="mb-5 inline-flex rounded-full border border-secondary/20 bg-secondary/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-secondary shadow-soft">
+            CraftConnect
           </p>
 
-          <h1 className="font-heading text-[clamp(2.6rem,6vw,5.5rem)] font-extrabold leading-[0.95] tracking-[1px] text-text-light [text-shadow:0_0_18px_rgba(218,165,32,0.28)]">
+          <h1 className="font-heading text-5xl font-extrabold leading-[0.95] text-primary sm:text-6xl lg:text-7xl">
             Find Trusted
-            <span className="mt-2 block bg-[linear-gradient(135deg,#A9D1E8_0%,#F7F4ED_45%,#DAA520_100%)] bg-clip-text text-transparent">
+            <span className="mt-2 block bg-primary-gradient bg-clip-text text-transparent">
               Craftsmen.
             </span>
           </h1>
 
-          <h2 className="mt-4 font-heading text-[clamp(2rem,5vw,4rem)] font-extrabold leading-tight text-primary-light">
+          <h2 className="mt-4 font-heading text-3xl font-bold text-text sm:text-4xl lg:text-5xl">
             Get Things Done.
           </h2>
 
-          <p className="mx-auto mt-6 max-w-xl font-body text-sm leading-7 text-[rgba(247,244,237,0.76)] sm:text-base lg:mx-0">
+          <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-text-muted sm:text-base lg:mx-0">
             Post your task, and we&apos;ll match you with skilled professionals
             in your area. Fast, reliable, and hassle-free.
           </p>
 
-          <div className="mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-[24px] border border-white/30 bg-white/15 p-2 shadow-[0_25px_70px_rgba(19,58,99,0.26),inset_0_0_35px_rgba(255,255,255,0.06)] backdrop-blur-[22px] lg:mx-0">
-            <SearchIcon className="mx-3 text-[rgba(247,244,237,0.75)]" />
+          <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 rounded-2xl border border-border-soft bg-background p-3 shadow-card sm:flex-row sm:items-center lg:mx-0">
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-background-dark px-4 py-3">
+              <SearchIcon className="text-text-muted" />
 
-            <input
-              type="text"
-              placeholder="Search for plumber, cleaner, carpenter..."
-              className="min-w-0 flex-1 bg-transparent px-1 font-body text-sm text-text-light outline-none placeholder:text-[rgba(247,244,237,0.55)]"
-            />
+              <input
+                type="text"
+                placeholder="Search for plumber, cleaner, carpenter..."
+                className="min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text-muted"
+              />
+            </div>
 
             <Btn
               type="button"
               variant="ghost"
-              className="min-h-[46px] rounded-full px-6 text-primary-dark font-extrabold bg-gold-gradient border border-[rgba(247,244,237,0.55)] shadow-[0_12px_26px_rgba(218,165,32,0.24)] hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(218,165,32,0.36)]"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-primary-gradient px-6 text-sm font-semibold text-white shadow-card transition duration-300 hover:scale-[1.01] hover:shadow-elevated"
             >
               Search
+              <ArrowForwardIcon fontSize="small" />
             </Btn>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-3 text-sm text-[rgba(247,244,237,0.76)] sm:grid-cols-2 lg:mt-14">
-            <Box className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition hover:border-accent/40 hover:text-accent-soft lg:justify-start">
-              <VerifiedUserIcon fontSize="small" />
-              <p>Verified Professionals</p>
-            </Box>
+          <div className="mt-8 grid grid-cols-2 gap-2 text-sm text-text-muted sm:grid-cols-2 lg:mt-12">
+            {[
+              {
+                icon: VerifiedUserIcon,
+                label: "Verified Professionals",
+              },
+              {
+                icon: StarBorderIcon,
+                label: "Quality Work",
+              },
+              {
+                icon: TimerOutlinedIcon,
+                label: "On-Time Service",
+              },
+              {
+                icon: SentimentVerySatisfiedSharpIcon,
+                label: "100% Satisfaction",
+              },
+            ].map((item) => {
+              const Icon = item.icon;
 
-            <Box className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition hover:border-accent/40 hover:text-accent-soft lg:justify-start">
-              <StarBorderIcon fontSize="small" />
-              <p>Quality Work</p>
-            </Box>
+              return (
+                <Box
+                  key={item.label}
+                  className="
+    group
+    flex items-center gap-4
+    rounded-2xl
+    border border-border-soft
+    bg-card-gradient
+    px-5 py-4
+    shadow-soft
+    transition-all duration-300
+    hover:-translate-y-1
+    hover:border-secondary/30
+    hover:shadow-card
+  "
+                >
+                  <div
+                    className="
+      flex h-11 w-11 shrink-0
+      items-center justify-center
+      rounded-xl
+      bg-primary-gradient
+      text-white
+      shadow-soft
+    "
+                  >
+                    <Icon fontSize="small" />
+                  </div>
 
-            <Box className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition hover:border-accent/40 hover:text-accent-soft lg:justify-start">
-              <TimerOutlinedIcon fontSize="small" />
-              <p>On-Time Service</p>
-            </Box>
+                  <div>
+                    <p className="text-sm font-semibold text-text transition group-hover:text-primary">
+                      {item.label}
+                    </p>
 
-            <Box className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition hover:border-accent/40 hover:text-accent-soft lg:justify-start">
-              <SentimentVerySatisfiedSharpIcon fontSize="small" />
-              <p>100% Satisfaction</p>
-            </Box>
+                    <p className="mt-1 text-xs text-text-muted">
+                      Trusted professional service
+                    </p>
+                  </div>
+                </Box>
+              );
+            })}
           </div>
         </div>
 
         <div className="flex w-full justify-center lg:w-1/2">
-          <div className="relative w-fit max-w-[560px] lg:max-w-[480px]  rounded-[36px] border border-white/25 bg-white/10  shadow-[0_25px_70px_rgba(19,58,99,0.26),inset_0_0_45px_rgba(255,255,255,0.06)] backdrop-blur-[22px] ">
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-accent/25 blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-teal/30 blur-2xl" />
+          <div className="relative w-full max-w-[560px] overflow-hidden rounded-2xl border border-border-soft bg-card-gradient p-4 shadow-glass lg:max-w-[500px]">
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-secondary/20 blur-3xl" />
+            <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-primary/15 blur-3xl" />
 
-            <div className=" p-4 relative z-10">
+            <div className="relative z-10">
               <CraftsmenPie />
             </div>
           </div>
