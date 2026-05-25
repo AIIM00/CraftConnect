@@ -26,7 +26,7 @@ export const adminInfo = async (req, res) => {
 export const getAllCustomers = async (req, res) => {
   try {
     const customers = await prisma.user.findMany({
-      where: { role: "CUSTOMER" },
+      where: { role: "CUSTOMER", isDeleted: false },
       select: {
         id: true,
         name: true,
@@ -49,6 +49,7 @@ export const getCustomerInsights = async (req, res) => {
     const customers = await prisma.user.findMany({
       where: {
         role: "CUSTOMER",
+        isDeleted: false,
       },
       select: {
         id: true,
@@ -212,7 +213,7 @@ export const getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, isDeleted: false },
       select: {
         id: true,
         name: true,
@@ -237,11 +238,19 @@ export const getUserById = async (req, res) => {
 export const deleteUserById = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findFirst({
+      where: { id: userId, isDeleted: false },
+    });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    await prisma.user.delete({ where: { id: userId } });
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
     res.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error("Error deleting user:", error);

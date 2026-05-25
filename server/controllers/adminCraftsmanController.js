@@ -4,7 +4,7 @@ import prisma from "../src/prisma.js";
 export const getAllCraftsmen = async (req, res) => {
   try {
     const craftsmen = await prisma.user.findMany({
-      where: { role: "CRAFTSMAN" },
+      where: { role: "CRAFTSMAN", isDeleted: false },
       select: {
         id: true,
         name: true,

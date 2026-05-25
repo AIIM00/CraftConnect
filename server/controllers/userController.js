@@ -380,7 +380,7 @@ export const getUserData = async (req, res) => {
     const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, isDeleted: false },
       select: {
         id: true,
         name: true,
@@ -431,7 +431,7 @@ export const getUserData = async (req, res) => {
       },
     });
 
-    if (!user) {
+    if (!user || user.isDeleted) {
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -469,7 +469,7 @@ export const updateUserProfile = async (req, res) => {
     } = req.body;
 
     const existingUser = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, isDeleted: false },
     });
 
     if (!existingUser) {

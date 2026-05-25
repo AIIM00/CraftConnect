@@ -12,7 +12,12 @@ export const register = async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email,
+        isDeleted: false,
+      },
+    });
     if (existingUser) {
       return res
         .status(400)
@@ -85,9 +90,9 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     // Check if user exists
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email, isDeleted: false },
     });
-    if (!user) {
+    if (!user || user.isDeleted) {
       return res
         .status(400)
         .json({ success: false, message: "Invalid email or password" });
@@ -169,7 +174,7 @@ export const sendVerifyOtp = async (req, res) => {
         from: process.env.SENDER_EMAIL,
         to: user.email,
         subject: "Your OTP for email verification",
-        text: `Hi ${user.name},\n\nYour OTP for email verification is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe CraftConnect Team`,
+        text: `Hi ${user.name},\n\nYour OTP for email verification is: ${otp}\n\nThis OTP will expire in 3 minutes.\n\nBest regards,\nThe CraftConnect Team`,
       };
       await transporter.sendMail(mailOptions);
       res.json({ success: true, message: "Code sent successfully" });
@@ -239,21 +244,19 @@ export const sendResetOtp = async (req, res) => {
           .status(400)
           .json({ message: "User with this email does not exist" });
       } else {
-        const passwordResetOtp = Math.floor(
-          100000 + Math.random() * 900000,
-        ).toString(); // Generate a 6-digit OTP
+        const passwordResetOtp = crypto.randomInt(100000, 1000000).toString(); // Generate a 6-digit OTP
         await prisma.user.update({
           where: { email },
           data: {
             resetOtp: passwordResetOtp,
-            resetOtpExpireAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiry time to 2 minutes
+            resetOtpExpireAt: new Date(Date.now() + 3 * 60 * 1000), // Set expiry time to 3 minutes
           },
         });
         const mailOptions = {
           from: process.env.SENDER_EMAIL,
           to: email,
           subject: "Your OTP for password reset",
-          text: `Hi,\n\nYour OTP for password reset is: ${passwordResetOtp}\n\nThis OTP will expire in 10 minutes.\n\nBest regards,\nThe CraftConnect Team`,
+          text: `Hi,\n\nYour OTP for password reset is: ${passwordResetOtp}\n\nThis OTP will expire in 3 minutes.\n\nBest regards,\nThe CraftConnect Team`,
         };
         await transporter.sendMail(mailOptions);
         res.json({ message: "OTP sent to email successfully" });
@@ -277,7 +280,7 @@ export const resetPassword = async (req, res) => {
     } else {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await prisma.user.update({
-        where: { email },
+        where: { email, isDeleted: false },
         data: {
           password: hashedPassword,
           resetOtp: null,

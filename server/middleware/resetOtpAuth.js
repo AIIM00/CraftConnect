@@ -10,8 +10,11 @@ const resetOtpAuth = async (req, res, next) => {
       });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const user = await prisma.user.findFirst({
+      where: {
+        email,
+        isDeleted: false,
+      },
     });
 
     if (

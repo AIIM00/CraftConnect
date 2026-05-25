@@ -11,8 +11,8 @@ export const checkVerified = async (req, res, next) => {
       });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+    const user = await prisma.user.findFirst({
+      where: { id: userId, isDeleted: false },
       select: {
         id: true,
         isAccountVerified: true,

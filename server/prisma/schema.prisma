@@ -13,12 +13,15 @@ model User {
   password          String
   phoneNumber       String?
   role              Role
+  isDeleted Boolean   @default(false)
+deletedAt DateTime?
   verifyOtp         String?
   isAccountVerified Boolean    @default(false)
   resetOtp          String?
   resetOtpExpireAt  DateTime?
   verifyOtpExpireAt DateTime?
   createdAt         DateTime   @default(now())
+  
   //relations
   craftsman         Craftsman?
   location          Location?
@@ -27,8 +30,8 @@ model User {
   reviews      Review[]
   adminInvites AdminInvite[]
 
-  sentWarnings Warning[]     @relation("AdminWarnings")
-  applications Application[]
+  sentWarnings                Warning[]                 @relation("AdminWarnings")
+  applications                Application[]
   handledReassignmentRequests TaskReassignmentRequest[]
 }
 
@@ -69,9 +72,15 @@ model Craftsman {
   warnings Warning[]
   tasks    Task[]
 
-oldReassignmentRequests TaskReassignmentRequest[] @relation("OldCraftsmanReassignment")
-newReassignmentRequests TaskReassignmentRequest[] @relation("NewCraftsmanReassignment")
-  @@unique([categoryId,serviceId, queueOrder])
+  oldReassignmentRequests TaskReassignmentRequest[] @relation("OldCraftsmanReassignment")
+  newReassignmentRequests TaskReassignmentRequest[] @relation("NewCraftsmanReassignment")
+
+  @@unique([categoryId, serviceId, queueOrder])
+  @@index([status])
+  @@index([categoryId])
+  @@index([serviceId])
+  @@index([queueOrder])
+  @@index([isAvailable])
 }
 
 model Application {
@@ -81,11 +90,11 @@ model Application {
   user   User   @relation(fields: [userId], references: [id])
 
   // Step 1
-  categoryId        String?
-  serviceId         String?
+  categoryId String?
+  serviceId  String?
 
-  customCategory    String?
-  customService     String?
+  customCategory String?
+  customService  String?
 
   yearsOfExperience Int?
 
@@ -112,6 +121,10 @@ model Application {
 
   category Category? @relation(fields: [categoryId], references: [id])
   service  Service?  @relation(fields: [serviceId], references: [id])
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model Warning {
@@ -130,6 +143,9 @@ model Warning {
   admin   User   @relation("AdminWarnings", fields: [adminId], references: [id])
 
   isRead Boolean @default(false)
+
+  @@index([craftsmanId])
+  @@index([createdAt])
 }
 
 model Location {
@@ -153,22 +169,22 @@ model Category {
   craftsmen    Craftsman[]
   tasks        Task[]
   applications Application[]
-queue CategoryAssignmentQueue[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  queue        CategoryAssignmentQueue[]
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
 }
 
 model Service {
   id   String @id @default(uuid())
   name String
 
-  categoryId String
-  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  tasks      Task[]
-    applications Application[]
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+  applications Application[]
 
-  craftsman  Craftsman[]
-  queue CategoryAssignmentQueue[]
+  craftsman Craftsman[]
+  queue     CategoryAssignmentQueue[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -190,41 +206,46 @@ model CategoryAssignmentQueue {
 }
 
 model Task {
-  id          String  @id @default(uuid())
+  id          String @id @default(uuid())
   title       String
   description String
 
-  location  String
-  latitude  Float?
-  longitude Float?
-  status    TaskStatus @default(PENDING)
+  location    String
+  latitude    Float?
+  longitude   Float?
+  status      TaskStatus @default(PENDING)
   customerId  String
   craftsmanId String?
 
-  categoryId  String
-  serviceId   String
-  
+  categoryId String
+  serviceId  String
 
   scheduledDate DateTime?
   completedAt   DateTime?
-  
+
   lastAssignmentAttemptAt DateTime?
   becameUnassignableAt    DateTime?
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-
-  createdAt DateTime   @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category        Category         @relation(fields: [categoryId], references: [id])
-  service         Service          @relation(fields: [serviceId], references: [id])
-  customer        User             @relation(fields: [customerId], references: [id])
-  craftsman       Craftsman?       @relation(fields: [craftsmanId], references: [userId])
-  assignments     TaskAssignment[]
-  reviews         Review[]
-  taskCompletions TaskCompletion[]
-  warnings        Warning[]
+  category             Category                  @relation(fields: [categoryId], references: [id])
+  service              Service                   @relation(fields: [serviceId], references: [id])
+  customer             User                      @relation(fields: [customerId], references: [id])
+  craftsman            Craftsman?                @relation(fields: [craftsmanId], references: [userId])
+  assignments          TaskAssignment[]
+  reviews              Review[]
+  taskCompletions      TaskCompletion[]
+  warnings             Warning[]
   reassignmentRequests TaskReassignmentRequest[]
+
+  @@index([status])
+  @@index([customerId])
+  @@index([craftsmanId])
+  @@index([categoryId])
+  @@index([serviceId])
+  @@index([createdAt])
+  @@index([scheduledDate])
 }
 
 model TaskAssignment {
@@ -241,13 +262,17 @@ model TaskAssignment {
   craftsman Craftsman @relation(fields: [craftsmanId], references: [userId])
 
   @@unique([taskId, craftsmanId])
+  @@index([taskId])
+  @@index([craftsmanId])
+  @@index([status])
+  @@index([assignedAt])
 }
 
 model TaskReassignmentRequest {
   id String @id @default(uuid())
 
   taskId String
-  task   Task @relation(fields: [taskId], references: [id])
+  task   Task   @relation(fields: [taskId], references: [id])
 
   oldCraftsmanId String
   oldCraftsman   Craftsman @relation("OldCraftsmanReassignment", fields: [oldCraftsmanId], references: [userId])
@@ -256,7 +281,7 @@ model TaskReassignmentRequest {
   newCraftsman   Craftsman? @relation("NewCraftsmanReassignment", fields: [newCraftsmanId], references: [userId])
 
   adminId String?
-  admin   User? @relation(fields: [adminId], references: [id])
+  admin   User?   @relation(fields: [adminId], references: [id])
 
   reason String?
 
@@ -266,6 +291,11 @@ model TaskReassignmentRequest {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+  @@index([status])
+  @@index([oldCraftsmanId])
+  @@index([newCraftsmanId])
 }
 
 enum ReassignmentStatus {
@@ -275,6 +305,7 @@ enum ReassignmentStatus {
   REJECTED
   CANCELLED
 }
+
 model Review {
   id String @id @default(uuid())
 
@@ -282,19 +313,19 @@ model Review {
   userId      String
   craftsmanId String
 
-  rating    Int
-  qualityRating         Int      @default(5)
-  punctualityRating     Int      @default(5)
-  communicationRating   Int      @default(5)
-  professionalismRating Int      @default(5)
-  cleanlinessRating     Int      @default(5)
-  priceFairnessRating   Int      @default(5)
+  rating                Int
+  qualityRating         Int @default(5)
+  punctualityRating     Int @default(5)
+  communicationRating   Int @default(5)
+  professionalismRating Int @default(5)
+  cleanlinessRating     Int @default(5)
+  priceFairnessRating   Int @default(5)
 
-  detailedAverage       Float    @default(5)
-  
-  wouldRecommend        Boolean  @default(true)
-  wouldHireAgain        Boolean  @default(true)
-  issueTags             String[] @default([])
+  detailedAverage Float @default(5)
+
+  wouldRecommend Boolean  @default(true)
+  wouldHireAgain Boolean  @default(true)
+  issueTags      String[] @default([])
 
   comment   String?
   createdAt DateTime @default(now())
@@ -303,8 +334,11 @@ model Review {
   craftsman Craftsman @relation(fields: [craftsmanId], references: [userId])
   user      User?     @relation(fields: [userId], references: [id])
 
-  //npx prisma migrate dev --name add_unique_review_constraint
   @@unique([taskId, userId])
+  @@index([userId])
+  @@index([craftsmanId])
+  @@index([taskId])
+  @@index([createdAt])
 }
 
 model Project {

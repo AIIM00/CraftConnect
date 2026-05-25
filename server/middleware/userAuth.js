@@ -9,6 +9,12 @@ const userAuth = (req, res, next) => {
         message: "Unauthorized",
       });
     }
+    if (!user || user.isDeleted) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = {
       id: decoded.userId,
