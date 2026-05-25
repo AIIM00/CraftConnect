@@ -313,6 +313,16 @@ export const manuallyAssignTask = async (req, res) => {
     }
 
     await prisma.$transaction(async (tx) => {
+      await tx.taskAssignment.updateMany({
+        where: {
+          taskId,
+          status: "PENDING",
+        },
+        data: {
+          status: "TRANSFERRED",
+          respondedAt: new Date(),
+        },
+      });
       await tx.taskAssignment.upsert({
         where: {
           taskId_craftsmanId: {

@@ -1,6 +1,7 @@
 import prisma from "../src/prisma.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import transporter from "../config/nodemailer.js";
 
 export const register = async (req, res) => {
@@ -110,7 +111,7 @@ export const login = async (req, res) => {
           sameSite: "strict",
           maxAge: 3 * 3600 * 1000, // 3 hours
         });
-        
+
         res.json({
           success: true,
           message: "Login successful",
@@ -155,13 +156,12 @@ export const sendVerifyOtp = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Account is already verified" });
     } else {
-      const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
-      // Store the OTP in the database with an expiration time
+      const otp = crypto.randomInt(100000, 1000000).toString(); // Store the OTP in the database with an expiration time
       await prisma.user.update({
         where: { id: userId },
         data: {
           verifyOtp: otp,
-          verifyOtpExpireAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiry time to 2 minutes
+          verifyOtpExpireAt: new Date(Date.now() + 3 * 60 * 1000), // Set expiry time to 3 minutes
         },
       });
       // Send the OTP to the user's email

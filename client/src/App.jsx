@@ -49,30 +49,34 @@ const App = () => {
         {/* Public/customer routes */}
         {/* Public/customer routes */}
         {/* Customer routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute
-              allowedRoles={["CUSTOMER"]}
-              fallbackRedirect="/login"
-            >
-              <CustomerLayout />
-            </ProtectedRoute>
-          }
-        >
+        <Route path="/" element={<CustomerLayout />}>
           <Route index element={<Home />} />
           <Route path="services" element={<ServicesPage />} />
-          <Route path="post-task" element={<PostTask />} />
-          <Route path="how-it-works" element={<HowItWorksPage />} />
           <Route path="about" element={<AboutUs />} />
-          <Route path="/terms-privacy" element={<TermsPrivacy />} />
-          <Route path="bookings" element={<Bookings />} />
-          <Route path="bookings/:taskId" element={<BookingDetails />} />
-          <Route path="bookings/:taskId/review" element={<LeaveReview />} />
+          <Route path="how-it-works" element={<HowItWorksPage />} />
         </Route>
-        {/* Auth routes */}
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/post-task"
+          element={
+            <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+              <PostTask />
+            </ProtectedRoute>
+          }
+        ></Route>
+        <Route path="/terms-privacy" element={<TermsPrivacy />} />
+        <Route path="bookings" element={<Bookings />} />
+        <Route path="bookings/:taskId" element={<BookingDetails />} />
+        <Route path="bookings/:taskId/review" element={<LeaveReview />} />
 
+        {/* Auth routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={["CUSTOMER", "CRAFTSMAN", "ADMIN"]}>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/email-verify" element={<EmailVerify />} />
         <Route path="/reset-password" element={<ResetPassword />} />

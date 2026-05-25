@@ -28,6 +28,7 @@ const Profile = () => {
   const [formData, setFormData] = React.useState({
     name: "",
     email: "",
+    currentPassword: "",
     password: "",
     phoneNumber: "",
     city: "",
@@ -71,6 +72,7 @@ const Profile = () => {
       setFormData({
         name: user.name || "",
         email: user.email || "",
+        currentPassword: "",
         password: "",
         phoneNumber: user.phoneNumber || "",
         city: userLocation?.city || "",
@@ -143,6 +145,7 @@ const Profile = () => {
       };
 
       if (formData.password.trim()) {
+        payload.currentPassword = formData.currentPassword;
         payload.password = formData.password;
       }
 
@@ -162,6 +165,7 @@ const Profile = () => {
 
       setFormData((prev) => ({
         ...prev,
+        currentPassword: "",
         password: "",
       }));
 
@@ -395,6 +399,24 @@ const Profile = () => {
                           Verified
                         </div>
                       )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm font-semibold text-text">
+                      Current Password
+                    </label>
+
+                    <div className="flex items-center gap-3 rounded-xl border border-border-soft bg-background px-4 py-3.5 text-text-muted shadow-soft transition focus-within:border-primary focus-within:bg-white focus-within:ring-4 focus-within:ring-primary/10">
+                      <LockIcon fontSize="small" />
+                      <input
+                        type="password"
+                        name="currentPassword"
+                        value={formData.currentPassword}
+                        onChange={handleChange}
+                        className="w-full bg-transparent text-text outline-none placeholder:text-text-muted"
+                        placeholder="Current password"
+                      />
                     </div>
                   </div>
 

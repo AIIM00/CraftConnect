@@ -208,7 +208,7 @@ export const getCraftsmenCountByCategory = async (req, res) => {
         id: true,
         name: true,
         craftsmen: {
-          where: { availability: true, status: "APPROVED" },
+          where: { isAvailable: true, status: "APPROVED" },
           select: { userId: true },
         },
       },

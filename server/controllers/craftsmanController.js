@@ -803,6 +803,12 @@ export const completeTask = async (req, res) => {
         message: "Task is already completed",
       });
     }
+    if (task.status !== "IN_PROGRESS") {
+      return res.status(400).json({
+        success: false,
+        message: "Only in-progress tasks can be completed",
+      });
+    }
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },

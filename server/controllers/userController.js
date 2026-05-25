@@ -459,6 +459,7 @@ export const updateUserProfile = async (req, res) => {
       name,
       email,
       password,
+      currentPassword,
       phoneNumber,
       city,
       address,
@@ -501,8 +502,26 @@ export const updateUserProfile = async (req, res) => {
     }
 
     if (password && password.trim() !== "") {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updateData.password = hashedPassword;
+      if (!currentPassword || currentPassword.trim() === "") {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(
+        currentPassword,
+        existingUser.password,
+      );
+
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is incorrect",
+        });
+      }
+
+      updateData.password = await bcrypt.hash(password, 10);
     }
 
     const updatedUser = await prisma.user.update({
