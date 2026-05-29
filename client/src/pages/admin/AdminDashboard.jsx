@@ -3,6 +3,15 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 import { AppContext } from "../../context/AppContext";
+import { useNavigate } from "react-router-dom";
+
+import Btn from "../../components/Btn";
+//Services
+import {
+  getMyNotifications,
+  getUnreadNotificationCount,
+  markAllNotificationsAsRead,
+} from "../../services/notificationApi";
 
 // MUI Icons
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
@@ -16,6 +25,7 @@ import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const { backendUrl } = React.useContext(AppContext);
 
   const [loading, setLoading] = React.useState(true);
@@ -34,6 +44,11 @@ export default function AdminDashboard() {
   const [recentApplications, setRecentApplications] = React.useState([]);
   const [lowestReviews, setLowestReviews] = React.useState([]);
   const [flaggedList, setFlaggedList] = React.useState([]);
+
+  //Notifications States
+  const [notifications, setNotifications] = React.useState([]);
+  const [unreadCount, setUnreadCount] = React.useState(0);
+  const [notificationsLoading, setNotificationsLoading] = React.useState(false);
 
   const fetchDashboardData = async () => {
     try {
@@ -142,8 +157,50 @@ export default function AdminDashboard() {
     }
   };
 
+  //Notifications Functions
+
+  const fetchNotifications = async () => {
+    try {
+      setNotificationsLoading(true);
+
+      const [items, count] = await Promise.all([
+        getMyNotifications(backendUrl),
+        getUnreadNotificationCount(backendUrl),
+      ]);
+
+      setNotifications(items);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  const handleOpenNotification = (notification) => {
+    if (notification.targetUrl) {
+      navigate(notification.targetUrl);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsAsRead(backendUrl);
+      setUnreadCount(0);
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          isRead: true,
+        })),
+      );
+    } catch (error) {
+      console.error("Failed to mark notifications as read:", error);
+    }
+  };
+
   React.useEffect(() => {
     fetchDashboardData();
+    fetchNotifications();
   }, [backendUrl]);
 
   if (loading) {
@@ -269,6 +326,13 @@ export default function AdminDashboard() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <NotificationsCard
+            notifications={notifications}
+            unreadCount={unreadCount}
+            notificationsLoading={notificationsLoading}
+            onOpenNotification={handleOpenNotification}
+            onMarkAllRead={handleMarkAllRead}
+          />
           <DashboardPanel
             title="Recent Applications"
             description="Latest craftsman applications awaiting review."
@@ -465,6 +529,93 @@ function EmptyState({ message }) {
   return (
     <div className="rounded-2xl border border-dashed border-border-soft bg-background p-10 text-center">
       <p className="font-bold text-text text-xs">{message}</p>
+    </div>
+  );
+}
+
+function NotificationsCard({
+  notifications,
+  unreadCount,
+  notificationsLoading,
+  onOpenNotification,
+  onMarkAllRead,
+}) {
+  const latestNotifications = notifications.slice(0, 4);
+
+  return (
+    <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="font-heading text-lg font-bold text-primary">
+            Notifications
+          </p>
+          <p className="mt-1 text-sm text-text-muted">
+            Latest platform updates
+          </p>
+        </div>
+
+        {unreadCount > 0 && (
+          <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-white">
+            {unreadCount > 9 ? "9+" : unreadCount} new
+          </span>
+        )}
+      </div>
+
+      {notificationsLoading ? (
+        <p className="text-sm text-text-muted">Loading notifications...</p>
+      ) : latestNotifications.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border-soft bg-background-light p-5 text-center">
+          <p className="font-semibold text-text">No notifications yet</p>
+          <p className="mt-1 text-sm text-text-muted">
+            New task updates will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {latestNotifications.map((notification) => (
+            <button
+              key={notification.id}
+              type="button"
+              onClick={() => onOpenNotification(notification)}
+              className={`w-full rounded-2xl border p-4 text-left transition hover:bg-background ${
+                notification.isRead
+                  ? "border-border-soft bg-background-light"
+                  : "border-primary/20 bg-primary/5"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-bold text-text">
+                  {notification.title}
+                </p>
+
+                {!notification.isRead && (
+                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" />
+                )}
+              </div>
+
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-muted">
+                {notification.message}
+              </p>
+
+              <p className="mt-2 text-[11px] text-text-muted">
+                {new Date(notification.createdAt).toLocaleString()}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {notifications.length > 0 && (
+        <Btn
+          type="button"
+          variant="ghost"
+          fullWidth
+          onClick={onMarkAllRead}
+          className="mt-4 rounded-xl border border-border-soft bg-background"
+        >
+          Mark all as read
+        </Btn>
+      )}
     </div>
   );
 }

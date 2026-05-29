@@ -23,6 +23,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 const navItems = [
   {
@@ -54,7 +55,17 @@ const navItems = [
 const NavBar = ({ open, onClose, onOpen }) => {
   const navigate = useNavigate();
 
-  const { userData } = React.useContext(AppContext);
+  const {
+    userData,
+    availability,
+    availabilityLoading,
+    toggleCraftsmanAvailability,
+  } = React.useContext(AppContext);
+
+  const isAvailable =
+    userData?.craftsman?.isAvailable !== undefined
+      ? userData.craftsman.isAvailable
+      : availability;
 
   const navContent = navItems.map((item) => (
     <NavLink
@@ -118,7 +129,7 @@ const NavBar = ({ open, onClose, onOpen }) => {
     <>
       {/* TOP NAVBAR */}
       <header className="sticky top-4 z-50 px-4 sm:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-container items-center justify-between gap-4 overflow-hidden rounded-[28px] border border-white/15 bg-white/70 px-4 py-3 shadow-[0_20px_60px_rgba(19,58,99,0.14)] backdrop-blur-xl sm:px-6">
+        <div className="z-0 mx-auto flex max-w-container items-center justify-between gap-4 overflow-visible rounded-[28px] border border-white/15 bg-white/70 px-4 py-3 shadow-[0_20px_60px_rgba(19,58,99,0.14)] backdrop-blur-xl sm:px-6">
           {/* LEFT */}
           <div className="flex items-center gap-3">
             <IconButton
@@ -130,7 +141,7 @@ const NavBar = ({ open, onClose, onOpen }) => {
 
             <Box
               onClick={() => navigate("/craftsman/dashboard")}
-              className="group flex cursor-pointer items-center gap-3"
+              className="hidden group  cursor-pointer items-center gap-3 sm:flex"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/30 bg-card-gradient shadow-soft">
                 <img
@@ -159,13 +170,44 @@ const NavBar = ({ open, onClose, onOpen }) => {
           <nav className="hidden items-center gap-2 rounded-full p-2 lg:flex">
             {navContent}
           </nav>
+          <Box
+            onClick={() => navigate("/craftsman/dashboard")}
+            className="group flex cursor-pointer items-center gap-3 sm:hidden xl:hidden"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/30 bg-card-gradient shadow-soft">
+              <img
+                src={assets.logo}
+                alt="CraftConnect"
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+
+            <div className="hidden leading-tight sm:block">
+              <h1 className="font-heading text-xl font-extrabold text-primary">
+                Craft
+                <span className="bg-secondary-gradient bg-clip-text text-transparent">
+                  Connect
+                </span>
+              </h1>
+
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-text-muted">
+                Craftsman Portal
+              </p>
+            </div>
+          </Box>
 
           {/* RIGHT */}
+
           <div className="flex items-center gap-3">
+            <AvailabilityButton
+              isAvailable={isAvailable}
+              availabilityLoading={availabilityLoading}
+              onToggle={toggleCraftsmanAvailability}
+            />
             <button
               type="button"
               onClick={() => navigate("/profile")}
-              className="group flex items-center gap-3 rounded-full border border-border-soft bg-card-gradient py-1 pl-1 pr-4 shadow-soft transition hover:-translate-y-0.5 hover:shadow-card"
+              className="group flex items-center rounded-full  bg-transparent p-1 shadow-soft transition hover:-translate-y-0.5 hover:shadow-card sm:gap-3 sm:pr-4 sm:bg-background sm:border sm:border-border-soft"
             >
               <Avatar className="!h-11 !w-11 !bg-primary-gradient">
                 {userData?.name?.[0]?.toUpperCase() || "U"}
@@ -286,5 +328,50 @@ const CraftsmanLayout = () => {
     </div>
   );
 };
+function AvailabilityButton({ isAvailable, availabilityLoading, onToggle }) {
+  const tooltipText = isAvailable
+    ? "You are available for new tasks."
+    : "You are currently not receiving new tasks.";
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="group relative">
+        <Btn
+          type="button"
+          onClick={onToggle}
+          disabled={availabilityLoading}
+          variant={isAvailable ? "danger" : "success"}
+          className={`flex h-10 w-11 items-center justify-center rounded-full p-0 shadow-card transition duration-300 hover:scale-105 ${
+            isAvailable
+              ? "bg-danger text-white hover:bg-danger/90"
+              : "bg-success text-white hover:bg-success/90"
+          }`}
+          aria-label={isAvailable ? "Go offline" : "Go online"}
+        >
+          <PowerSettingsNewIcon fontSize="small" />
+        </Btn>
+
+        <div className="z-30 pointer-events-none absolute right-0 top-16 z-20 w-64 rounded-xl border border-border-soft bg-white px-4 py-3 text-xs font-semibold leading-5 text-text shadow-elevated opacity-0 transition duration-200 group-hover:opacity-100">
+          <div className="mt-2 flex items-center gap-2">
+            <span
+              className={`h-3 w-3 rounded-full ${
+                isAvailable ? "bg-success" : "bg-danger"
+              }`}
+            />
+
+            <p
+              className={`text-sm font-bold ${
+                isAvailable ? "text-success" : "text-danger"
+              }`}
+            >
+              {isAvailable ? "Online" : "Offline"}
+            </p>
+          </div>
+          {tooltipText}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default CraftsmanLayout;

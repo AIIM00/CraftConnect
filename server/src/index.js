@@ -6,6 +6,7 @@ import authRouter from "../routes/authRoutes.js";
 import userRouter from "../routes/userRoutes.js";
 import adminRouter from "../routes/adminRoutes.js";
 import craftsmanRouter from "../routes/craftsmanRoutes.js";
+import notificationRouter from "../routes/notificationRoutes.js";
 const app = express();
 
 // Middleware
@@ -29,6 +30,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/craftsman", craftsmanRouter);
+app.use("/api/notifications", notificationRouter);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

@@ -18,10 +18,18 @@ import MenuIcon from "@mui/icons-material/Menu";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import HomeRepairServiceIcon from "@mui/icons-material/HomeRepairService";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 
 // Components
 import SideMenu from "../components/SideMenu";
 import Btn from "../components/Btn";
+
+//Services
+import {
+  getUnreadNotificationCount,
+  getMyNotifications,
+  markAllNotificationsAsRead,
+} from "../services/notificationApi";
 
 const pages = [
   { name: "Home", path: "/" },
@@ -34,9 +42,14 @@ const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { userData } = React.useContext(AppContext);
+  const { backendUrl, userData } = React.useContext(AppContext);
 
   const [openDrawer, setOpenDrawer] = React.useState(false);
+
+  //Notifications Bell
+  const [unreadCount, setUnreadCount] = React.useState(0);
+  const [showNotifications, setShowNotifications] = React.useState(false);
+  const [notifications, setNotifications] = React.useState([]);
 
   const handleOpenNavMenu = () => setOpenDrawer(true);
   const handleCloseNavMenu = () => setOpenDrawer(false);
@@ -49,6 +62,48 @@ const NavBar = () => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
+
+  //Open Notifications
+  const handleOpenNotifications = async () => {
+    try {
+      setShowNotifications((prev) => !prev);
+
+      const data = await getMyNotifications(backendUrl);
+      setNotifications(data);
+
+      await markAllNotificationsAsRead(backendUrl);
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Failed to load notifications:", error);
+    }
+  };
+
+  //Refresh Notifications
+  const refreshUnreadCount = async () => {
+    try {
+      const count = await getUnreadNotificationCount(backendUrl);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Failed to refresh unread count:", error);
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await getUnreadNotificationCount(backendUrl);
+        setUnreadCount(count);
+      } catch (error) {
+        console.error("Failed to fetch notifications count:", error);
+      }
+    };
+    fetchUnreadCount();
+    refreshUnreadCount();
+
+    const interval = setInterval(refreshUnreadCount, 30000);
+
+    return () => clearInterval(interval);
+  }, [backendUrl]);
 
   return (
     <AppBar
@@ -161,12 +216,77 @@ const NavBar = () => {
           <Box className="flex shrink-0 items-center gap-2 sm:gap-3">
             {userData ? (
               <>
+                <Btn
+                  type="button"
+                  variant="ghost"
+                  onClick={handleOpenNotifications}
+                  iconOnly
+                  className="w-9 h-9 relative border border-border-soft bg-card-gradient text-primary hover:bg-background-light"
+                >
+                  <NotificationsNoneIcon fontSize="small" />
+
+                  {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Btn>
+
+                {/*Notifications DropDown*/}
+                {showNotifications && (
+                  <div className="absolute right-0 top-14 z-50 w-80 rounded-2xl border border-border-soft bg-white p-4 shadow-elevated">
+                    <h3 className="mb-3 font-heading text-base font-semibold text-primary">
+                      Notifications
+                    </h3>
+
+                    {notifications.length === 0 ? (
+                      <p className="text-sm text-text-muted">
+                        No notifications yet.
+                      </p>
+                    ) : (
+                      <div className="max-h-80 space-y-3 overflow-y-auto">
+                        {notifications.map((notification) => (
+                          <button
+                            key={notification.id}
+                            type="button"
+                            onClick={() => {
+                              if (notification.targetUrl) {
+                                navigate(notification.targetUrl);
+                                setShowNotifications(false);
+                              }
+                            }}
+                            className={`w-full rounded-xl border p-3 text-left transition hover:bg-background ${
+                              notification.isRead
+                                ? "border-border-soft bg-background-light"
+                                : "border-primary/20 bg-primary/5"
+                            }`}
+                          >
+                            <p className="mt-2 text-[11px] text-text-muted">
+                              {new Date(
+                                notification.createdAt,
+                              ).toLocaleString()}
+                            </p>
+
+                            <p className="mt-1 text-xs text-text-muted">
+                              {notification.message}
+                            </p>
+                            <p className="mt-2 text-[11px] text-text-muted">
+                              {new Date(
+                                notification.createdAt,
+                              ).toLocaleString()}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <Tooltip title="My Bookings">
                   <IconButton
                     onClick={() => navigate("/bookings")}
                     aria-label="My bookings"
                     className="
-                      !h-11 !w-11
+                      !h-9 !w-9
                       !rounded-xl
                       !border !border-border-soft
                       !bg-background

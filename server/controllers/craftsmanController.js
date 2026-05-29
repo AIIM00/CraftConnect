@@ -1,5 +1,9 @@
 import prisma from "../src/prisma.js";
 import { assignNextCraftsman } from "../services/taskAssignmentService.js";
+import {
+  createNotification,
+  notifyAdmins,
+} from "../services/notificationsService.js";
 
 export const saveApplicationStep = async (req, res) => {
   const userId = req.user.id;
@@ -64,6 +68,11 @@ export const submitApplication = async (req, res) => {
         status: "SUBMITTED",
         step: 4,
       },
+    });
+    await notifyAdmins({
+      title: "New craftsman application",
+      message: "A craftsman submitted a new application for review.",
+      targetUrl: "/admin/craftsmen/applications",
     });
 
     res.json({
@@ -295,6 +304,9 @@ export const assignRejectTask = async (req, res) => {
           craftsmanId,
         },
       },
+      include: {
+        task: true,
+      },
     });
 
     if (!assignment) {
@@ -356,6 +368,13 @@ export const assignRejectTask = async (req, res) => {
             adminMessage: "Replacement craftsman accepted. Task transferred.",
           },
         });
+      });
+      await createNotification({
+        userId: assignment.task.customerId,
+        title: "Task accepted",
+        message: "A craftsman accepted your task and scheduled it.",
+        type: "TASK_UPDATE",
+        targetUrl: `/bookings/${taskId}`,
       });
 
       return res.json({
@@ -436,6 +455,13 @@ export const assignRejectTask = async (req, res) => {
           },
         });
       });
+      await createNotification({
+        userId: assignment.task.customerId,
+        title: "Task accepted",
+        message: "A craftsman accepted your task and scheduled it.",
+        type: "TASK_UPDATE",
+        targetUrl: `/bookings/${taskId}`,
+      });
 
       return res.json({
         message: "Task accepted and scheduled successfully",
@@ -459,7 +485,14 @@ export const assignRejectTask = async (req, res) => {
 
       try {
         const nextAssignment = await assignNextCraftsman(taskId);
-
+        await createNotification({
+          userId: assignment.task.customerId,
+          title: "Task reassigned",
+          message:
+            "A craftsman declined your task, so we are finding another craftsman.",
+          type: "TASK_UPDATE",
+          targetUrl: `/bookings/${taskId}`,
+        });
         return res.json({
           message: "Task rejected and reassigned",
           nextAssignment,
@@ -471,6 +504,20 @@ export const assignRejectTask = async (req, res) => {
             status: "UNASSIGNABLE",
             becameUnassignableAt: new Date(),
           },
+        });
+        await createNotification({
+          userId: assignment.task.customerId,
+          title: "Task needs admin review",
+          message:
+            "We could not find an available craftsman for your task yet.",
+          type: "TASK_UPDATE",
+          targetUrl: `/bookings/${taskId}`,
+        });
+
+        await notifyAdmins({
+          title: "Task became unassignable",
+          message: "A task could not be assigned to any available craftsman.",
+          targetUrl: "/admin/tasks",
         });
 
         return res.json({
@@ -817,6 +864,14 @@ export const completeTask = async (req, res) => {
         completedAt: new Date(),
       },
     });
+    await createNotification({
+      userId: task.customerId,
+      title: "Task completed",
+      message:
+        "Your task has been marked as completed. You can now leave a review.",
+      type: "TASK_UPDATE",
+      targetUrl: `/bookings/${taskId}`,
+    });
 
     res.json({
       success: true,
@@ -894,6 +949,11 @@ export const requestTaskWithdrawal = async (req, res) => {
         reason: reason || null,
         status: "PENDING_ADMIN",
       },
+    });
+    await notifyAdmins({
+      title: "New withdrawal request",
+      message: "A craftsman requested to withdraw from an assigned task.",
+      targetUrl: "/admin/reassignment-requests",
     });
 
     res.status(201).json({

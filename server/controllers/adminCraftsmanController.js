@@ -1,4 +1,5 @@
 import prisma from "../src/prisma.js";
+import { createNotification } from "../services/notificationsService.js";
 
 //GET ALL CRAFTSMEN DATA
 export const getAllCraftsmen = async (req, res) => {
@@ -185,6 +186,13 @@ export const updateApplicationStatus = async (req, res) => {
           data: { status: "SUSPENDED" },
         });
       }
+    });
+    await createNotification({
+      userId,
+      title: "Application status updated",
+      message: `Your craftsman application has been ${status.toLowerCase()}.`,
+      type: "APPLICATION_UPDATE",
+      targetUrl: "/craftsman/dashboard",
     });
 
     return res.json({

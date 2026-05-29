@@ -1,4 +1,5 @@
 import prisma from "../src/prisma.js";
+import { createNotification, notifyAdmins } from "./notificationsService.js";
 
 export const assignNextCraftsman = async (taskId) => {
   return await prisma.$transaction(async (tx) => {
@@ -100,6 +101,13 @@ export const assignNextCraftsman = async (taskId) => {
         craftsmanId: selectedCraftsman.userId,
         status: "PENDING",
       },
+    });
+    await createNotification({
+      userId: selectedCraftsman.userId,
+      title: "New task assigned",
+      message: `You received a new ${task.category.name} task request.`,
+      type: "TASK_UPDATE",
+      targetUrl: "/craftsman/tasks",
     });
 
     await tx.task.update({

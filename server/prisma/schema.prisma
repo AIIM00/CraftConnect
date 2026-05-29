@@ -7,28 +7,29 @@ datasource db {
 }
 
 model User {
-  id                String     @id @default(uuid())
+  id                String    @id @default(uuid())
   name              String
-  email             String     @unique
+  email             String    @unique
   password          String
   phoneNumber       String?
   role              Role
-  isDeleted Boolean   @default(false)
-deletedAt DateTime?
+  isDeleted         Boolean   @default(false)
+  deletedAt         DateTime?
   verifyOtp         String?
-  isAccountVerified Boolean    @default(false)
+  isAccountVerified Boolean   @default(false)
   resetOtp          String?
   resetOtpExpireAt  DateTime?
   verifyOtpExpireAt DateTime?
-  createdAt         DateTime   @default(now())
-  
-  //relations
-  craftsman         Craftsman?
-  location          Location?
+  createdAt         DateTime  @default(now())
 
-  tasks        Task[]
-  reviews      Review[]
-  adminInvites AdminInvite[]
+  //relations
+  craftsman Craftsman?
+  location  Location?
+
+  tasks         Task[]
+  reviews       Review[]
+  adminInvites  AdminInvite[]
+  notifications Notification[]
 
   sentWarnings                Warning[]                 @relation("AdminWarnings")
   applications                Application[]
@@ -383,6 +384,27 @@ model TaskImage {
   completion TaskCompletion @relation(fields: [taskCompletionId], references: [id])
 }
 
+model Notification {
+  id String @id @default(uuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  title     String
+  message   String
+  type      NotificationType
+  targetUrl String?
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([type])
+}
+
 enum Role {
   CUSTOMER
   CRAFTSMAN
@@ -426,4 +448,14 @@ enum ApplicationStatus {
   SUBMITTED
   APPROVED
   REJECTED
+}
+
+enum NotificationType {
+  ADMIN_UPDATE
+  USER_ALERT
+  CRAFTSMAN_ALERT
+  TASK_UPDATE
+  APPLICATION_UPDATE
+  WARNING
+  REASSIGNMENT
 }

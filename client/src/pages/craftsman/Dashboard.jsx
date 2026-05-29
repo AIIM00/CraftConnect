@@ -13,21 +13,20 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import StarIcon from "@mui/icons-material/Star";
 import HandymanIcon from "@mui/icons-material/Handyman";
+
+//Services
+import {
+  getMyNotifications,
+  getUnreadNotificationCount,
+  markAllNotificationsAsRead,
+} from "../../services/notificationApi";
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const {
-    backendUrl,
-    userData,
-    statusStyles,
-    availability,
-    availabilityLoading,
-    toggleCraftsmanAvailability,
-  } = React.useContext(AppContext);
+  const { backendUrl, userData, statusStyles } = React.useContext(AppContext);
 
   const [tasks, setTasks] = React.useState([]);
   const [counts, setCounts] = React.useState({
@@ -50,11 +49,10 @@ export default function Dashboard() {
     averageRating: 0,
   });
   const [reviewsLoading, setReviewsLoading] = React.useState(true);
-
-  const isAvailable =
-    userData?.craftsman?.isAvailable !== undefined
-      ? userData.craftsman.isAvailable
-      : availability;
+  //Notifications States
+  const [notifications, setNotifications] = React.useState([]);
+  const [unreadCount, setUnreadCount] = React.useState(0);
+  const [notificationsLoading, setNotificationsLoading] = React.useState(false);
 
   const fetchTasks = async () => {
     try {
@@ -99,9 +97,51 @@ export default function Dashboard() {
     }
   };
 
+  //Notifications Functions
+
+  const fetchNotifications = async () => {
+    try {
+      setNotificationsLoading(true);
+
+      const [items, count] = await Promise.all([
+        getMyNotifications(backendUrl),
+        getUnreadNotificationCount(backendUrl),
+      ]);
+
+      setNotifications(items);
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  const handleOpenNotification = (notification) => {
+    if (notification.targetUrl) {
+      navigate(notification.targetUrl);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsAsRead(backendUrl);
+      setUnreadCount(0);
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          isRead: true,
+        })),
+      );
+    } catch (error) {
+      console.error("Failed to mark notifications as read:", error);
+    }
+  };
+
   React.useEffect(() => {
     fetchTasks();
     fetchReviews();
+    fetchNotifications();
   }, [backendUrl]);
 
   const openTaskDetails = (task) => {
@@ -222,10 +262,12 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <AvailabilityCard
-            isAvailable={isAvailable}
-            availabilityLoading={availabilityLoading}
-            onToggle={toggleCraftsmanAvailability}
+          <NotificationsCard
+            notifications={notifications}
+            unreadCount={unreadCount}
+            notificationsLoading={notificationsLoading}
+            onOpenNotification={handleOpenNotification}
+            onMarkAllRead={handleMarkAllRead}
           />
         </div>
 
@@ -371,73 +413,100 @@ export default function Dashboard() {
   );
 }
 
-function AvailabilityCard({ isAvailable, availabilityLoading, onToggle }) {
+function NotificationsCard({
+  notifications,
+  unreadCount,
+  notificationsLoading,
+  onOpenNotification,
+  onMarkAllRead,
+}) {
+  const latestNotifications = notifications.slice(0, 4);
+
   return (
     <div className="rounded-3xl border border-border-soft bg-card-gradient p-5 shadow-card">
-      <div
-        className={`rounded-2xl border p-4 ${
-          isAvailable
-            ? "border-success/20 bg-success/10"
-            : "border-danger/20 bg-danger/10"
-        }`}
-      >
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span
-              className={`h-3 w-3 rounded-full ${
-                isAvailable ? "bg-success" : "bg-danger"
-              }`}
-            />
-
-            <p
-              className={`font-bold ${
-                isAvailable ? "text-success" : "text-danger"
-              }`}
-            >
-              {isAvailable ? "Online" : "Offline"}
-            </p>
-          </div>
-
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
-              isAvailable
-                ? "bg-success/10 text-success"
-                : "bg-danger/10 text-danger"
-            }`}
-          >
-            {isAvailable ? "Available" : "Unavailable"}
-          </span>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="font-heading text-lg font-bold text-primary">
+            Notifications
+          </p>
+          <p className="mt-1 text-sm text-text-muted">
+            Latest platform updates
+          </p>
         </div>
 
-        <p className="text-sm leading-6 text-text-muted">
-          {isAvailable
-            ? "You are available for new tasks."
-            : "You are currently not receiving new tasks."}
-        </p>
+        {unreadCount > 0 && (
+          <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-white">
+            {unreadCount > 9 ? "9+" : unreadCount} new
+          </span>
+        )}
       </div>
 
-      <Btn
-        type="button"
-        onClick={onToggle}
-        disabled={availabilityLoading}
-        variant={isAvailable ? "danger" : "success"}
-        fullWidth
-        className="mt-4 rounded-xl"
-      >
-        <PowerSettingsNewIcon fontSize="small" />
-        {availabilityLoading
-          ? "Updating..."
-          : isAvailable
-            ? "Go Offline"
-            : "Go Online"}
-      </Btn>
+      {notificationsLoading ? (
+        <p className="text-sm text-text-muted">Loading notifications...</p>
+      ) : latestNotifications.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border-soft bg-background-light p-5 text-center">
+          <p className="font-semibold text-text">No notifications yet</p>
+          <p className="mt-1 text-sm text-text-muted">
+            New task updates will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {latestNotifications.map((notification) => (
+            <button
+              key={notification.id}
+              type="button"
+              onClick={() => onOpenNotification(notification)}
+              className={`w-full rounded-2xl border p-4 text-left transition hover:bg-background ${
+                notification.isRead
+                  ? "border-border-soft bg-background-light"
+                  : "border-primary/20 bg-primary/5"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-bold text-text">
+                  {notification.title}
+                </p>
+
+                {!notification.isRead && (
+                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" />
+                )}
+              </div>
+
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-muted">
+                {notification.message}
+              </p>
+
+              <p className="mt-2 text-[11px] text-text-muted">
+                {new Date(notification.createdAt).toLocaleString()}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {notifications.length > 0 && (
+        <Btn
+          type="button"
+          variant="ghost"
+          fullWidth
+          onClick={onMarkAllRead}
+          className="mt-4 rounded-xl border border-border-soft bg-background"
+        >
+          Mark all as read
+        </Btn>
+      )}
     </div>
   );
 }
 
 function TaskRow({ task, statusStyles, onOpen }) {
   return (
-    <div className="rounded-2xl border border-border-soft bg-background p-4 shadow-soft transition hover:bg-background-light">
+    <button
+      type="button"
+      onClick={onOpen}
+      className="w-full rounded-2xl border border-border-soft bg-background p-4 text-left shadow-soft transition hover:bg-background-light"
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-start gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-gradient text-white shadow-card">
@@ -468,18 +537,10 @@ function TaskRow({ task, statusStyles, onOpen }) {
             {task.status}
           </span>
 
-          <Btn
-            type="button"
-            onClick={onOpen}
-            variant="soft"
-            iconOnly
-            aria-label="Open task details"
-          >
-            <ArrowForwardIosIcon fontSize="small" />
-          </Btn>
+          <ArrowForwardIosIcon fontSize="small" className="text-primary" />
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 

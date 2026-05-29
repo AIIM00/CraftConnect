@@ -1,4 +1,5 @@
 import prisma from "../src/prisma.js";
+import { createNotification } from "../services/notificationsService.js";
 
 //GET IN PROGRESS TASKS
 export const inProgressTasks = async (req, res) => {
@@ -258,6 +259,14 @@ export const createWarning = async (req, res) => {
         adminId,
         taskId,
       },
+    });
+    await createNotification({
+      userId: craftsmanId,
+      title: "New warning received",
+      message:
+        "You received a new admin warning. Please review your account status.",
+      type: "WARNING",
+      targetUrl: "/craftsman/dashboard",
     });
 
     const stats = await updateWarningLevel(craftsmanId);

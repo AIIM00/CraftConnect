@@ -60,7 +60,10 @@ const TasksDetails = ({
           </span>
         </InfoBlock>
 
-        <InfoBlock label="Service" icon={<HandymanOutlined fontSize="small" />}>
+        <InfoBlock
+          label="Service"
+          icon={<HandymanOutlinedIcon fontSize="small" />}
+        >
           <p className="text-sm font-semibold text-text">
             {task.service?.name || "No service"}
           </p>

@@ -1,5 +1,6 @@
 import prisma from "../src/prisma.js";
 import { assignNextCraftsman } from "../services/taskAssignmentService.js";
+import { createNotification } from "../services/notificationsService.js";
 
 export const getAdminTasks = async (req, res) => {
   try {
@@ -352,6 +353,20 @@ export const manuallyAssignTask = async (req, res) => {
         },
       });
     });
+    await createNotification({
+      userId: craftsmanId,
+      title: "New task assigned by admin",
+      message: "An admin manually assigned you a task request.",
+      type: "TASK_UPDATE",
+      targetUrl: "/craftsman/tasks",
+    });
+    await createNotification({
+      userId: task.customerId,
+      title: "Task assignment updated",
+      message: "An admin assigned a craftsman to your task.",
+      type: "TASK_UPDATE",
+      targetUrl: `/bookings/${taskId}`,
+    });
 
     res.json({
       success: true,
@@ -428,6 +443,21 @@ export const assignReplacementCraftsman = async (req, res) => {
           status: "PENDING_CRAFTSMAN",
         },
       });
+    });
+    await createNotification({
+      userId: newCraftsmanId,
+      title: "Replacement task request",
+      message: "You were selected as a replacement craftsman for a task.",
+      type: "REASSIGNMENT",
+      targetUrl: "/craftsman/tasks",
+    });
+
+    await createNotification({
+      userId: request.task.customerId,
+      title: "Task reassignment in progress",
+      message: "We are assigning a replacement craftsman for your task.",
+      type: "TASK_UPDATE",
+      targetUrl: `/bookings/${request.taskId}`,
     });
 
     res.json({
