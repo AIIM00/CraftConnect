@@ -373,7 +373,7 @@ const Login = () => {
                   type="submit"
                   variant="ghost"
                   disabled={loading}
-                  className="inline-flex w-full items-center justify-center rounded-xl bg-primary-gradient px-6 py-4 text-base font-semibold text-white shadow-card transition duration-300 hover:scale-[1.01] hover:shadow-elevated disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-primary-gradient px-6 py-4 text-base font-semibold text-white shadow-card transition duration-300 hover:scale-[1.01] hover:text-secondary disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading
                     ? isCreate

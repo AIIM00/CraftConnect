@@ -40,27 +40,6 @@ const Header = ({ id }) => {
             in your area. Fast, reliable, and hassle-free.
           </p>
 
-          <div className="mx-auto mt-8 flex max-w-xl flex-col gap-3 rounded-2xl border border-border-soft bg-background p-3 shadow-card sm:flex-row sm:items-center lg:mx-0">
-            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-background-dark px-4 py-3">
-              <SearchIcon className="text-text-muted" />
-
-              <input
-                type="text"
-                placeholder="Search for plumber, cleaner, carpenter..."
-                className="min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text-muted"
-              />
-            </div>
-
-            <Btn
-              type="button"
-              variant="ghost"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-primary-gradient px-6 text-sm font-semibold text-white shadow-card transition duration-300 hover:scale-[1.01] hover:shadow-elevated"
-            >
-              Search
-              <ArrowForwardIcon fontSize="small" />
-            </Btn>
-          </div>
-
           <div className="mt-8 grid grid-cols-2 gap-2 text-sm text-text-muted sm:grid-cols-2 lg:mt-12">
             {[
               {

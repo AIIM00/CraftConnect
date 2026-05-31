@@ -164,6 +164,14 @@ export const getUserBookings = async (req, res) => {
             },
           },
         },
+        reviews: {
+          where: {
+            userId: req.user.id,
+          },
+          select: {
+            id: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",

@@ -22,6 +22,24 @@ const TasksDetails = ({
   onScheduledDateChange,
 }) => {
   const { statusStyles } = React.useContext(AppContext);
+  const formatDateTime = (date) => {
+    if (!date) return "N/A";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "N/A";
+    }
+
+    return parsedDate.toLocaleString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border-soft bg-background shadow-card">
@@ -97,7 +115,7 @@ const TasksDetails = ({
 
         <InfoBlock label="Time" icon={<AccessTimeIcon fontSize="small" />}>
           <p className="text-sm font-medium text-text">
-            {task.assignedAt || task.createdAt || "N/A"}
+            {formatDateTime(task.assignedAt || task.createdAt) || "N/A"}
           </p>
         </InfoBlock>
 

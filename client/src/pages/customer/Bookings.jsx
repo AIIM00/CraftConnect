@@ -21,7 +21,6 @@ export default function Bookings() {
   const [bookings, setBookings] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [cancelLoadingId, setCancelLoadingId] = React.useState(null);
-
   React.useEffect(() => {
     fetchBookings();
   }, []);
@@ -188,7 +187,8 @@ function BookingCard({
   const status = booking.status;
 
   const canCancel = ["PENDING", "WAITING"].includes(status);
-  const canReview = status === "COMPLETED";
+  const alreadyReviewed = booking.reviews?.length > 0;
+  const canReview = status === "COMPLETED" && !alreadyReviewed;
 
   const craftsmanName = booking.craftsman?.user?.name;
   const craftsmanPhone = booking.craftsman?.user?.phoneNumber;

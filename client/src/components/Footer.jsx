@@ -123,10 +123,6 @@ export default function Footer() {
                 label: "Terms & Privacy",
                 path: "/terms-privacy",
               },
-              {
-                label: "Contact Support",
-                path: "/contact",
-              },
             ]}
           />
         </div>
@@ -136,7 +132,7 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} CraftConnect. All rights reserved.</p>
           <p className="text-sm text-text-muted">
             Designed and developed by
-            <span className="font-semibold text-primary"> ali & mohamad</span>
+            <span className="font-semibold text-secondary"> ali & mohamad</span>
           </p>
         </div>
       </div>

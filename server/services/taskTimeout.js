@@ -1,12 +1,12 @@
 import prisma from "../src/prisma.js";
 import { assignNextCraftsman } from "../services/taskAssignmentService.js";
 
-const ASSIGNMENT_TIMEOUT_MINUTES = 10;
+const ASSIGNMENT_TIMEOUT_HOURS = 12;
 
 export const processTimedOutAssignments = async () => {
   try {
     const timeoutDate = new Date(
-      Date.now() - ASSIGNMENT_TIMEOUT_MINUTES * 60 * 1000,
+      Date.now() - ASSIGNMENT_TIMEOUT_HOURS * 3600 * 1000,
     );
 
     const expiredAssignments = await prisma.taskAssignment.findMany({

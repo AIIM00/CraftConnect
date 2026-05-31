@@ -28,27 +28,6 @@ export default function ServicesPage({ id }) {
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
             Browse trusted craftsmen and home service experts by category.
           </p>
-
-          <div className="mx-auto mt-10 flex max-w-2xl flex-col gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 shadow-card backdrop-blur-sm sm:flex-row sm:items-center">
-            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white/10 px-4 py-3">
-              <SearchIcon className="text-white/70" />
-
-              <input
-                type="text"
-                placeholder="Search for plumber, cleaner, carpenter..."
-                className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/55"
-              />
-            </div>
-
-            <Btn
-              type="button"
-              variant="secondary"
-              className="min-h-[48px] rounded-xl px-6"
-            >
-              Search
-              <ArrowForwardIcon fontSize="small" />
-            </Btn>
-          </div>
         </div>
       </section>
 
