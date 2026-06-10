@@ -146,12 +146,12 @@ The system is designed around three main users:
 
 ## User Roles
 
-| Role | Description |
-|---|---|
-| `CUSTOMER` | Can browse services, book tasks, track bookings, and leave reviews. |
-| `CRAFTSMAN` | Can apply, receive tasks, accept/reject tasks, complete work, and manage availability. |
-| `ADMIN` | Can manage customers, craftsmen, applications, reviews, warnings, and tasks. |
-| `SUPERADMIN` | Has admin permissions and can invite/add new admins. |
+| Role         | Description                                                                            |
+| ------------ | -------------------------------------------------------------------------------------- |
+| `CUSTOMER`   | Can browse services, book tasks, track bookings, and leave reviews.                    |
+| `CRAFTSMAN`  | Can apply, receive tasks, accept/reject tasks, complete work, and manage availability. |
+| `ADMIN`      | Can manage customers, craftsmen, applications, reviews, warnings, and tasks.           |
+| `SUPERADMIN` | Has admin permissions and can invite/add new admins.                                   |
 
 ---
 
@@ -374,22 +374,22 @@ http://localhost:5173
 
 ### Client Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Starts the Vite development server. |
-| `npm run build` | Builds the frontend for production. |
-| `npm run preview` | Previews the production build. |
-| `npm run lint` | Runs ESLint checks. |
+| Command           | Description                         |
+| ----------------- | ----------------------------------- |
+| `npm run dev`     | Starts the Vite development server. |
+| `npm run build`   | Builds the frontend for production. |
+| `npm run preview` | Previews the production build.      |
+| `npm run lint`    | Runs ESLint checks.                 |
 
 ### Server Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Starts the Express server using Nodemon. |
-| `npm run start` | Starts the Express server using Node. |
-| `npm run dev:worker` | Starts the task timeout worker using Nodemon. |
-| `npm run start:worker` | Starts the task timeout worker using Node. |
-| `npm run prisma:seed` | Runs the Prisma seed file. |
+| Command                | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| `npm run dev`          | Starts the Express server using Nodemon.      |
+| `npm run start`        | Starts the Express server using Node.         |
+| `npm run dev:worker`   | Starts the task timeout worker using Nodemon. |
+| `npm run start:worker` | Starts the task timeout worker using Node.    |
+| `npm run prisma:seed`  | Runs the Prisma seed file.                    |
 
 ---
 
@@ -397,72 +397,72 @@ http://localhost:5173
 
 ### Auth Routes
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/auth/register` | Register a new user. |
-| `POST` | `/api/auth/login` | Login user. |
-| `POST` | `/api/auth/logout` | Logout user. |
-| `POST` | `/api/auth/send-verify-otp` | Send account verification OTP. |
-| `POST` | `/api/auth/verify-account` | Verify user account. |
-| `GET` | `/api/auth/is-auth` | Check authentication status. |
-| `POST` | `/api/auth/send-reset-otp` | Send password reset OTP. |
-| `POST` | `/api/auth/verify-reset-otp` | Verify password reset OTP. |
-| `POST` | `/api/auth/reset-password` | Reset password. |
+| Method | Endpoint                     | Description                    |
+| ------ | ---------------------------- | ------------------------------ |
+| `POST` | `/api/auth/register`         | Register a new user.           |
+| `POST` | `/api/auth/login`            | Login user.                    |
+| `POST` | `/api/auth/logout`           | Logout user.                   |
+| `POST` | `/api/auth/send-verify-otp`  | Send account verification OTP. |
+| `POST` | `/api/auth/verify-account`   | Verify user account.           |
+| `GET`  | `/api/auth/is-auth`          | Check authentication status.   |
+| `POST` | `/api/auth/send-reset-otp`   | Send password reset OTP.       |
+| `POST` | `/api/auth/verify-reset-otp` | Verify password reset OTP.     |
+| `POST` | `/api/auth/reset-password`   | Reset password.                |
 
 ### Customer/User Routes
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/user/services` | Browse available services. |
-| `POST` | `/api/user/book` | Book/post a task. |
-| `GET` | `/api/user/bookings` | Get customer bookings. |
-| `GET` | `/api/user/track/:taskId` | Track a task. |
-| `PATCH` | `/api/user/cancel/:taskId` | Cancel a booking. |
-| `POST` | `/api/user/review/:taskId` | Leave a review. |
-| `GET` | `/api/user/data` | Get user profile data. |
-| `PUT` | `/api/user/profile` | Update user profile. |
+| Method  | Endpoint                   | Description                |
+| ------- | -------------------------- | -------------------------- |
+| `GET`   | `/api/user/services`       | Browse available services. |
+| `POST`  | `/api/user/book`           | Book/post a task.          |
+| `GET`   | `/api/user/bookings`       | Get customer bookings.     |
+| `GET`   | `/api/user/track/:taskId`  | Track a task.              |
+| `PATCH` | `/api/user/cancel/:taskId` | Cancel a booking.          |
+| `POST`  | `/api/user/review/:taskId` | Leave a review.            |
+| `GET`   | `/api/user/data`           | Get user profile data.     |
+| `PUT`   | `/api/user/profile`        | Update user profile.       |
 
 ### Craftsman Routes
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/craftsman/applications/me` | Get current craftsman application. |
-| `POST` | `/api/craftsman/applications/save` | Save application step. |
-| `POST` | `/api/craftsman/applications/submit` | Submit application. |
-| `GET` | `/api/craftsman/dashboard` | Get craftsman dashboard data. |
-| `GET` | `/api/craftsman/tasks` | Get assigned tasks. |
-| `PATCH` | `/api/craftsman/tasks/:taskId/respond` | Accept or reject a task. |
-| `PATCH` | `/api/craftsman/tasks/:taskId/complete` | Complete a task. |
-| `GET` | `/api/craftsman/calendar-tasks` | Get calendar tasks. |
-| `PATCH` | `/api/craftsman/availability/toggle` | Toggle availability. |
-| `GET` | `/api/craftsman/reviews` | Get craftsman reviews. |
+| Method  | Endpoint                                | Description                        |
+| ------- | --------------------------------------- | ---------------------------------- |
+| `GET`   | `/api/craftsman/applications/me`        | Get current craftsman application. |
+| `POST`  | `/api/craftsman/applications/save`      | Save application step.             |
+| `POST`  | `/api/craftsman/applications/submit`    | Submit application.                |
+| `GET`   | `/api/craftsman/dashboard`              | Get craftsman dashboard data.      |
+| `GET`   | `/api/craftsman/tasks`                  | Get assigned tasks.                |
+| `PATCH` | `/api/craftsman/tasks/:taskId/respond`  | Accept or reject a task.           |
+| `PATCH` | `/api/craftsman/tasks/:taskId/complete` | Complete a task.                   |
+| `GET`   | `/api/craftsman/calendar-tasks`         | Get calendar tasks.                |
+| `PATCH` | `/api/craftsman/availability/toggle`    | Toggle availability.               |
+| `GET`   | `/api/craftsman/reviews`                | Get craftsman reviews.             |
 
 ### Admin Routes
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/admin/info` | Get admin dashboard information. |
-| `GET` | `/api/admin/customers` | Get all customers. |
-| `GET` | `/api/admin/craftsmen` | Get all craftsmen. |
-| `GET` | `/api/admin/craftsmen/applications` | Get craftsman applications. |
-| `PATCH` | `/api/admin/craftsmen/applications/:userId/status` | Approve or reject application. |
-| `GET` | `/api/admin/reviews` | Get all reviews. |
-| `GET` | `/api/admin/tasks` | Get all tasks. |
-| `PATCH` | `/api/admin/tasks/:taskId/retry` | Retry task assignment. |
-| `PATCH` | `/api/admin/tasks/:taskId/cancel` | Cancel a task. |
-| `PATCH` | `/api/admin/tasks/:taskId/manual-assign` | Manually assign task. |
-| `POST` | `/api/admin/warnings/:craftsmanId` | Send warning to craftsman. |
-| `DELETE` | `/api/admin/warnings/:warningId` | Remove warning. |
-| `POST` | `/api/admin/add-admin` | Invite/add admin. |
+| Method   | Endpoint                                           | Description                      |
+| -------- | -------------------------------------------------- | -------------------------------- |
+| `GET`    | `/api/admin/info`                                  | Get admin dashboard information. |
+| `GET`    | `/api/admin/customers`                             | Get all customers.               |
+| `GET`    | `/api/admin/craftsmen`                             | Get all craftsmen.               |
+| `GET`    | `/api/admin/craftsmen/applications`                | Get craftsman applications.      |
+| `PATCH`  | `/api/admin/craftsmen/applications/:userId/status` | Approve or reject application.   |
+| `GET`    | `/api/admin/reviews`                               | Get all reviews.                 |
+| `GET`    | `/api/admin/tasks`                                 | Get all tasks.                   |
+| `PATCH`  | `/api/admin/tasks/:taskId/retry`                   | Retry task assignment.           |
+| `PATCH`  | `/api/admin/tasks/:taskId/cancel`                  | Cancel a task.                   |
+| `PATCH`  | `/api/admin/tasks/:taskId/manual-assign`           | Manually assign task.            |
+| `POST`   | `/api/admin/warnings/:craftsmanId`                 | Send warning to craftsman.       |
+| `DELETE` | `/api/admin/warnings/:warningId`                   | Remove warning.                  |
+| `POST`   | `/api/admin/add-admin`                             | Invite/add admin.                |
 
 ### Notification Routes
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/notifications` | Get user notifications. |
-| `GET` | `/api/notifications/unread-count` | Get unread notification count. |
-| `PATCH` | `/api/notifications/:notificationId/read` | Mark notification as read. |
-| `PATCH` | `/api/notifications/mark-all-read` | Mark all notifications as read. |
+| Method  | Endpoint                                  | Description                     |
+| ------- | ----------------------------------------- | ------------------------------- |
+| `GET`   | `/api/notifications`                      | Get user notifications.         |
+| `GET`   | `/api/notifications/unread-count`         | Get unread notification count.  |
+| `PATCH` | `/api/notifications/:notificationId/read` | Mark notification as read.      |
+| `PATCH` | `/api/notifications/mark-all-read`        | Mark all notifications as read. |
 
 ---
 
@@ -547,7 +547,7 @@ Possible future improvements for the project:
 
 ## Author
 
-**Yussef Ibrahim**  
+**Ali Ibrahim**  
 Full-Stack Web Developer
 
 ---
