@@ -17,7 +17,7 @@ CraftConnect is a full-stack service marketplace platform that connects customer
 - [Available Scripts](#available-scripts)
 - [Main API Routes](#main-api-routes)
 - [Database Models](#database-models)
-- [Future Improvements](#future-improvements)
+- [Future Improvements](#future-improvements) -[Screenshots] (#Screenshots)
 - [Author](#author)
 
 ---
@@ -549,63 +549,63 @@ Possible future improvements for the project:
 
 ### Home Page
 
-![Home Page](screenshots\public\HomePage-Web.png)
+![Home Page](screenshots/public/HomePage-Web.png)
 
 ### Services Page
 
-![Services Page](screenshots\public\ServicesPage-Web.png)
+![Services Page](screenshots/public/ServicesPage-Web.png)
 
-### ServiceSelection Page
+### Service Selection Page
 
-![Service Selection Page](screenshots\public\ServiceSelection.png)
+![Service Selection Page](screenshots/public/ServiceSelection.png)
 
-### HowItWorks Page
+### How It Works Page
 
-![HowItWorks Page](screenshots\public\HowItWorksPage.png)
+![How It Works Page](screenshots/public/HowItWorksPage.png)
 
 ### Customer Booking
 
-![Book a Task](screenshots\customer\BookATaskPage.png)
+![Book a Task](screenshots/customer/BookATaskPage.png)
 
 ### Customer Bookings
 
-![My Bookings](screenshots\customer\MyBookingsPage.png)
+![My Bookings](screenshots/customer/MyBookingsPage.png)
 
 ### Profile Page
 
-![Profile Page](screenshots\customer\ProfilePage.png)
+![Profile Page](screenshots/customer/ProfilePage.png)
 
 ### Craftsman Dashboard
 
-![Craftsman Dashboard](screenshots\craftsman\CraftsmanDashboard.png)
+![Craftsman Dashboard](screenshots/craftsman/CraftsmanDashboard.png)
 
 ### Craftsman Tasks
 
-![Craftsman Tasks](screenshots\craftsman\Craftsman-MyTaskPage.png)
+![Craftsman Tasks](screenshots/craftsman/Craftsman-MyTaskPage.png)
 
 ### Craftsman Schedule
 
-![Craftsman Schedule](screenshots\craftsman\Craftsman-SchedulePage.png)
+![Craftsman Schedule](screenshots/craftsman/Craftsman-SchedulePage.png)
 
 ### Admin Dashboard
 
-![Admin Dashboard](screenshots\admin\AdminDashboardPage.png)
+![Admin Dashboard](screenshots/admin/AdminDashboardPage.png)
 
 ### Admin Applications
 
-![Admin Applications](screenshots\admin\Admin-CraftsmenApplicationsPage.png)
+![Admin Applications](screenshots/admin/Admin-CraftsmenApplicationsPage.png)
 
 ### Admin Tasks
 
-![Admin Tasks](screenshots\admin\Admin-TasksPage.png)
+![Admin Tasks](screenshots/admin/Admin-TasksPage.png)
 
 ### Admin Craftsmen Page
 
-![Admin Craftsmen Page](screenshots\admin\Admin-craftsmenpage.png)
+![Admin Craftsmen Page](screenshots/admin/Admin-craftsmenpage.png)
 
-### Admin CraftsmenProfile Page
+### Admin Craftsman Profile Page
 
-![Admin CraftsmanProfile](screenshots\admin\Admin-CraftsmanProfilePage.png)
+![Admin Craftsman Profile](screenshots/admin/Admin-CraftsmanProfilePage.png)
 
 ## Author
 
