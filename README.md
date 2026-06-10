@@ -545,6 +545,68 @@ Possible future improvements for the project:
 
 ---
 
+## Screenshots
+
+### Home Page
+
+![Home Page](screenshots\public\HomePage-Web.png)
+
+### Services Page
+
+![Services Page](screenshots\public\ServicesPage-Web.png)
+
+### ServiceSelection Page
+
+![Service Selection Page](screenshots\public\ServiceSelection.png)
+
+### HowItWorks Page
+
+![HowItWorks Page](screenshots\public\HowItWorksPage.png)
+
+### Customer Booking
+
+![Book a Task](screenshots\customer\BookATaskPage.png)
+
+### Customer Bookings
+
+![My Bookings](screenshots\customer\MyBookingsPage.png)
+
+### Profile Page
+
+![Profile Page](screenshots\customer\ProfilePage.png)
+
+### Craftsman Dashboard
+
+![Craftsman Dashboard](screenshots\craftsman\CraftsmanDashboard.png)
+
+### Craftsman Tasks
+
+![Craftsman Tasks](screenshots\craftsman\Craftsman-MyTaskPage.png)
+
+### Craftsman Schedule
+
+![Craftsman Schedule](screenshots\craftsman\Craftsman-SchedulePage.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](screenshots\admin\AdminDashboardPage.png)
+
+### Admin Applications
+
+![Admin Applications](screenshots\admin\Admin-CraftsmenApplicationsPage.png)
+
+### Admin Tasks
+
+![Admin Tasks](screenshots\admin\Admin-TasksPage.png)
+
+### Admin Craftsmen Page
+
+![Admin Craftsmen Page](screenshots\admin\Admin-craftsmenpage.png)
+
+### Admin CraftsmenProfile Page
+
+![Admin CraftsmanProfile](screenshots\admin\Admin-CraftsmanProfilePage.png)
+
 ## Author
 
 **Ali Ibrahim**  
