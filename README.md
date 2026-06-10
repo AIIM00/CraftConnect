@@ -19,6 +19,7 @@ CraftConnect is a full-stack service marketplace platform that connects customer
 - [Database Models](#database-models)
 - [Future Improvements](#future-improvements)
 - [Screenshots](#screenshots)
+- [Video Demo](#video-demo)
 - [Author](#author)
 
 ---
@@ -607,6 +608,12 @@ Possible future improvements for the project:
 ### Admin Craftsman Profile Page
 
 ![Admin Craftsman Profile](screenshots/admin/Admin-CraftsmanProfilePage.png)
+
+## Demo Video
+
+[![CraftConnect Demo](screenshots/public/HomePage-Web.png)](https://youtu.be/5iuiE-Yfw5E)
+
+A 7-minute walkthrough explaining the main features of CraftConnect, including customer booking, craftsman task management, automatic assignment, notifications, reviews, and admin moderation.
 
 ## Author
 
