@@ -19,7 +19,7 @@ CraftConnect is a full-stack service marketplace platform that connects customer
 - [Database Models](#database-models)
 - [Future Improvements](#future-improvements)
 - [Screenshots](#screenshots)
-- [Demo Video](#video-demo)
+- [Demo Video](#demo-video)
 - [Author](#author)
 
 ---
